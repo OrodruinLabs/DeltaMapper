@@ -3,8 +3,7 @@
 ## Description
 Create the custom exception type `DeltaMapperException` in the Exceptions directory. The exception must always include source type name, destination type name, and a resolution hint in the message. Provide constructors for standard exception patterns (message, inner exception). Include XML doc comments on all public members.
 
-## Status
-DONE
+## Status: DONE
 
 ## Metadata
 - **Task ID**: TASK-002

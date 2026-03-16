@@ -3,8 +3,7 @@
 ## Description
 Add comprehensive tests for circular reference detection via MapperContext. Verify that direct circular references (A->B->A), self-referencing nodes, and deep circular chains (A->B->C->A) complete without StackOverflowException. Verify that previously mapped instances are reused (reference identity preserved in the mapped graph).
 
-## Status
-DONE
+## Status: DONE
 
 ## Metadata
 - **Task ID**: TASK-012

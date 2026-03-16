@@ -3,8 +3,7 @@
 ## Description
 Create the `MappingProfile` abstract base class with `CreateMap<TSrc, TDst>()` returning `IMappingExpression<TSrc, TDst>`. Create `IMappingExpression<TSrc, TDst>` fluent interface with ForMember, BeforeMap, AfterMap, ReverseMap methods. Create `IMemberOptions<TSrc, TDst>` with MapFrom, Ignore, NullSubstitute. Create internal `MappingExpression<TSrc, TDst>` implementation and `MemberConfiguration` storage. Create internal `TypeMapConfiguration` to hold all configuration for a type pair.
 
-## Status
-DONE
+## Status: DONE
 
 ## Metadata
 - **Task ID**: TASK-005

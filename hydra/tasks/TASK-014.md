@@ -3,8 +3,7 @@
 ## Description
 Add remaining test coverage: non-generic Map(object, Type, Type) overload tests, inferred-source Map<TDest>(object) tests, existing destination mapping tests (update properties on existing object, preserve unmapped, apply ForMember), and error handling tests (missing mapping throws DeltaMapperException with type names and resolution hint, null source throws ArgumentNullException).
 
-## Status
-DONE
+## Status: DONE
 
 ## Metadata
 - **Task ID**: TASK-014

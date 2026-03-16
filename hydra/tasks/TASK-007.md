@@ -3,8 +3,7 @@
 ## Description
 Create `MapperConfigurationBuilder` with `AddProfile<TProfile>()`, `AddProfile(MappingProfile)`, `Use<TMiddleware>()`, and `Build()` methods. Create `MapperConfiguration` with static `Create()` factory, expression tree compilation engine, FrozenDictionary registry, `Execute()` method, and `CreateMapper()`. The compilation engine must: match destination properties to source by convention (case-insensitive name matching, assignable types), apply ForMember overrides, build Expression<Func<object, object?, MapperContext, object>> per type pair, compile to delegates, and store in FrozenDictionary<(Type,Type), CompiledMap>.
 
-## Status
-DONE
+## Status: DONE
 
 ## Metadata
 - **Task ID**: TASK-007

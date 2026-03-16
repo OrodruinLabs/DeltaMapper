@@ -3,8 +3,7 @@
 ## Description
 Add comprehensive tests for ForMember with MapFrom (custom resolvers), ForMember with Ignore, ForMember with NullSubstitute, BeforeMap/AfterMap hooks, and ReverseMap. These test the fluent API end-to-end through the full mapping pipeline. Requires test profiles that exercise each feature.
 
-## Status
-DONE
+## Status: DONE
 
 ## Metadata
 - **Task ID**: TASK-009

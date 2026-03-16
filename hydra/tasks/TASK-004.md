@@ -3,8 +3,7 @@
 ## Description
 Create the `IMapper` public interface with all 5 overloads (inferred-source generic, explicit generic, existing-destination, list projection, non-generic). Create the `MapperContext` sealed class with circular reference tracking using `ReferenceEqualityComparer.Instance` and a `Dictionary<object, object>` for visited objects. MapperContext is internal with internal constructor, TryGetMapped, and Register methods.
 
-## Status
-DONE
+## Status: DONE
 
 ## Metadata
 - **Task ID**: TASK-004

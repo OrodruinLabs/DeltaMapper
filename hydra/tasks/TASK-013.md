@@ -3,8 +3,7 @@
 ## Description
 Create `ServiceCollectionExtensions` with `AddDeltaMapper(this IServiceCollection, Action<MapperConfigurationBuilder>)` extension method. Registers `MapperConfiguration` as singleton (immutable, thread-safe) and `IMapper` as singleton (stateless, MapperContext is per-call). Add comprehensive DI integration tests.
 
-## Status
-DONE
+## Status: DONE
 
 ## Metadata
 - **Task ID**: TASK-013

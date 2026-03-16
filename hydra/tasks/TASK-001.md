@@ -3,8 +3,7 @@
 ## Description
 Create the .NET solution file, DeltaMapper.Core project (net8.0;net9.0 multi-target), and DeltaMapper.UnitTests project (net9.0). Configure all MSBuild properties: nullable enable, ImplicitUsings enable, LangVersion latest, RootNamespace DeltaMapper, GeneratePackageOnBuild. Add NuGet package references for test project (xunit, FluentAssertions, Microsoft.NET.Test.Sdk, xunit.runner.visualstudio, Microsoft.Extensions.DependencyInjection). Add DI abstractions reference to Core project.
 
-## Status
-DONE
+## Status: DONE
 
 ## Metadata
 - **Task ID**: TASK-001

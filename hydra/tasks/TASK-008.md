@@ -3,8 +3,7 @@
 ## Description
 Create the `Mapper` sealed class implementing `IMapper`. Each Map() call creates a fresh MapperContext, delegates to MapperConfiguration.Execute(), and casts the result. MapList iterates source, calls Map per element, returns pre-sized List<TDestination>. Add convention mapping tests for flat POCO mapping (same name/same type, case-insensitive, assignable types, unmapped property stays default, null source property).
 
-## Status
-DONE
+## Status: DONE
 
 ## Metadata
 - **Task ID**: TASK-008
