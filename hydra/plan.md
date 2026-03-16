@@ -11,159 +11,53 @@ Implement DeltaMapper Phase 1 — Runtime Core: project setup, core interfaces, 
 - [x] Documents generated: TRD, test-plan
 
 ## Status Summary
-<!-- Auto-updated by agents after each state transition.
-     The stop hook and session-context hook read this section for quick state assessment.
-     Every agent that changes task state MUST update these counters. -->
 - Total tasks: 14
-- DONE: 3 | READY: 3 | IN_PROGRESS: 0 | IN_REVIEW: 0 | CHANGES_REQUESTED: 0 | BLOCKED: 0 | PLANNED: 8
-- Current iteration: 1/40
-- Active task: Wave 2 (TASK-004, TASK-005, TASK-006)
+- DONE: 14 | READY: 0 | IN_PROGRESS: 0 | IN_REVIEW: 0 | CHANGES_REQUESTED: 0 | BLOCKED: 0 | PLANNED: 0
+- Current iteration: 6/40
+- Active task: none — ALL TASKS COMPLETE
 
 ## Wave Groups
 
-### Wave 1
-- TASK-001, TASK-002, TASK-003 (independent, no file overlap — foundational setup)
+### Wave 1 — COMPLETE
+- [x] TASK-001, TASK-002, TASK-003
 
-### Wave 2
-- TASK-004, TASK-005, TASK-006 (depend on TASK-001, no file overlap with each other)
+### Wave 2 — COMPLETE
+- [x] TASK-004, TASK-005, TASK-006
 
-### Wave 3
-- TASK-007 (depends on TASK-004, TASK-005, TASK-006 — compilation engine needs all interfaces)
+### Wave 3 — COMPLETE
+- [x] TASK-007
 
-### Wave 4
-- TASK-008, TASK-009 (depend on TASK-007, no file overlap — Mapper executor + fluent API tests)
+### Wave 4 — COMPLETE
+- [x] TASK-008, TASK-009
 
-### Wave 5
-- TASK-010, TASK-011, TASK-012 (depend on TASK-008, no file overlap — advanced mapping features + tests)
+### Wave 5 — COMPLETE
+- [x] TASK-010, TASK-011, TASK-012
 
-### Wave 6
-- TASK-013, TASK-014 (depend on TASK-008, no file overlap — DI integration + remaining test coverage)
-
-## Parallel Groups
-
-### Group 1
-- [x] TASK-001: Solution and Project Files Setup -> DONE
-- [x] TASK-002: DeltaMapperException -> DONE
-- [x] TASK-003: Shared Test Models -> DONE
-
-### Group 2
-- [ ] TASK-004: IMapper Interface and MapperContext (files: src/DeltaMapper.Core/IMapper.cs, src/DeltaMapper.Core/MapperContext.cs, tests/DeltaMapper.UnitTests/MapperContextTests.cs) -> READY
-- [ ] TASK-005: MappingProfile and MappingExpression Fluent API (files: src/DeltaMapper.Core/MappingProfile.cs, src/DeltaMapper.Core/MappingExpression.cs, tests/DeltaMapper.UnitTests/MappingProfileTests.cs) -> READY
-- [ ] TASK-006: Middleware Pipeline Stubs (files: src/DeltaMapper.Core/Middleware/IMappingMiddleware.cs, src/DeltaMapper.Core/Middleware/MappingPipeline.cs, tests/DeltaMapper.UnitTests/MiddlewarePipelineTests.cs) -> READY
-
-### Group 3
-- [ ] TASK-007: MapperConfiguration and MapperConfigurationBuilder (files: src/DeltaMapper.Core/MapperConfiguration.cs, src/DeltaMapper.Core/MapperConfigurationBuilder.cs, tests/DeltaMapper.UnitTests/MapperConfigurationTests.cs) -> PLANNED
-
-### Group 4
-- [ ] TASK-008: Mapper Runtime Executor and Convention Mapping Tests (files: src/DeltaMapper.Core/Mapper.cs, tests/DeltaMapper.UnitTests/ConventionMappingTests.cs) -> PLANNED
-- [ ] TASK-009: ForMember Resolvers, Hooks, and ReverseMap Tests (files: tests/DeltaMapper.UnitTests/ForMemberTests.cs, tests/DeltaMapper.UnitTests/MappingHooksTests.cs, tests/DeltaMapper.UnitTests/ReverseMapTests.cs) -> PLANNED
-
-### Group 5
-- [ ] TASK-010: Record and Init-Only Property Support (files: src/DeltaMapper.Core/MapperConfiguration.cs, tests/DeltaMapper.UnitTests/RecordMappingTests.cs) -> PLANNED
-- [ ] TASK-011: Collection Mapping and Nested Object Mapping Tests (files: tests/DeltaMapper.UnitTests/CollectionMappingTests.cs, tests/DeltaMapper.UnitTests/NestedMappingTests.cs) -> PLANNED
-- [ ] TASK-012: Circular Reference Detection Tests (files: tests/DeltaMapper.UnitTests/CircularReferenceTests.cs) -> PLANNED
-
-### Group 6
-- [ ] TASK-013: DI Integration (files: src/DeltaMapper.Core/ServiceCollectionExtensions.cs, tests/DeltaMapper.UnitTests/DependencyInjectionTests.cs) -> PLANNED
-- [ ] TASK-014: Non-Generic Map, Existing Destination, Error Handling Tests (files: tests/DeltaMapper.UnitTests/NonGenericMapTests.cs, tests/DeltaMapper.UnitTests/ExistingDestinationTests.cs, tests/DeltaMapper.UnitTests/ErrorHandlingTests.cs) -> PLANNED
-
-## Tasks
-
-### TASK-001: Solution and Project Files Setup
-- **Status**: DONE
-- **Group**: 1
-- **Depends on**: none
-- **Manifest**: hydra/tasks/TASK-001.md
-
-### TASK-002: DeltaMapperException Custom Exception
-- **Status**: DONE
-- **Group**: 1
-- **Depends on**: none
-- **Manifest**: hydra/tasks/TASK-002.md
-
-### TASK-003: Shared Test Models
-- **Status**: DONE
-- **Group**: 1
-- **Depends on**: none
-- **Manifest**: hydra/tasks/TASK-003.md
-
-### TASK-004: IMapper Interface and MapperContext
-- **Status**: READY
-- **Group**: 2
-- **Depends on**: TASK-001
-- **Manifest**: hydra/tasks/TASK-004.md
-
-### TASK-005: MappingProfile and MappingExpression Fluent API
-- **Status**: READY
-- **Group**: 2
-- **Depends on**: TASK-001
-- **Manifest**: hydra/tasks/TASK-005.md
-
-### TASK-006: Middleware Pipeline Stubs
-- **Status**: READY
-- **Group**: 2
-- **Depends on**: TASK-001
-- **Manifest**: hydra/tasks/TASK-006.md
-
-### TASK-007: MapperConfiguration and MapperConfigurationBuilder
-- **Status**: PLANNED
-- **Group**: 3
-- **Depends on**: TASK-004, TASK-005, TASK-006
-- **Manifest**: hydra/tasks/TASK-007.md
-
-### TASK-008: Mapper Runtime Executor and Convention Mapping Tests
-- **Status**: PLANNED
-- **Group**: 4
-- **Depends on**: TASK-007
-- **Manifest**: hydra/tasks/TASK-008.md
-
-### TASK-009: ForMember Resolvers, Hooks, and ReverseMap Tests
-- **Status**: PLANNED
-- **Group**: 4
-- **Depends on**: TASK-007
-- **Manifest**: hydra/tasks/TASK-009.md
-
-### TASK-010: Record and Init-Only Property Support
-- **Status**: PLANNED
-- **Group**: 5
-- **Depends on**: TASK-008
-- **Manifest**: hydra/tasks/TASK-010.md
-
-### TASK-011: Collection Mapping and Nested Object Mapping Tests
-- **Status**: PLANNED
-- **Group**: 5
-- **Depends on**: TASK-008
-- **Manifest**: hydra/tasks/TASK-011.md
-
-### TASK-012: Circular Reference Detection Tests
-- **Status**: PLANNED
-- **Group**: 5
-- **Depends on**: TASK-008
-- **Manifest**: hydra/tasks/TASK-012.md
-
-### TASK-013: DI Integration (ServiceCollectionExtensions)
-- **Status**: PLANNED
-- **Group**: 6
-- **Depends on**: TASK-008
-- **Manifest**: hydra/tasks/TASK-013.md
-
-### TASK-014: Non-Generic Map, Existing Destination, Error Handling Tests
-- **Status**: PLANNED
-- **Group**: 6
-- **Depends on**: TASK-008
-- **Manifest**: hydra/tasks/TASK-014.md
+### Wave 6 — COMPLETE
+- [x] TASK-013, TASK-014
 
 ## Completed
 - [x] TASK-001: Solution and Project Files Setup -> DONE (sha: 0387b24)
 - [x] TASK-002: DeltaMapperException Custom Exception -> DONE (sha: 0387b24)
 - [x] TASK-003: Shared Test Models -> DONE (sha: 0387b24)
+- [x] TASK-004: IMapper Interface and MapperContext -> DONE (sha: 7dbf5af)
+- [x] TASK-005: MappingProfile and MappingExpression Fluent API -> DONE (sha: 7dbf5af)
+- [x] TASK-006: Middleware Pipeline Stubs -> DONE (sha: 7dbf5af)
+- [x] TASK-007: MapperConfiguration and MapperConfigurationBuilder -> DONE (sha: ef20851)
+- [x] TASK-008: Mapper Runtime Executor and Convention Mapping Tests -> DONE (sha: 79adae1)
+- [x] TASK-009: ForMember Resolvers, Hooks, and ReverseMap Tests -> DONE (sha: 79adae1)
+- [x] TASK-010: Record and Init-Only Property Support -> DONE (sha: 87968d1)
+- [x] TASK-011: Collection Mapping and Nested Object Mapping Tests -> DONE (sha: 87968d1)
+- [x] TASK-012: Circular Reference Detection Tests -> DONE (sha: 87968d1)
+- [x] TASK-013: DI Integration (ServiceCollectionExtensions) -> DONE (sha: 876a22e)
+- [x] TASK-014: Non-Generic Map, Existing Destination, Error Handling Tests -> DONE (sha: 876a22e)
 
 ## Blocked
-<!-- Tasks that hit max retries, have unresolvable issues, or require human intervention. -->
+(none)
 
 ## Recovery Pointer
-- **Current Task:** Wave 2 (TASK-004, TASK-005, TASK-006)
-- **Last Action:** Wave 1 complete — 3 tasks DONE, build verified, tests passing (5)
-- **Next Action:** Implement Wave 2 in parallel (IMapper, MappingProfile, Middleware stubs)
-- **Last Checkpoint:** hydra/checkpoints/iteration-002.json
-- **Last Commit:** 0387b24
+- **Current Task:** none — OBJECTIVE COMPLETE
+- **Last Action:** Wave 6 complete — all 14 tasks DONE, 79 tests passing, 0 warnings
+- **Next Action:** Post-loop agents (documentation, release-manager), then HYDRA_COMPLETE
+- **Last Checkpoint:** n/a
+- **Last Commit:** 876a22e
