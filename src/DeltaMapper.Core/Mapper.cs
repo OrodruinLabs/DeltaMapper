@@ -2,7 +2,7 @@ namespace DeltaMapper;
 
 /// <summary>
 /// Runtime mapper that executes compiled mapping delegates.
-/// Created via MapperConfiguration.CreateMapper(). TASK-008 will expand this.
+/// Created via MapperConfiguration.CreateMapper().
 /// </summary>
 public sealed class Mapper : IMapper
 {
@@ -44,7 +44,9 @@ public sealed class Mapper : IMapper
         var result = new List<TDestination>(sourceList.Count);
         foreach (var item in sourceList)
         {
-            result.Add((TDestination)_config.Execute(item!, typeof(TSource), typeof(TDestination), ctx));
+            if (item is null)
+                throw new ArgumentNullException(nameof(source), "Source enumerable contains a null element.");
+            result.Add((TDestination)_config.Execute(item, typeof(TSource), typeof(TDestination), ctx));
         }
         return result;
     }
@@ -53,6 +55,8 @@ public sealed class Mapper : IMapper
     public object Map(object source, Type sourceType, Type destinationType)
     {
         ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(sourceType);
+        ArgumentNullException.ThrowIfNull(destinationType);
         var ctx = new MapperContext(_config);
         return _config.Execute(source, sourceType, destinationType, ctx);
     }

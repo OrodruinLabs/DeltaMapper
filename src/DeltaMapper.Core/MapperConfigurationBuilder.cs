@@ -193,7 +193,11 @@ public sealed class MapperConfigurationBuilder
                     var items = new List<object>();
                     foreach (var item in enumerable)
                     {
-                        if (item == null) continue;
+                        if (item == null)
+                        {
+                            items.Add(null!);
+                            continue;
+                        }
                         // If element types are directly assignable, no mapping needed
                         if (IsDirectlyAssignable(srcElem, dstElem))
                         {
@@ -320,7 +324,7 @@ public sealed class MapperConfigurationBuilder
                 }
                 else
                 {
-                    var defaultValue = param.DefaultValue;
+                    var defaultValue = param.HasDefaultValue ? param.DefaultValue : (param.ParameterType.IsValueType ? Activator.CreateInstance(param.ParameterType) : null);
                     paramResolvers.Add((src, ctx) => defaultValue);
                 }
             }

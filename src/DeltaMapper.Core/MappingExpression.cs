@@ -99,7 +99,11 @@ internal sealed class MappingExpression<TSrc, TDst> : IMappingExpression<TSrc, T
 
     private static string GetMemberName<TMember>(Expression<Func<TDst, TMember>> expression)
     {
-        if (expression.Body is MemberExpression memberExpression)
+        var body = expression.Body;
+        // Handle UnaryExpression (Convert) wrapping value-type member access
+        if (body is UnaryExpression unary && unary.NodeType == ExpressionType.Convert)
+            body = unary.Operand;
+        if (body is MemberExpression memberExpression)
             return memberExpression.Member.Name;
         throw new ArgumentException("Expression must be a member access expression (e.g., d => d.PropertyName).");
     }

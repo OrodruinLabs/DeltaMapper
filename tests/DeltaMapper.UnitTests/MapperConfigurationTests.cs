@@ -26,7 +26,8 @@ public class DuplicateUserProfile : MappingProfile
 {
     public DuplicateUserProfile()
     {
-        CreateMap<User, UserDto>();
+        CreateMap<User, UserDto>()
+            .ForMember(d => d.FirstName, o => o.MapFrom(s => s.FirstName.ToUpperInvariant()));
     }
 }
 
@@ -77,9 +78,11 @@ public class MapperConfigurationTests
             cfg.AddProfile(new DuplicateUserProfile());
         });
 
-        // Should not throw — last registration wins
+        // Last registration wins — DuplicateUserProfile uppercases FirstName
         var mapper = config.CreateMapper();
-        mapper.Should().NotBeNull();
+        var user = new User { Id = 1, FirstName = "John", LastName = "Doe", Email = "test@test.com", Age = 30 };
+        var dto = mapper.Map<User, UserDto>(user);
+        dto.FirstName.Should().Be("JOHN", "the second profile (which uppercases) should win");
     }
 
     [Fact]

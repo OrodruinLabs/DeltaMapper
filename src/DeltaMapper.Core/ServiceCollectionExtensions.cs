@@ -14,6 +14,8 @@ public static class ServiceCollectionExtensions
         this IServiceCollection services,
         Action<MapperConfigurationBuilder> configure)
     {
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(configure);
         var builder = new MapperConfigurationBuilder();
         configure(builder);
         var config = builder.Build();

@@ -12,7 +12,7 @@
     }
   ],
   "max_iterations": 40,
-  "current_iteration": 8,
+  "current_iteration": 10,
   "paused": false,
   "completion_promise": "HYDRA_COMPLETE",
   "task_file": "hydra/plan.md",
@@ -111,8 +111,8 @@
     "block_destructive_commands": true,
     "require_tests_pass_before_review": true,
     "max_consecutive_failures": 5,
-    "consecutive_failures": 2,
-    "_prev_done_count": 0
+    "consecutive_failures": 1,
+    "_prev_done_count": 14
   },
   "branch": {
     "feature": "feat/FEAT-001-runtime-core",
