@@ -15,9 +15,9 @@ Implement DeltaMapper Phase 1 — Runtime Core: project setup, core interfaces, 
      The stop hook and session-context hook read this section for quick state assessment.
      Every agent that changes task state MUST update these counters. -->
 - Total tasks: 14
-- DONE: 0 | READY: 3 | IN_PROGRESS: 0 | IN_REVIEW: 0 | CHANGES_REQUESTED: 0 | BLOCKED: 0 | PLANNED: 11
-- Current iteration: 0/40
-- Active task: none
+- DONE: 3 | READY: 3 | IN_PROGRESS: 0 | IN_REVIEW: 0 | CHANGES_REQUESTED: 0 | BLOCKED: 0 | PLANNED: 8
+- Current iteration: 1/40
+- Active task: Wave 2 (TASK-004, TASK-005, TASK-006)
 
 ## Wave Groups
 
@@ -42,14 +42,14 @@ Implement DeltaMapper Phase 1 — Runtime Core: project setup, core interfaces, 
 ## Parallel Groups
 
 ### Group 1
-- [ ] TASK-001: Solution and Project Files Setup (files: DeltaMapper.sln, src/DeltaMapper.Core/DeltaMapper.Core.csproj, tests/DeltaMapper.UnitTests/DeltaMapper.UnitTests.csproj) -> READY
-- [ ] TASK-002: DeltaMapperException (files: src/DeltaMapper.Core/Exceptions/DeltaMapperException.cs, tests/DeltaMapper.UnitTests/ErrorHandlingTests.cs) -> READY
-- [ ] TASK-003: Shared Test Models (files: tests/DeltaMapper.UnitTests/TestModels/*.cs) -> READY
+- [x] TASK-001: Solution and Project Files Setup -> DONE
+- [x] TASK-002: DeltaMapperException -> DONE
+- [x] TASK-003: Shared Test Models -> DONE
 
 ### Group 2
-- [ ] TASK-004: IMapper Interface and MapperContext (files: src/DeltaMapper.Core/IMapper.cs, src/DeltaMapper.Core/MapperContext.cs, tests/DeltaMapper.UnitTests/MapperContextTests.cs) -> PLANNED
-- [ ] TASK-005: MappingProfile and MappingExpression Fluent API (files: src/DeltaMapper.Core/MappingProfile.cs, src/DeltaMapper.Core/MappingExpression.cs, tests/DeltaMapper.UnitTests/MappingProfileTests.cs) -> PLANNED
-- [ ] TASK-006: Middleware Pipeline Stubs (files: src/DeltaMapper.Core/Middleware/IMappingMiddleware.cs, src/DeltaMapper.Core/Middleware/MappingPipeline.cs, tests/DeltaMapper.UnitTests/MiddlewarePipelineTests.cs) -> PLANNED
+- [ ] TASK-004: IMapper Interface and MapperContext (files: src/DeltaMapper.Core/IMapper.cs, src/DeltaMapper.Core/MapperContext.cs, tests/DeltaMapper.UnitTests/MapperContextTests.cs) -> READY
+- [ ] TASK-005: MappingProfile and MappingExpression Fluent API (files: src/DeltaMapper.Core/MappingProfile.cs, src/DeltaMapper.Core/MappingExpression.cs, tests/DeltaMapper.UnitTests/MappingProfileTests.cs) -> READY
+- [ ] TASK-006: Middleware Pipeline Stubs (files: src/DeltaMapper.Core/Middleware/IMappingMiddleware.cs, src/DeltaMapper.Core/Middleware/MappingPipeline.cs, tests/DeltaMapper.UnitTests/MiddlewarePipelineTests.cs) -> READY
 
 ### Group 3
 - [ ] TASK-007: MapperConfiguration and MapperConfigurationBuilder (files: src/DeltaMapper.Core/MapperConfiguration.cs, src/DeltaMapper.Core/MapperConfigurationBuilder.cs, tests/DeltaMapper.UnitTests/MapperConfigurationTests.cs) -> PLANNED
@@ -70,37 +70,37 @@ Implement DeltaMapper Phase 1 — Runtime Core: project setup, core interfaces, 
 ## Tasks
 
 ### TASK-001: Solution and Project Files Setup
-- **Status**: READY
+- **Status**: DONE
 - **Group**: 1
 - **Depends on**: none
 - **Manifest**: hydra/tasks/TASK-001.md
 
 ### TASK-002: DeltaMapperException Custom Exception
-- **Status**: READY
+- **Status**: DONE
 - **Group**: 1
 - **Depends on**: none
 - **Manifest**: hydra/tasks/TASK-002.md
 
 ### TASK-003: Shared Test Models
-- **Status**: READY
+- **Status**: DONE
 - **Group**: 1
 - **Depends on**: none
 - **Manifest**: hydra/tasks/TASK-003.md
 
 ### TASK-004: IMapper Interface and MapperContext
-- **Status**: PLANNED
+- **Status**: READY
 - **Group**: 2
 - **Depends on**: TASK-001
 - **Manifest**: hydra/tasks/TASK-004.md
 
 ### TASK-005: MappingProfile and MappingExpression Fluent API
-- **Status**: PLANNED
+- **Status**: READY
 - **Group**: 2
 - **Depends on**: TASK-001
 - **Manifest**: hydra/tasks/TASK-005.md
 
 ### TASK-006: Middleware Pipeline Stubs
-- **Status**: PLANNED
+- **Status**: READY
 - **Group**: 2
 - **Depends on**: TASK-001
 - **Manifest**: hydra/tasks/TASK-006.md
@@ -154,14 +154,16 @@ Implement DeltaMapper Phase 1 — Runtime Core: project setup, core interfaces, 
 - **Manifest**: hydra/tasks/TASK-014.md
 
 ## Completed
-<!-- Tasks moved here after ALL reviewers approve and status is set to DONE. -->
+- [x] TASK-001: Solution and Project Files Setup -> DONE (sha: 0387b24)
+- [x] TASK-002: DeltaMapperException Custom Exception -> DONE (sha: 0387b24)
+- [x] TASK-003: Shared Test Models -> DONE (sha: 0387b24)
 
 ## Blocked
 <!-- Tasks that hit max retries, have unresolvable issues, or require human intervention. -->
 
 ## Recovery Pointer
-- **Current Task:** none
-- **Last Action:** Planner agent completed task decomposition -- 14 tasks across 6 waves
-- **Next Action:** Implementer to pick up Wave 1 tasks (TASK-001, TASK-002, TASK-003) in parallel
+- **Current Task:** Wave 2 (TASK-004, TASK-005, TASK-006)
+- **Last Action:** Wave 1 complete — 3 tasks DONE, build verified, tests passing (5)
+- **Next Action:** Implement Wave 2 in parallel (IMapper, MappingProfile, Middleware stubs)
 - **Last Checkpoint:** hydra/checkpoints/iteration-002.json
-- **Last Commit:** unknown no commits yet
+- **Last Commit:** 0387b24

@@ -4,7 +4,7 @@
 Create the `IMappingMiddleware` interface and `MappingPipeline` internal class. The pipeline chains registered middleware in order with the innermost `next()` being the actual compiled delegate invocation. When no middleware is registered, the pipeline is bypassed entirely (zero overhead). These are stubs for Phase 1 -- no built-in middleware ships.
 
 ## Status
-PLANNED
+DONE
 
 ## Metadata
 - **Task ID**: TASK-006
