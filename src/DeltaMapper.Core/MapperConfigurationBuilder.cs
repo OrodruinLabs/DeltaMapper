@@ -152,6 +152,21 @@ public sealed class MapperConfigurationBuilder
                     dstPropCaptured.SetValue(dst, value);
                 });
             }
+            else if (IsNumericWidening(srcPropCaptured.PropertyType, dstPropCaptured.PropertyType))
+            {
+                // Numeric widening conversion — e.g., int → long, float → double
+                assignments.Add((src, dst, ctx) =>
+                {
+                    var value = srcPropCaptured.GetValue(src);
+                    if (value == null)
+                    {
+                        dstPropCaptured.SetValue(dst, null);
+                        return;
+                    }
+                    var converted = Convert.ChangeType(value, dstPropCaptured.PropertyType);
+                    dstPropCaptured.SetValue(dst, converted);
+                });
+            }
             else if (IsCollectionMapping(srcPropCaptured.PropertyType, dstPropCaptured.PropertyType,
                          out var srcElementType, out var dstElementType))
             {
@@ -242,6 +257,26 @@ public sealed class MapperConfigurationBuilder
     private static bool IsDirectlyAssignable(Type srcType, Type dstType)
     {
         return dstType.IsAssignableFrom(srcType);
+    }
+
+    private static readonly HashSet<Type> _numericTypes = new()
+    {
+        typeof(byte), typeof(sbyte),
+        typeof(short), typeof(ushort),
+        typeof(int), typeof(uint),
+        typeof(long), typeof(ulong),
+        typeof(float), typeof(double), typeof(decimal)
+    };
+
+    /// <summary>
+    /// Returns true when srcType can be widened to dstType via Convert.ChangeType,
+    /// e.g. int → long, float → double. Handles nullable variants too.
+    /// </summary>
+    private static bool IsNumericWidening(Type srcType, Type dstType)
+    {
+        var srcUnderlying = Nullable.GetUnderlyingType(srcType) ?? srcType;
+        var dstUnderlying = Nullable.GetUnderlyingType(dstType) ?? dstType;
+        return _numericTypes.Contains(srcUnderlying) && _numericTypes.Contains(dstUnderlying);
     }
 
     private static bool IsComplexType(Type type)
