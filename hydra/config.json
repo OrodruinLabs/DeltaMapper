@@ -1,0 +1,186 @@
+{
+  "schema_version": 5,
+  "mode": "afk",
+  "objective": "Implement DeltaMapper Phase 1 — Runtime Core: project setup, core interfaces, fluent profile API, MapperConfiguration with expression-compiled delegates and FrozenDictionary, Mapper runtime executor, MapperContext for circular reference detection, DI integration, record/init-only property support, and full unit test coverage",
+  "feat_id": "FEAT-001",
+  "feat_display_id": "FEAT-001",
+  "objectives_history": [
+    {
+      "objective": "Implement DeltaMapper Phase 1 — Runtime Core",
+      "started_at": "2026-03-16T21:45:00Z",
+      "feat_id": "FEAT-001"
+    }
+  ],
+  "max_iterations": 40,
+  "current_iteration": 0,
+  "paused": false,
+  "completion_promise": "HYDRA_COMPLETE",
+  "task_file": "hydra/plan.md",
+  "log_dir": "hydra/logs",
+  "review_dir": "hydra/reviews",
+  "project": {
+    "language": "csharp",
+    "framework": "dotnet8",
+    "test_command": "dotnet test --no-build -c Release --logger trx",
+    "build_command": "dotnet build -c Release",
+    "lint_command": "dotnet format --verify-no-changes",
+    "classification": "greenfield",
+    "classification_confidence": "high",
+    "classified_at": "2026-03-16T21:30:00Z",
+    "stack": {
+      "runtime": "dotnet9",
+      "package_manager": "nuget",
+      "framework": "dotnet8-net9-multitarget",
+      "database": null,
+      "orm": null,
+      "testing": "xunit-fluentassertions-benchmarkdotnet",
+      "styling": null,
+      "auth": null,
+      "additional": [
+        "roslyn-source-generator",
+        "expression-trees",
+        "frozen-dictionary",
+        "opentelemetry",
+        "efcore-integration"
+      ]
+    },
+    "infrastructure": {
+      "hosting_model": "nuget-library",
+      "cloud_provider": null,
+      "cloud_region": null,
+      "iac_tool": null,
+      "container_orchestration": null,
+      "cicd_platform": "github-actions",
+      "observability": "opentelemetry-activity-spans",
+      "secret_management": "github-secrets",
+      "environments": [
+        "dev",
+        "prod"
+      ]
+    }
+  },
+  "discovery": {
+    "last_run": "2026-03-16T21:30:00Z",
+    "context_dir": "hydra/context",
+    "files_scanned": 1,
+    "existing_docs_count": 1,
+    "existing_docs_quality": "PARTIAL"
+  },
+  "agents": {
+    "pipeline": [
+      "discovery",
+      "doc-generator",
+      "planner",
+      "implementer",
+      "feedback-aggregator",
+      "team-orchestrator"
+    ],
+    "reviewers": [
+      "architect-reviewer",
+      "code-reviewer",
+      "security-reviewer",
+      "type-reviewer"
+    ],
+    "specialists": [],
+    "post_loop": [
+      "documentation",
+      "release-manager"
+    ],
+    "disabled": [],
+    "custom": []
+  },
+  "documents": {
+    "dir": "hydra/docs",
+    "existing": [
+      {
+        "path": "docs/DELTAMAP_PLAN.md",
+        "type": "DESIGN",
+        "relevance": "HIGH"
+      }
+    ]
+  },
+  "review_gate": {
+    "require_all_approve": true,
+    "max_retries_per_task": 3,
+    "current_task_retries": 0,
+    "auto_approve_concerns": true,
+    "block_on_security_reject": true,
+    "confidence_threshold": 80
+  },
+  "safety": {
+    "block_destructive_commands": true,
+    "require_tests_pass_before_review": true,
+    "max_consecutive_failures": 5,
+    "consecutive_failures": 2,
+    "_prev_done_count": 0
+  },
+  "branch": {
+    "feature": "feat/FEAT-001-runtime-core",
+    "base": "master",
+    "main_worktree_path": "/Users/josemejia/Documents/Software Development/DeltaMapper",
+    "worktree_dir": null,
+    "last_task_branch": null,
+    "created_at": "2026-03-16T21:45:00Z",
+    "auto_pr_on_complete": true,
+    "sparse_paths": null
+  },
+  "afk": {
+    "enabled": true,
+    "yolo": true,
+    "task_pr": false,
+    "timeout_minutes": 90,
+    "checkpoint_every_n_iterations": 5,
+    "auto_commit": true,
+    "commit_prefix": "feat(FEAT-001):"
+  },
+  "context": {
+    "budget_strategy": "aggressive",
+    "compact_threshold_pct": 70,
+    "max_file_read_lines": 200,
+    "use_subagents_for_exploration": true,
+    "checkpoint_state_before_compact": true
+  },
+  "parallelism": {
+    "enabled": true,
+    "use_agent_teams": true,
+    "parallel_reviews": true,
+    "parallel_independent_tasks": true,
+    "max_parallel_teammates": 4
+  },
+  "models": {
+    "planning": "opus",
+    "discovery": "opus",
+    "docs": "opus",
+    "review": "opus",
+    "implementation": "sonnet",
+    "specialists": "sonnet",
+    "post_loop": "sonnet",
+    "default": "sonnet"
+  },
+  "board": {
+    "enabled": false,
+    "provider": null,
+    "provider_config": {},
+    "task_map": {},
+    "last_sync": null,
+    "sync_failures": 0
+  },
+  "webhooks": {
+    "enabled": false,
+    "url": null,
+    "events": [
+      "stop",
+      "compact",
+      "task_complete"
+    ],
+    "headers": {}
+  },
+  "formatter": {
+    "enabled": true,
+    "command": "dotnet format"
+  },
+  "notifications": {
+    "on_complete": "say 'hydra loop complete'"
+  },
+  "objective_set_at": "2026-03-16T21:45:00Z"
+}
