@@ -1,0 +1,12 @@
+/Users/josemejia/Documents/Software Development/DeltaMapper/src/DeltaMapper.Core/bin/Debug/net8.0/DeltaMapper.Core.deps.json
+/Users/josemejia/Documents/Software Development/DeltaMapper/src/DeltaMapper.Core/bin/Debug/net8.0/DeltaMapper.Core.dll
+/Users/josemejia/Documents/Software Development/DeltaMapper/src/DeltaMapper.Core/bin/Debug/net8.0/DeltaMapper.Core.pdb
+/Users/josemejia/Documents/Software Development/DeltaMapper/src/DeltaMapper.Core/obj/Debug/net8.0/DeltaMapper.Core.csproj.AssemblyReference.cache
+/Users/josemejia/Documents/Software Development/DeltaMapper/src/DeltaMapper.Core/obj/Debug/net8.0/DeltaMapper.Core.GeneratedMSBuildEditorConfig.editorconfig
+/Users/josemejia/Documents/Software Development/DeltaMapper/src/DeltaMapper.Core/obj/Debug/net8.0/DeltaMapper.Core.AssemblyInfoInputs.cache
+/Users/josemejia/Documents/Software Development/DeltaMapper/src/DeltaMapper.Core/obj/Debug/net8.0/DeltaMapper.Core.AssemblyInfo.cs
+/Users/josemejia/Documents/Software Development/DeltaMapper/src/DeltaMapper.Core/obj/Debug/net8.0/DeltaMapper.Core.csproj.CoreCompileInputs.cache
+/Users/josemejia/Documents/Software Development/DeltaMapper/src/DeltaMapper.Core/obj/Debug/net8.0/DeltaMapper.Core.dll
+/Users/josemejia/Documents/Software Development/DeltaMapper/src/DeltaMapper.Core/obj/Debug/net8.0/refint/DeltaMapper.Core.dll
+/Users/josemejia/Documents/Software Development/DeltaMapper/src/DeltaMapper.Core/obj/Debug/net8.0/DeltaMapper.Core.pdb
+/Users/josemejia/Documents/Software Development/DeltaMapper/src/DeltaMapper.Core/obj/Debug/net8.0/ref/DeltaMapper.Core.dll

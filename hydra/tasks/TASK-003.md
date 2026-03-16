@@ -4,7 +4,7 @@
 Create all reusable test model classes in `tests/DeltaMapper.UnitTests/TestModels/`. These are used across all test files. Includes flat POCOs (User, UserDto, UserSummaryDto), nested objects (Order, OrderDto, Customer, CustomerDto, Address, AddressDto), collections (Classroom, ClassroomDto, Student, StudentDto), circular references (Parent, Child, ParentDto, ChildDto, TreeNode, TreeNodeDto), records (PersonRecord, PersonRecordDto), and init-only classes (PersonInitOnly).
 
 ## Status
-READY
+DONE
 
 ## Metadata
 - **Task ID**: TASK-003

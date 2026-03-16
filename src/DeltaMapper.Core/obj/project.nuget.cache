@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "dgSpecHash": "rgUvkTt5WrI=",
+  "success": true,
+  "projectFilePath": "/Users/josemejia/Documents/Software Development/DeltaMapper/src/DeltaMapper.Core/DeltaMapper.Core.csproj",
+  "expectedPackageFiles": [
+    "/Users/josemejia/.nuget/packages/microsoft.extensions.dependencyinjection.abstractions/8.0.2/microsoft.extensions.dependencyinjection.abstractions.8.0.2.nupkg.sha512",
+    "/Users/josemejia/.nuget/packages/microsoft.netcore.app.ref/8.0.24/microsoft.netcore.app.ref.8.0.24.nupkg.sha512",
+    "/Users/josemejia/.nuget/packages/microsoft.aspnetcore.app.ref/8.0.24/microsoft.aspnetcore.app.ref.8.0.24.nupkg.sha512",
+    "/Users/josemejia/.nuget/packages/microsoft.netcore.app.ref/9.0.13/microsoft.netcore.app.ref.9.0.13.nupkg.sha512",
+    "/Users/josemejia/.nuget/packages/microsoft.aspnetcore.app.ref/9.0.13/microsoft.aspnetcore.app.ref.9.0.13.nupkg.sha512"
+  ],
+  "logs": []
+}

@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/DeltaMapper.Core/DeltaMapper.Core.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/DeltaMapper.UnitTests/DeltaMapper.UnitTests.csproj" />
+  </Folder>
+</Solution>
