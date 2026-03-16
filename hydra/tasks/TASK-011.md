@@ -4,7 +4,7 @@
 Add comprehensive tests for collection mapping (List<T>, T[], IEnumerable<T>, empty, null collections) and nested object mapping (recursive mapping, null nested, deep 3-level nesting, missing nested mapping throws). These test the expression compilation engine's handling of complex types and collections.
 
 ## Status
-PLANNED
+DONE
 
 ## Metadata
 - **Task ID**: TASK-011

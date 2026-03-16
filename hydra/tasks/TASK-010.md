@@ -4,7 +4,7 @@
 Enhance the expression compilation engine in MapperConfiguration to support record types and init-only properties. Detect init-only setters via `MethodInfo.ReturnParameter.GetRequiredCustomModifiers()` checking for `IsExternalInit`. When all writable properties are init-only (record pattern), use constructor injection path: find primary constructor, map parameters by name (case-insensitive) to source properties, build expression calling `new TDst(param1, param2, ...)`. Support ForMember overrides on record constructor parameters.
 
 ## Status
-PLANNED
+DONE
 
 ## Metadata
 - **Task ID**: TASK-010

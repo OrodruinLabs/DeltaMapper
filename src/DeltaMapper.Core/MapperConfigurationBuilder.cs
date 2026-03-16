@@ -1,4 +1,5 @@
 using System.Reflection;
+using DeltaMapper.Exceptions;
 using DeltaMapper.Middleware;
 
 namespace DeltaMapper;
@@ -85,6 +86,12 @@ public sealed class MapperConfigurationBuilder
         var dstType = tm.DestinationType;
         var srcProps = srcType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
         var dstProps = dstType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+
+        // Check if destination type needs constructor injection (records or init-only properties)
+        if (NeedsConstructorInjection(dstType, dstProps))
+        {
+            return CompileConstructorMap(tm, srcType, dstType, srcProps, dstProps);
+        }
 
         // Build property assignment list at compile time — reflection cost is paid here only
         var assignments = new List<Action<object, object, MapperContext>>();
@@ -241,6 +248,140 @@ public sealed class MapperConfigurationBuilder
             }
 
             // AfterMap hook
+            afterMap?.Invoke(src, dst);
+
+            return dst;
+        };
+
+        return new CompiledMap(mapFunc);
+    }
+
+    private static bool NeedsConstructorInjection(Type dstType, PropertyInfo[] dstProps)
+    {
+        // Check if any writable property has an init-only setter (IsExternalInit modreq)
+        foreach (var prop in dstProps)
+        {
+            if (!prop.CanWrite) continue;
+            var setMethod = prop.GetSetMethod(true);
+            if (setMethod == null) continue;
+
+            var returnParam = setMethod.ReturnParameter;
+            var requiredMods = returnParam.GetRequiredCustomModifiers();
+            if (requiredMods.Any(m => m.FullName == "System.Runtime.CompilerServices.IsExternalInit"))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static CompiledMap CompileConstructorMap(
+        TypeMapConfiguration tm, Type srcType, Type dstType,
+        PropertyInfo[] srcProps, PropertyInfo[] dstProps)
+    {
+        // Find the best constructor — prefer the one with the most parameters matching source properties
+        var constructors = dstType.GetConstructors(BindingFlags.Public | BindingFlags.Instance);
+        var bestCtor = constructors
+            .OrderByDescending(c => c.GetParameters().Length)
+            .FirstOrDefault(c => c.GetParameters().All(p =>
+                FindSourceProperty(srcProps, p.Name!) != null ||
+                tm.MemberConfigurations.Any(mc => mc.DestinationMemberName.Equals(p.Name, StringComparison.OrdinalIgnoreCase))));
+
+        if (bestCtor == null)
+        {
+            // Fallback: try parameterless constructor
+            bestCtor = constructors.FirstOrDefault(c => c.GetParameters().Length == 0);
+            if (bestCtor == null)
+                throw new DeltaMapperException(
+                    $"No suitable constructor found for '{dstType.Name}'. Ensure constructor parameter names match source property names.");
+        }
+
+        var ctorParams = bestCtor.GetParameters();
+
+        // Build parameter resolvers
+        var paramResolvers = new List<Func<object, MapperContext, object?>>();
+        foreach (var param in ctorParams)
+        {
+            // Check for ForMember override
+            var memberConfig = tm.MemberConfigurations
+                .FirstOrDefault(mc => mc.DestinationMemberName.Equals(param.Name!, StringComparison.OrdinalIgnoreCase));
+
+            if (memberConfig?.CustomResolver != null)
+            {
+                var resolver = memberConfig.CustomResolver;
+                paramResolvers.Add((src, ctx) => resolver(src));
+            }
+            else
+            {
+                var srcProp = FindSourceProperty(srcProps, param.Name!);
+                if (srcProp != null)
+                {
+                    var capturedSrcProp = srcProp;
+                    paramResolvers.Add((src, ctx) => capturedSrcProp.GetValue(src));
+                }
+                else
+                {
+                    var defaultValue = param.DefaultValue;
+                    paramResolvers.Add((src, ctx) => defaultValue);
+                }
+            }
+        }
+
+        // Find init-only properties NOT covered by constructor params
+        var ctorParamNames = new HashSet<string>(ctorParams.Select(p => p.Name!), StringComparer.OrdinalIgnoreCase);
+        var initOnlyAssignments = new List<Action<object, object, MapperContext>>();
+
+        foreach (var dstProp in dstProps)
+        {
+            if (!dstProp.CanWrite) continue;
+            if (ctorParamNames.Contains(dstProp.Name)) continue; // Already handled by constructor
+
+            var memberConfig = tm.MemberConfigurations
+                .FirstOrDefault(mc => mc.DestinationMemberName.Equals(dstProp.Name, StringComparison.OrdinalIgnoreCase));
+
+            if (memberConfig?.IsIgnored == true) continue;
+
+            if (memberConfig?.CustomResolver != null)
+            {
+                var resolver = memberConfig.CustomResolver;
+                var setter = dstProp;
+                initOnlyAssignments.Add((src, dst, ctx) => setter.SetValue(dst, resolver(src)));
+                continue;
+            }
+
+            var srcProp = FindSourceProperty(srcProps, dstProp.Name);
+            if (srcProp != null && IsDirectlyAssignable(srcProp.PropertyType, dstProp.PropertyType))
+            {
+                var capturedSrc = srcProp;
+                var capturedDst = dstProp;
+                initOnlyAssignments.Add((src, dst, ctx) => capturedDst.SetValue(dst, capturedSrc.GetValue(src)));
+            }
+        }
+
+        var beforeMap = tm.BeforeMapAction;
+        var afterMap = tm.AfterMapAction;
+        var ctor = bestCtor;
+
+        Func<object, object?, MapperContext, object> mapFunc = (src, existingDst, ctx) =>
+        {
+            // Build constructor arguments
+            var args = new object?[paramResolvers.Count];
+            for (int i = 0; i < paramResolvers.Count; i++)
+            {
+                args[i] = paramResolvers[i](src, ctx);
+            }
+
+            var dst = ctor.Invoke(args);
+
+            ctx.Register(src, dst);
+
+            beforeMap?.Invoke(src, dst);
+
+            // Set additional init-only properties not covered by constructor
+            foreach (var assign in initOnlyAssignments)
+            {
+                assign(src, dst, ctx);
+            }
+
             afterMap?.Invoke(src, dst);
 
             return dst;
