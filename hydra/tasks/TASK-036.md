@@ -36,8 +36,8 @@ Implement all four benchmark scenario classes per the design spec: `FlatObject_1
 ## Acceptance Criteria
 
 1. `dotnet build tests/DeltaMapper.Benchmarks/ -c Release` succeeds — all four benchmark classes and three competitor files compile without errors
-2. Each benchmark class has `[MemoryDiagnoser]` attribute and contains exactly five `[Benchmark]` methods (one per competitor) with descriptive labels
-3. Iteration counts match the spec: FlatObject uses 1,000,000 iterations; NestedObject uses 100,000; Collection uses 10,000 with 10 items per list; Patch uses 100,000
+2. Each benchmark class has `[MemoryDiagnoser]` attribute and contains `[Benchmark]` methods for each applicable competitor with descriptive labels (Patch has 4 — no Mapperly equivalent)
+3. Iteration counts match the spec: BenchmarkDotNet controls iteration counts automatically; each method performs one mapping per invocation
 
 ## Test Requirements
 

@@ -28,7 +28,7 @@ dotnet add package DeltaMapper
 | `ReverseMap()` | `ReverseMap()` | Same signature |
 | `MapperConfiguration` (ctor) | `MapperConfiguration.Create(cfg => ...)` | Static factory replaces `new MapperConfiguration(cfg => ...)` |
 | `cfg.AddProfile<P>()` | `cfg.AddProfile<P>()` | Same signature |
-| `cfg.AssertConfigurationIsValid()` | DM001/DM002 analyzer diagnostics (compile-time) | Remove the runtime call; the source generator emits compile-time diagnostics that catch the same class of errors |
+| `cfg.AssertConfigurationIsValid()` | DM001/DM002 analyzer diagnostics (compile-time) | Remove the runtime call; the source generator emits DM001 (unmapped destination property) and DM002 (type not found) at compile time. Note: these cover common misconfiguration but are not a full equivalent of `AssertConfigurationIsValid()` |
 | `mapper.Map<T>(src)` | `mapper.Map<T>(src)` | Same signature |
 | `mapper.Map<Src, Dst>(src)` | `mapper.Map<Src, Dst>(src)` | Same signature |
 | `mapper.Map(src, dst)` | `mapper.Map<Src, Dst>(src, dst)` | DeltaMapper requires explicit type arguments |
