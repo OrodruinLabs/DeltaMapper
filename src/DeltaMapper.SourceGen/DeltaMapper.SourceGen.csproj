@@ -22,4 +22,9 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.*" PrivateAssets="all" />
   </ItemGroup>
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>DeltaMapper.SourceGen.Tests</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
 </Project>

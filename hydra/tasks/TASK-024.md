@@ -1,7 +1,7 @@
 ---
 id: TASK-024
 title: GenerateMapAttribute emitted as source text
-status: READY
+status: IMPLEMENTED
 depends_on:
   - TASK-021
 wave: 2
@@ -14,7 +14,7 @@ acceptance_criteria:
   - Attribute is in the DeltaMapper namespace (not DeltaMapper.SourceGen)
 ---
 
-- **Status**: READY
+- **Status**: IMPLEMENTED
 
 **Retry count**: 0/3
 

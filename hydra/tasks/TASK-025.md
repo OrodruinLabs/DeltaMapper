@@ -1,7 +1,7 @@
 ---
 id: TASK-025
 title: IIncrementalGenerator core — flat type pair emission
-status: READY
+status: IMPLEMENTED
 depends_on:
   - TASK-021
   - TASK-024
@@ -16,7 +16,18 @@ acceptance_criteria:
   - Generator test verifies correct output for a 3-property flat POCO pair (name, content, no diagnostics)
 ---
 
-- **Status**: READY
+- **Status**: IMPLEMENTED
+- **Base SHA**: 1dee2c6
+- **claimed_at**: 2026-03-17T00:00:00Z
+- **implemented_at**: 2026-03-17T00:01:00Z
+
+## Implementation Log
+
+- Created `src/DeltaMapper.SourceGen/MapperGenerator.cs`: `IIncrementalGenerator` using `ForAttributeWithMetadataName`, `RegisterPostInitializationOutput` for attribute, syntax provider filtering `ClassDeclarationSyntax`, transforms to `MappingInfo`, emits via `EmitHelper`.
+- Created `src/DeltaMapper.SourceGen/EmitHelper.cs`: `EmitMapMethod` (builds partial class source), `GetMatchingProperties` (case-insensitive name + `SymbolEqualityComparer` type match), `BuildFileName`, readable/writable property helpers.
+- Updated `tests/DeltaMapper.SourceGen.Tests/Helpers/GeneratorTestHelper.cs`: wired `MapperGenerator`, added `RunGeneratorWithCompilation` overload.
+- Created `tests/DeltaMapper.SourceGen.Tests/MapperGeneratorFlatTests.cs`: 10 tests covering hint names, assignment content, partial class wrapping, method signature, type-mismatch skip, multi-attribute, no-match empty body, and zero-error output compilation.
+- All 11 tests pass (1 pre-existing + 10 new). Build clean, zero warnings.
 
 **Retry count**: 0/3
 

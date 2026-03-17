@@ -9,7 +9,7 @@ public static class GeneratorTestHelper
     {
         var syntaxTree = CSharpSyntaxTree.ParseText(source);
 
-        // Create references for compilation
+        // Create references for compilation — include all loaded assemblies
         var references = AppDomain.CurrentDomain.GetAssemblies()
             .Where(a => !a.IsDynamic && !string.IsNullOrWhiteSpace(a.Location))
             .Select(a => MetadataReference.CreateFromFile(a.Location))
@@ -22,12 +22,34 @@ public static class GeneratorTestHelper
             references,
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
 
-        // TODO: Replace with actual generator type once TASK-025 creates it
-        // var generator = new DeltaMapperSourceGenerator();
-        // GeneratorDriver driver = CSharpGeneratorDriver.Create(generator);
-        // driver = driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out var diagnostics);
-        // return driver.GetRunResult();
+        var generator = new MapperGenerator();
+        GeneratorDriver driver = CSharpGeneratorDriver.Create(generator);
+        driver = driver.RunGeneratorsAndUpdateCompilation(compilation, out _, out _);
+        return driver.GetRunResult();
+    }
 
-        throw new NotImplementedException("Generator not yet implemented — will be wired in TASK-025");
+    /// <summary>
+    /// Runs the generator and also returns the output compilation for diagnostic checking.
+    /// </summary>
+    public static (GeneratorDriverRunResult RunResult, Compilation OutputCompilation) RunGeneratorWithCompilation(string source)
+    {
+        var syntaxTree = CSharpSyntaxTree.ParseText(source);
+
+        var references = AppDomain.CurrentDomain.GetAssemblies()
+            .Where(a => !a.IsDynamic && !string.IsNullOrWhiteSpace(a.Location))
+            .Select(a => MetadataReference.CreateFromFile(a.Location))
+            .Cast<MetadataReference>()
+            .ToList();
+
+        var compilation = CSharpCompilation.Create(
+            "TestAssembly",
+            [syntaxTree],
+            references,
+            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+
+        var generator = new MapperGenerator();
+        GeneratorDriver driver = CSharpGeneratorDriver.Create(generator);
+        driver = driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
+        return (driver.GetRunResult(), outputCompilation);
     }
 }
