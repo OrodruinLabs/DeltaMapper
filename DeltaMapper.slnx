@@ -2,6 +2,7 @@
   <Folder Name="/src/">
     <Project Path="src/DeltaMapper.Core/DeltaMapper.Core.csproj" />
     <Project Path="src/DeltaMapper.EFCore/DeltaMapper.EFCore.csproj" />
+    <Project Path="src/DeltaMapper.OpenTelemetry/DeltaMapper.OpenTelemetry.csproj" />
     <Project Path="src/DeltaMapper.SourceGen/DeltaMapper.SourceGen.csproj" />
   </Folder>
   <Folder Name="/tests/">

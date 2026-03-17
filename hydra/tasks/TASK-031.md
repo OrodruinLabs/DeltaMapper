@@ -1,6 +1,9 @@
 # TASK-031: DeltaMapper.OpenTelemetry project scaffolding + TracingMiddleware
 
-**Status**: READY
+**Status**: IMPLEMENTED
+**claimed_at**: 2026-03-17T18:35:00Z
+**implemented_at**: 2026-03-17T18:40:00Z
+**Base SHA**: 2d9605877b3cd47b19f026167fa7e88f8379804f
 **Depends on**: --
 **Wave**: 1
 **Retry count**: 0/3
