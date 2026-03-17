@@ -10,11 +10,52 @@ DeltaMapper uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Planned
-- `MappingDiff<T>` and `IMapper.Patch<TSource, TDestination>()` (Phase 2)
-- Roslyn source generator with `[GenerateMap]` attribute (Phase 3)
 - EF Core proxy-aware middleware (Phase 4)
 - OpenTelemetry `TracingMiddleware` (Phase 4)
 - BenchmarkDotNet results published to `BENCHMARKS.md` (Phase 5)
+
+---
+
+## [0.3.0-alpha.1] - 2026-03-17
+
+Phase 3: Roslyn Source Generator
+
+### Added
+
+#### `DeltaMapper.SourceGen` package
+- `[GenerateMap(typeof(TDestination))]` attribute — marks a `partial` class for compile-time map generation
+- `DeltaMapperGenerator` — `IIncrementalGenerator` implementation; emits direct property-assignment code at build time with zero reflection
+- `GeneratedMapRegistry` — runtime integration point; source-generated maps are auto-discovered and registered into the standard `IMapper` pipeline
+
+#### Analyzer diagnostics
+- `DM001` — class decorated with `[GenerateMap]` must be declared `partial`
+- `DM002` — class decorated with `[GenerateMap]` must have a parameterless constructor
+- `DM003` — ambiguous mapping: more than one `[GenerateMap]` targets the same destination type from the same source
+
+#### Test coverage
+- Generator output verified via Roslyn compilation in test suite (`DeltaMapper.SourceGen.Tests`)
+- Diagnostic emission confirmed for all three analyzer codes
+
+---
+
+## [0.2.0-alpha.1] - 2026-03-17
+
+Phase 2: MappingDiff\<T\> and Patch
+
+### Added
+
+#### `MappingDiff<T>`
+- `MappingDiff<TDestination>` — structured change set returned alongside a mapped result; exposes `Result`, `HasChanges`, and `Changes`
+- `PropertyChange` record — carries `PropertyName`, `OldValue`, `NewValue`, and `ChangeKind`
+- `ChangeKind` enum — values: `Modified`, `Added`, `Removed`
+
+#### New `IMapper` methods
+- `MapWithDiff<TSource, TDestination>(TSource source)` — maps to a new destination instance and returns a `MappingDiff<TDestination>` describing every property that changed
+- `Patch<TSource, TDestination>(TSource source, TDestination destination)` — updates the existing destination instance in place and returns a `MappingDiff<TDestination>`
+
+#### Change detection behavior
+- Nested property changes reported with dot-notation paths (e.g., `"Address.City"`)
+- Collection-level tracking: elements added or removed from a collection are reported with `ChangeKind.Added` / `ChangeKind.Removed`
 
 ---
 
@@ -80,5 +121,7 @@ Initial release. Covers Phase 1 (runtime core) and the .NET 10 / C# 14 migration
 - Collection expressions (`[...]`) replace `new List<T>()` where applicable
 - Null-conditional assignment (`??=`) adopted where applicable
 
-[Unreleased]: https://github.com/OrodruinLabs/DeltaMapper/compare/v0.1.0-alpha.1...HEAD
+[Unreleased]: https://github.com/OrodruinLabs/DeltaMapper/compare/v0.3.0-alpha.1...HEAD
+[0.3.0-alpha.1]: https://github.com/OrodruinLabs/DeltaMapper/compare/v0.2.0-alpha.1...v0.3.0-alpha.1
+[0.2.0-alpha.1]: https://github.com/OrodruinLabs/DeltaMapper/compare/v0.1.0-alpha.1...v0.2.0-alpha.1
 [0.1.0-alpha.1]: https://github.com/OrodruinLabs/DeltaMapper/releases/tag/v0.1.0-alpha.1

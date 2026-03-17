@@ -3,7 +3,8 @@
 > Fast, diff-aware .NET object mapper. MIT licensed. Minimal dependencies.
 
 - **Expression-compiled delegates + `FrozenDictionary`** — all reflection happens once at startup, never at call time
-- **`MappingDiff<T>`** — maps an object _and_ returns a structured change set in a single call (coming in v0.2)
+- **`MappingDiff<T>`** — maps an object _and_ returns a structured change set in a single call
+- **Roslyn source generator** — optional `[GenerateMap]` attribute emits assignment code at build time with zero reflection
 - **MIT licensed, no paid tiers, forever**
 
 [![NuGet](https://img.shields.io/nuget/v/DeltaMapper.svg)](https://www.nuget.org/packages/DeltaMapper)
@@ -18,19 +19,23 @@
 dotnet add package DeltaMapper
 ```
 
+For compile-time source generation (optional):
+
+```
+dotnet add package DeltaMapper.SourceGen
+```
+
 Requires .NET 10+.
 
 ---
 
 ## Benchmarks
 
-Formal BenchmarkDotNet results will be published in [BENCHMARKS.md](BENCHMARKS.md) once Phase 3 (source generation) is complete. The benchmark suite (`tests/DeltaMapper.Benchmarks/`) compares DeltaMapper (runtime), DeltaMapper (source-gen), Mapperly, AutoMapper, and hand-written code across flat objects, nested objects, and collections.
+Formal BenchmarkDotNet results will be published in [BENCHMARKS.md](BENCHMARKS.md). The benchmark suite (`tests/DeltaMapper.Benchmarks/`) compares DeltaMapper (runtime), DeltaMapper (source-gen), Mapperly, AutoMapper, and hand-written code across flat objects, nested objects, and collections.
 
 ---
 
 ## `MappingDiff<T>` — the hook
-
-> Coming in v0.2. Design spec: [docs/DELTAMAP_PLAN.md](docs/DELTAMAP_PLAN.md#phase-2--mappingdifft-the-killer-feature)
 
 ```csharp
 // PATCH endpoint — map and audit in one call
@@ -50,6 +55,29 @@ public async Task<IActionResult> PatchUser(int id, UpdateUserDto dto)
 ```
 
 `diff.Changes` is an `IReadOnlyList<PropertyChange>` where each entry carries `PropertyName`, `From`, `To`, and `ChangeKind` (`Modified` / `Added` / `Removed`). Nested changes use dot-notation paths (`"Address.City"`).
+
+---
+
+## Source Generator
+
+Install `DeltaMapper.SourceGen`, add `[GenerateMap]` to a `partial` class, and the mapper emits direct assignment code at build time — no reflection at all:
+
+```csharp
+[GenerateMap(typeof(UserDto))]
+public partial class User
+{
+    public int Id { get; set; }
+    public string Email { get; set; }
+}
+```
+
+The generated map is registered automatically via `GeneratedMapRegistry` and picked up by the same `IMapper` interface. Analyzer diagnostics catch misuse at compile time:
+
+| Code | Diagnostic |
+|---|---|
+| DM001 | Class must be `partial` |
+| DM002 | Class must have a parameterless constructor |
+| DM003 | Ambiguous mapping detected |
 
 ---
 
@@ -147,6 +175,12 @@ IReadOnlyList<TDestination> MapList<TSource, TDestination>(IEnumerable<TSource> 
 
 // Non-generic overload for dynamic / reflection scenarios
 object Map(object source, Type sourceType, Type destinationType);
+
+// Map and return a structured diff of what changed
+MappingDiff<TDestination> MapWithDiff<TSource, TDestination>(TSource source);
+
+// Update destination in place and return a diff of what changed
+MappingDiff<TDestination> Patch<TSource, TDestination>(TSource source, TDestination destination);
 ```
 
 ### Convention matching
@@ -235,8 +269,8 @@ See [docs/migration-from-automapper.md](docs/migration-from-automapper.md) for a
 | Phase | Deliverable | Status |
 |---|---|---|
 | 1 | Runtime core — profiles, convention mapping, DI | Done |
-| 2 | `MappingDiff<T>` — structured change sets + `Patch()` | Planned |
-| 3 | Roslyn source generator — zero-overhead paths | Planned |
+| 2 | `MappingDiff<T>` — structured change sets + `Patch()` | Done |
+| 3 | Roslyn source generator — zero-overhead paths | Done |
 | 4 | EF Core proxy awareness + OpenTelemetry spans | Planned |
 | 5 | Benchmarks + full docs site | Planned |
 
