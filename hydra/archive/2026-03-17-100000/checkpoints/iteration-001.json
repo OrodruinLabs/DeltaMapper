@@ -1,0 +1,57 @@
+{
+  "iteration": 1,
+  "timestamp": "2026-03-17T00:22:51Z",
+  "mode": "afk",
+  "active_task": {
+    "id": null,
+    "status": null,
+    "retry_count": 0,
+    "last_action": null,
+    "next_action": null,
+    "files_modified_this_iteration": [
+      "docs/DELTAMAP_PLAN.md",
+      "hydra/reviews/TASK-006/architect-reviewer.md",
+      "hydra/reviews/TASK-006/code-reviewer.md",
+      "hydra/reviews/TASK-006/security-reviewer.md",
+      "hydra/reviews/TASK-006/type-reviewer.md"
+    ]
+  },
+  "plan_snapshot": {
+    "total_tasks": 6,
+    "done": 1,
+    "approved": 0,
+    "ready": 0,
+    "in_progress": 0,
+    "in_review": 0,
+    "changes_requested": 0,
+    "blocked": 0,
+    "planned": 5
+  },
+  "git": {
+    "branch": "feat/FEAT-002-net10-csharp14",
+    "last_commit_sha": "c95db46",
+    "last_commit_message": "feat(FEAT-002): update documentation for net10.0 target",
+    "uncommitted_changes": true
+  },
+  "branch": {
+    "feature": "feat/FEAT-002-net10-csharp14",
+    "base": "feat/FEAT-001-runtime-core",
+    "active_worktrees": 0
+  },
+  "reviewers": {
+    "active": [
+      "architect-reviewer",
+      "code-reviewer",
+      "security-reviewer",
+      "type-reviewer"
+    ],
+    "last_review_task": null,
+    "last_review_verdict": null
+  },
+  "context_health": {
+    "compactions_this_session": 0,
+    "iterations_since_last_compaction": 1,
+    "consecutive_failures": 0
+  },
+  "recovery_instructions": "Read hydra/plan.md Recovery Pointer. No active task — find first READY task in plan."
+}
