@@ -13,6 +13,12 @@ obj/
 ## Test Results
 **/TestResults/
 
+## Hydra runtime
+hydra/.session_id
+
+## Benchmarks
+BenchmarkDotNet.Artifacts/
+
 ## OS
 .DS_Store
 Thumbs.db

@@ -31,7 +31,7 @@ This document contains the DeltaMapper benchmark suite results, comparing DeltaM
 
 ---
 
-### Nested Object (3 levels deep)
+### Nested Object (2 levels — parent + Address child)
 
 | Method | Mean | Error | StdDev | Gen0 | Allocated |
 |--------|------|-------|--------|------|-----------|
@@ -43,7 +43,7 @@ This document contains the DeltaMapper benchmark suite results, comparing DeltaM
 
 ---
 
-### Collection (100 items)
+### Collection (10 items)
 
 | Method | Mean | Error | StdDev | Gen0 | Allocated |
 |--------|------|-------|--------|------|-----------|
@@ -59,11 +59,12 @@ This document contains the DeltaMapper benchmark suite results, comparing DeltaM
 
 | Method | Mean | Error | StdDev | Gen0 | Allocated |
 |--------|------|-------|--------|------|-----------|
-| DeltaMapper_Runtime | `<pending>` | `<pending>` | `<pending>` | `<pending>` | `<pending>` |
-| DeltaMapper_SourceGen | `<pending>` | `<pending>` | `<pending>` | `<pending>` | `<pending>` |
-| Mapperly | `<pending>` | `<pending>` | `<pending>` | `<pending>` | `<pending>` |
-| AutoMapper | `<pending>` | `<pending>` | `<pending>` | `<pending>` | `<pending>` |
-| HandWritten | `<pending>` | `<pending>` | `<pending>` | `<pending>` | `<pending>` |
+| DeltaMapper_Patch_Runtime | `<pending>` | `<pending>` | `<pending>` | `<pending>` | `<pending>` |
+| DeltaMapper_Patch_SourceGen | `<pending>` | `<pending>` | `<pending>` | `<pending>` | `<pending>` |
+| AutoMapper_Map | `<pending>` | `<pending>` | `<pending>` | `<pending>` | `<pending>` |
+| HandWritten_Overwrite | `<pending>` | `<pending>` | `<pending>` | `<pending>` | `<pending>` |
+
+> **Note:** Patch is a DeltaMapper-unique feature (maps + returns property diff). Competitors perform map-onto-existing as the nearest equivalent. Mapperly has no equivalent API.
 
 ---
 

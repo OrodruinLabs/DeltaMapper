@@ -28,7 +28,7 @@ dotnet add package DeltaMapper
 | `ReverseMap()` | `ReverseMap()` | Same signature |
 | `MapperConfiguration` (ctor) | `MapperConfiguration.Create(cfg => ...)` | Static factory replaces `new MapperConfiguration(cfg => ...)` |
 | `cfg.AddProfile<P>()` | `cfg.AddProfile<P>()` | Same signature |
-| `cfg.AssertConfigurationIsValid()` | DM001/DM002/DM003 analyzer diagnostics (compile-time) | Remove the runtime call; the source generator emits compile-time diagnostics that catch the same class of errors |
+| `cfg.AssertConfigurationIsValid()` | DM001/DM002 analyzer diagnostics (compile-time) | Remove the runtime call; the source generator emits compile-time diagnostics that catch the same class of errors |
 | `mapper.Map<T>(src)` | `mapper.Map<T>(src)` | Same signature |
 | `mapper.Map<Src, Dst>(src)` | `mapper.Map<Src, Dst>(src)` | Same signature |
 | `mapper.Map(src, dst)` | `mapper.Map<Src, Dst>(src, dst)` | DeltaMapper requires explicit type arguments |
@@ -116,7 +116,7 @@ The following table summarises AutoMapper features relative to DeltaMapper v0.4.
 
 | AutoMapper feature | DeltaMapper v0.4 status |
 |---|---|
-| `AssertConfigurationIsValid()` | Implemented — DM001/DM002/DM003 compile-time analyzer diagnostics (Phase 3) |
+| `AssertConfigurationIsValid()` | Implemented — DM001/DM002 compile-time analyzer diagnostics (Phase 3) |
 | `MappingDiff<T>` / change tracking | Implemented — `MapWithDiff` and `Patch` methods (Phase 2) |
 | Source generator / zero-overhead path | Implemented — `[GenerateMap]` attribute via `DeltaMapper.SourceGen` (Phase 3) |
 | EF Core proxy awareness | Implemented — `AddEFCoreSupport()` via `DeltaMapper.EFCore` (Phase 4) |

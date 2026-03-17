@@ -22,9 +22,21 @@ public class FlatDest
     public bool IsActive { get; set; }
 }
 
-/// <summary>Profile class that drives the source-generator benchmark path.</summary>
+/// <summary>Source-generator profiles for benchmark paths.</summary>
 [GenerateMap(typeof(FlatSource), typeof(FlatDest))]
-public partial class FlatProfile { }
+public partial class FlatGenProfile { }
+
+[GenerateMap(typeof(AddressSource), typeof(AddressDest))]
+public partial class AddressGenProfile { }
+
+[GenerateMap(typeof(NestedSource), typeof(NestedDest))]
+public partial class NestedGenProfile { }
+
+[GenerateMap(typeof(ItemSource), typeof(ItemDest))]
+public partial class ItemGenProfile { }
+
+[GenerateMap(typeof(CollectionSource), typeof(CollectionDest))]
+public partial class CollectionGenProfile { }
 
 // ── Nested models ────────────────────────────────────────────────────────────
 

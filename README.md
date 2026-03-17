@@ -50,8 +50,8 @@ Summary across four mapping scenarios (DeltaMapper Runtime vs. competitors):
 | Scenario | Mean | Allocated |
 |---|---|---|
 | Flat Object (5 properties) | `<pending>` | `<pending>` |
-| Nested Object (3 levels deep) | `<pending>` | `<pending>` |
-| Collection (100 items) | `<pending>` | `<pending>` |
+| Nested Object (2 levels) | `<pending>` | `<pending>` |
+| Collection (10 items) | `<pending>` | `<pending>` |
 | Patch (MappingDiff + change tracking) | `<pending>` | `<pending>` |
 
 See [BENCHMARKS.md](BENCHMARKS.md) for full results and methodology.
