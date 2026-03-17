@@ -1,42 +1,55 @@
 # Hydra Plan
 
 ## Objective
-Implement MappingDiff<T> and Patch — Phase 2: PropertyChange record, MappingDiff<T> type, IMapper.Patch<TSource, TDestination>() method, snapshot-compare diff algorithm, nested object dot-notation paths, collection diff (add/remove/modify), and full test coverage.
+Implement Phase 3 — Roslyn Source Generator: [GenerateMap] attribute, IIncrementalGenerator that emits assignment code at build time, GeneratedMapRegistry for runtime fallback integration, DM001/DM002/DM003 analyzer diagnostics, and generator test coverage.
 
 ## Status Summary
-- Total tasks: 6
-- DONE: 6 | READY: 0
-- Current iteration: 4/40
-- Active task: none — ALL TASKS COMPLETE
+- Total tasks: 9
+- DONE: 0 | READY: 9
+- Current iteration: 0/40
+- Active task: none — starting fresh
 
 ## Wave Groups
 
-### Wave 1 — Core Types and Test Models — COMPLETE
-- [x] TASK-015, TASK-016
+### Wave 1 — Project Scaffolding (parallel, no file overlap)
+- [ ] TASK-021: SourceGen project scaffold and solution registration
+- [ ] TASK-022: GeneratedMapRegistry in DeltaMapper.Core
+- [ ] TASK-023: SourceGen test project scaffold
 
-### Wave 2 — Diff Engine, IMapper.Patch, and Basic Tests — COMPLETE
-- [x] TASK-017
+### Wave 2 — Attribute and Core Generator (depends on Wave 1)
+- [ ] TASK-024: GenerateMapAttribute emitted as source text (depends: TASK-021)
+- [ ] TASK-025: IIncrementalGenerator core — flat type pair emission (depends: TASK-021, TASK-024)
 
-### Wave 3 — Nested Objects and Collection Diff — COMPLETE
-- [x] TASK-018, TASK-019
+### Wave 3 — Advanced Generation (depends on Wave 2)
+- [ ] TASK-026: Generator support for nested types, collections, and Ignore (depends: TASK-025)
+- [ ] TASK-027: ModuleInitializer registration and MapperConfiguration fallback (depends: TASK-022, TASK-025)
 
-### Wave 4 — Edge Cases, NullSubstitute, JSON Serialization — COMPLETE
-- [x] TASK-020
+### Wave 4 — Analyzer Diagnostics (depends on Wave 2)
+- [ ] TASK-028: DM001/DM002/DM003 analyzer diagnostics (depends: TASK-025)
 
-## Completed
-- [x] TASK-015: ChangeKind enum, PropertyChange record, MappingDiff<T> -> DONE
-- [x] TASK-016: Phase 2 test models for diff scenarios -> DONE
-- [x] TASK-017: DiffEngine, IMapper.Patch method, and basic Patch tests -> DONE (82 tests)
-- [x] TASK-018: Nested object diff with dot-notation paths -> DONE (85 tests)
-- [x] TASK-019: Collection diff (add/remove/modify by index) -> DONE (88 tests)
-- [x] TASK-020: NullSubstitute Patch, JSON serialization, edge cases -> DONE (91 tests)
+### Wave 5 — Test Coverage Gate (depends on Waves 3-4)
+- [ ] TASK-029: Full generator test coverage and compile verification (depends: TASK-026, TASK-027, TASK-028)
+
+## Task Details
+
+| Task | Title | Wave | Depends On | Files | Status |
+|------|-------|------|------------|-------|--------|
+| TASK-021 | SourceGen project scaffold | 1 | — | DeltaMapper.SourceGen.csproj, DeltaMapper.slnx | READY |
+| TASK-022 | GeneratedMapRegistry in Core | 1 | — | GeneratedMapRegistry.cs, MapperConfiguration.cs, MapperConfigurationBuilder.cs | READY |
+| TASK-023 | SourceGen test project scaffold | 1 | — | DeltaMapper.SourceGen.Tests.csproj, GeneratorTestHelper.cs | READY |
+| TASK-024 | GenerateMapAttribute source text | 2 | TASK-021 | GenerateMapAttributeSource.cs | READY |
+| TASK-025 | IIncrementalGenerator core (flat) | 2 | TASK-021, TASK-024 | MapperGenerator.cs, EmitHelper.cs | READY |
+| TASK-026 | Nested types, collections, Ignore | 3 | TASK-025 | EmitHelper.cs, MapperGenerator.cs | READY |
+| TASK-027 | ModuleInitializer + registry wiring | 3 | TASK-022, TASK-025 | MapperGenerator.cs, EmitHelper.cs | READY |
+| TASK-028 | DM001/DM002/DM003 diagnostics | 4 | TASK-025 | DiagnosticDescriptors.cs, MappingAnalyzer.cs, MapperGenerator.cs | READY |
+| TASK-029 | Full test coverage gate | 5 | TASK-026, TASK-027, TASK-028 | 6 test files | READY |
 
 ## Blocked
 (none)
 
 ## Recovery Pointer
-- **Current Task:** none
-- **Last Action:** Iteration 3 completed
-- **Next Action:** Continue work on next READY task
-- **Last Checkpoint:** hydra/checkpoints/iteration-003.json
-- **Last Commit:** cc4782b feat(FEAT-003): fix checkpoint and config to reflect 6/6 tasks DONE
+- **Current Task:** TASK-021 (first in Wave 1)
+- **Last Action:** Plan created
+- **Next Action:** Execute Wave 1 tasks in parallel (TASK-021, TASK-022, TASK-023)
+- **Last Checkpoint:** none
+- **Last Commit:** 1dee2c6 Migrate to .NET 10 / C# 14 (#2)
