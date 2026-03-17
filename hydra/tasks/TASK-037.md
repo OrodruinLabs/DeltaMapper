@@ -1,7 +1,9 @@
 # TASK-037: BENCHMARKS.md placeholder document
 
 ## Metadata
-- **Status**: PLANNED
+- **Status**: IMPLEMENTED
+- **Claimed at**: 2026-03-17T21:05:00Z
+- **Implemented at**: 2026-03-17T21:10:00Z
 - **Wave**: 2
 - **Depends on**: TASK-035
 - **Delegates to**: implementer
@@ -9,6 +11,17 @@
 - **Files modified**: BENCHMARKS.md
 - **Retry count**: 0/3
 - **Review evidence**: hydra/reviews/TASK-037-review.md
+
+## Implementation Log
+
+- Created `BENCHMARKS.md` at repo root
+- Four benchmark tables: Flat Object, Nested Object, Collection, Patch
+- All five competitors per table: DeltaMapper_Runtime, DeltaMapper_SourceGen, Mapperly, AutoMapper, HandWritten
+- All numeric cells contain `<pending>` placeholders (Mean, Error, StdDev, Gen0, Allocated)
+- Environment template section (OS, CPU, .NET SDK, BenchmarkDotNet version)
+- "Run Locally" section with `dotnet run -c Release` and `--filter` examples for each scenario
+- Methodology section covering MemoryDiagnoser, warmup, Release config requirement, GlobalSetup isolation
+- Link back to README.md
 
 ## Description
 
