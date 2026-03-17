@@ -1,20 +1,20 @@
 {
-  "iteration": 2,
-  "timestamp": "2026-03-17T11:29:43Z",
+  "iteration": 5,
+  "timestamp": "2026-03-17T10:56:13Z",
   "mode": "afk",
   "active_task": {
-    "id": "TASK-021",
-    "status": "READY",
+    "id": null,
+    "status": null,
     "retry_count": 0,
     "last_action": null,
-    "next_action": "Read hydra/tasks/TASK-021.md and continue work",
+    "next_action": null,
     "files_modified_this_iteration": []
   },
   "plan_snapshot": {
-    "total_tasks": 9,
-    "done": 0,
+    "total_tasks": 6,
+    "done": 6,
     "approved": 0,
-    "ready": 9,
+    "ready": 0,
     "in_progress": 0,
     "in_review": 0,
     "changes_requested": 0,
@@ -22,13 +22,13 @@
     "planned": 0
   },
   "git": {
-    "branch": "feat/FEAT-004-roslyn-source-generator",
-    "last_commit_sha": "aab3d5a",
-    "last_commit_message": "feat(FEAT-004): plan Phase 3 — Roslyn Source Generator",
+    "branch": "feat/FEAT-003-mappingdiff-patch",
+    "last_commit_sha": "22e776f",
+    "last_commit_message": "feat(FEAT-003): add review evidence for all 6 Phase 2 tasks",
     "uncommitted_changes": true
   },
   "branch": {
-    "feature": "feat/FEAT-004-roslyn-source-generator",
+    "feature": "feat/FEAT-003-mappingdiff-patch",
     "base": "master",
     "active_worktrees": 0
   },
@@ -44,8 +44,8 @@
   },
   "context_health": {
     "compactions_this_session": 0,
-    "iterations_since_last_compaction": 2,
-    "consecutive_failures": 2
+    "iterations_since_last_compaction": 5,
+    "consecutive_failures": 1
   },
-  "recovery_instructions": "Read hydra/plan.md Recovery Pointer, then hydra/tasks/TASK-021.md for current state."
+  "recovery_instructions": "Read hydra/plan.md Recovery Pointer. No active task — find first READY task in plan."
 }
