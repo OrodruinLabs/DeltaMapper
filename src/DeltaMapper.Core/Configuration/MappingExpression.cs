@@ -15,6 +15,8 @@ internal sealed class MappingExpression<TSrc, TDst> : IMappingExpression<TSrc, T
         Expression<Func<TDst, TMember>> destinationMember,
         Action<IMemberOptions<TSrc>> options)
     {
+        ArgumentNullException.ThrowIfNull(destinationMember);
+        ArgumentNullException.ThrowIfNull(options);
         var memberName = GetMemberName(destinationMember);
         var memberOptions = new MemberOptions<TSrc>();
         options(memberOptions);
@@ -33,12 +35,14 @@ internal sealed class MappingExpression<TSrc, TDst> : IMappingExpression<TSrc, T
 
     public IMappingExpression<TSrc, TDst> BeforeMap(Action<TSrc, TDst> beforeAction)
     {
+        ArgumentNullException.ThrowIfNull(beforeAction);
         TypeMapConfig.BeforeMapAction = (src, dst) => beforeAction((TSrc)src, (TDst)dst);
         return this;
     }
 
     public IMappingExpression<TSrc, TDst> AfterMap(Action<TSrc, TDst> afterAction)
     {
+        ArgumentNullException.ThrowIfNull(afterAction);
         TypeMapConfig.AfterMapAction = (src, dst) => afterAction((TSrc)src, (TDst)dst);
         return this;
     }
