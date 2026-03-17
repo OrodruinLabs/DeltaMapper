@@ -11,13 +11,20 @@ public static class GeneratedMapRegistry
 {
     private static readonly ConcurrentDictionary<(Type, Type), Delegate> _registry = new();
 
+    // Boxed Action<object,object> wrappers keyed the same way — avoids DynamicInvoke at call time.
+    private static readonly ConcurrentDictionary<(Type, Type), Action<object, object>> _boxedRegistry = new();
+
     /// <summary>
     /// Registers a source-generated mapping delegate for the given type pair.
     /// Called by [ModuleInitializer] in generated assemblies.
     /// </summary>
     public static void Register<TSource, TDestination>(Action<TSource, TDestination> mapAction)
     {
-        _registry[(typeof(TSource), typeof(TDestination))] = mapAction;
+        ArgumentNullException.ThrowIfNull(mapAction);
+
+        var key = (typeof(TSource), typeof(TDestination));
+        _registry[key] = mapAction;
+        _boxedRegistry[key] = (src, dst) => mapAction((TSource)src, (TDestination)dst);
     }
 
     /// <summary>
@@ -36,14 +43,22 @@ public static class GeneratedMapRegistry
 
     /// <summary>
     /// Non-generic overload for runtime type lookups.
+    /// Returns a boxed <see cref="Action{Object,Object}"/> wrapper to avoid DynamicInvoke.
     /// </summary>
-    public static bool TryGet(Type sourceType, Type destType, out Delegate? mapAction)
+    public static bool TryGet(Type sourceType, Type destType, out Action<object, object>? mapAction)
     {
-        return _registry.TryGetValue((sourceType, destType), out mapAction);
+        ArgumentNullException.ThrowIfNull(sourceType);
+        ArgumentNullException.ThrowIfNull(destType);
+
+        return _boxedRegistry.TryGetValue((sourceType, destType), out mapAction);
     }
 
     /// <summary>
     /// Removes all registered delegates. Intended for test isolation only.
     /// </summary>
-    internal static void Clear() => _registry.Clear();
+    internal static void Clear()
+    {
+        _registry.Clear();
+        _boxedRegistry.Clear();
+    }
 }

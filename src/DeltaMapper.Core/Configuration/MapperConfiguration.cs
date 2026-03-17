@@ -63,19 +63,22 @@ public sealed class MapperConfiguration
         if (ctx.TryGetMapped(source, out var cached))
             return cached!;
 
-        // Prefer source-generated delegates registered via GeneratedMapRegistry
+        // Compiled maps (with hooks/middleware) take precedence over source-generated delegates
+        // so that BeforeMap/AfterMap and other pipeline behaviours are honoured when explicitly configured.
+        if (_registry.TryGetValue((srcType, dstType), out var compiledMap))
+            return compiledMap.Execute(source, existingDest, ctx);
+
+        // Fall back to source-generated delegates registered via GeneratedMapRegistry
         if (GeneratedMapRegistry.TryGet(srcType, dstType, out var generatedDelegate))
         {
             var destination = existingDest ?? Activator.CreateInstance(dstType)
                 ?? throw new InvalidOperationException($"Cannot create an instance of '{dstType.FullName}'.");
-            generatedDelegate!.DynamicInvoke(source, destination);
+            ctx.Register(source, destination);
+            generatedDelegate!(source, destination);
             return destination;
         }
 
-        if (!_registry.TryGetValue((srcType, dstType), out var compiledMap))
-            throw DeltaMapperException.ForMissingMapping(srcType, dstType);
-
-        return compiledMap.Execute(source, existingDest, ctx);
+        throw DeltaMapperException.ForMissingMapping(srcType, dstType);
     }
 
     internal bool HasMap(Type srcType, Type dstType) => _registry.ContainsKey((srcType, dstType));

@@ -1,4 +1,3 @@
-using DeltaMapper.Configuration;
 using DeltaMapper.Runtime;
 using DeltaMapper.UnitTests.TestModels;
 using FluentAssertions;
@@ -59,15 +58,23 @@ public class GeneratedMapRegistryTests : IDisposable
     // ── GR-03 ─────────────────────────────────────────────────────────────────
 
     [Fact]
-    public void GR03_TryGetNonGeneric_WhenRegistered_ReturnsDelegate()
+    public void GR03_TryGetNonGeneric_WhenRegistered_ReturnsInvocableAction()
     {
-        Action<User, UserDto> expectedDelegate = (src, dst) => { dst.Id = src.Id; };
+        var invoked = false;
+        Action<User, UserDto> expectedDelegate = (src, dst) => { dst.Id = src.Id; invoked = true; };
         GeneratedMapRegistry.Register(expectedDelegate);
 
         var found = GeneratedMapRegistry.TryGet(typeof(User), typeof(UserDto), out var retrieved);
 
         found.Should().BeTrue();
-        retrieved.Should().BeSameAs(expectedDelegate);
+        retrieved.Should().NotBeNull();
+
+        // Verify the boxed wrapper correctly delegates to the original action
+        var user = new User { Id = 42, FirstName = "Test" };
+        var dto = new UserDto();
+        retrieved!(user, dto);
+        dto.Id.Should().Be(42);
+        invoked.Should().BeTrue();
     }
 
     // GR-04: Integration test (GeneratedMapRegistry + MapperConfiguration) is in DeltaMapper.SourceGen.Tests

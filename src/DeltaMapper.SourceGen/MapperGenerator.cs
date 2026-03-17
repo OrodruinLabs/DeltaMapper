@@ -33,6 +33,20 @@ namespace DeltaMapper.SourceGen
             var classSymbol = context.TargetSymbol as INamedTypeSymbol;
             if (classSymbol is null) return null;
 
+            // Verify the class has the 'partial' modifier — generated methods require it
+            var classDecl = context.TargetNode as ClassDeclarationSyntax;
+            if (classDecl is null) return null;
+            bool isPartial = false;
+            foreach (var modifier in classDecl.Modifiers)
+            {
+                if (modifier.IsKind(Microsoft.CodeAnalysis.CSharp.SyntaxKind.PartialKeyword))
+                {
+                    isPartial = true;
+                    break;
+                }
+            }
+            if (!isPartial) return null;
+
             // Extract [GenerateMap(typeof(Src), typeof(Dst))] attributes —
             // capture raw AttributeData and the syntax location for diagnostics.
             var rawAttributes = new List<(AttributeData Data, Location Location)>();

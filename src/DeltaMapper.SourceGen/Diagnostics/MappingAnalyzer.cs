@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace DeltaMapper.SourceGen.Diagnostics
 {
@@ -18,6 +17,8 @@ namespace DeltaMapper.SourceGen.Diagnostics
         /// <summary>
         /// Called during the Execute phase.  Reports DM001 for every unmatched,
         /// non-ignored writable destination property.
+        /// A property is considered matched when a readable source property has the same
+        /// name (case-insensitive) AND a compatible (symbol-equal) type.
         /// </summary>
         public static void ReportUnmappedProperties(
             SourceProductionContext context,
@@ -25,15 +26,16 @@ namespace DeltaMapper.SourceGen.Diagnostics
             INamedTypeSymbol dst,
             Location attributeLocation)
         {
-            var srcReadableNames = GetReadablePropertyNames(src);
+            var srcReadableProps = GetReadableProperties(src);
 
             foreach (var dstProp in GetWritableProperties(dst))
             {
                 if (IsIgnored(dstProp))
                     continue;
 
-                bool hasMatch = srcReadableNames.Any(n =>
-                    string.Equals(n, dstProp.Name, System.StringComparison.OrdinalIgnoreCase));
+                bool hasMatch = srcReadableProps.Any(srcProp =>
+                    string.Equals(srcProp.Name, dstProp.Name, System.StringComparison.OrdinalIgnoreCase) &&
+                    SymbolEqualityComparer.Default.Equals(srcProp.Type, dstProp.Type));
 
                 if (!hasMatch)
                 {
@@ -107,15 +109,12 @@ namespace DeltaMapper.SourceGen.Diagnostics
                 .ToList();
         }
 
-        private static HashSet<string> GetReadablePropertyNames(INamedTypeSymbol type)
+        private static List<IPropertySymbol> GetReadableProperties(INamedTypeSymbol type)
         {
-            var result = new HashSet<string>(System.StringComparer.OrdinalIgnoreCase);
-            foreach (var p in type.GetMembers().OfType<IPropertySymbol>())
-            {
-                if (!p.IsStatic && !p.IsIndexer && p.GetMethod is not null)
-                    result.Add(p.Name);
-            }
-            return result;
+            return type.GetMembers()
+                .OfType<IPropertySymbol>()
+                .Where(p => !p.IsStatic && !p.IsIndexer && p.GetMethod is not null)
+                .ToList();
         }
 
         private static bool IsIgnored(IPropertySymbol prop)
