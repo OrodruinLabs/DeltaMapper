@@ -1,7 +1,7 @@
 ---
 id: TASK-029
 title: Full generator test coverage and compile verification
-status: READY
+status: IMPLEMENTED
 depends_on:
   - TASK-026
   - TASK-027
@@ -21,7 +21,7 @@ acceptance_criteria:
   - Generated code for each scenario compiles without warnings when verified via CSharpCompilation in tests
 ---
 
-- **Status**: READY
+- **Status**: IMPLEMENTED
 
 **Retry count**: 0/3
 
