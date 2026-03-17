@@ -5,12 +5,12 @@ namespace DeltaMapper.Diff;
 /// </summary>
 public enum ChangeKind
 {
-    /// <summary>The property value was present on both source and destination but differs.</summary>
+    /// <summary>The property value differs between the before and after snapshots.</summary>
     Modified,
 
-    /// <summary>The property value was absent on the source but present on the destination.</summary>
+    /// <summary>The element was not present before mapping but exists after (collection growth).</summary>
     Added,
 
-    /// <summary>The property value was present on the source but absent on the destination.</summary>
+    /// <summary>The element was present before mapping but absent after (collection shrink).</summary>
     Removed,
 }
