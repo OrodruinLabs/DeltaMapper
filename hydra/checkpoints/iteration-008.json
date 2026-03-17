@@ -1,6 +1,6 @@
 {
-  "iteration": 1,
-  "timestamp": "2026-03-16T22:03:32Z",
+  "iteration": 8,
+  "timestamp": "2026-03-16T22:04:25Z",
   "mode": "afk",
   "active_task": {
     "id": null,
@@ -9,7 +9,12 @@
     "last_action": null,
     "next_action": null,
     "files_modified_this_iteration": [
-      "hydra/plan.md"
+      "hydra/checkpoints/iteration-001.json",
+      "hydra/checkpoints/iteration-007.json",
+      "hydra/config.json",
+      "hydra/logs/iterations.jsonl",
+      "hydra/plan.md",
+      "hydra/tasks/TASK-007.md"
     ]
   },
   "plan_snapshot": {
@@ -25,8 +30,8 @@
   },
   "git": {
     "branch": "feat/FEAT-001-runtime-core",
-    "last_commit_sha": "663d630",
-    "last_commit_message": "feat(FEAT-001): mark all tasks complete in plan — 14/14 DONE",
+    "last_commit_sha": "e60c1bd",
+    "last_commit_message": "feat(FEAT-001): fix TASK-007 manifest status — was still PLANNED, now DONE",
     "uncommitted_changes": true
   },
   "branch": {
@@ -46,8 +51,8 @@
   },
   "context_health": {
     "compactions_this_session": 0,
-    "iterations_since_last_compaction": 1,
-    "consecutive_failures": 3
+    "iterations_since_last_compaction": 8,
+    "consecutive_failures": 2
   },
   "recovery_instructions": "Read hydra/plan.md Recovery Pointer. No active task — find first READY task in plan."
 }

@@ -1,84 +1,63 @@
 # Hydra Plan
 
 ## Objective
-<!-- Set by the Planner agent after reading context files and user objective.
-     Example: "Add Stripe payment integration with checkout flow, webhook handling, and subscription management."
-     This must be a clear, specific statement of what the loop will accomplish. -->
+Implement DeltaMapper Phase 1 — Runtime Core: project setup, core interfaces, fluent profile API, MapperConfiguration with expression-compiled delegates and FrozenDictionary, Mapper runtime executor, MapperContext for circular reference detection, DI integration, record/init-only property support, and full unit test coverage.
 
 ## Discovery Status
-<!-- Updated by the Discovery agent after scanning the codebase. -->
-- [ ] Discovery run: <!-- timestamp, e.g. 2026-02-27T14:30:00Z -->
-- [ ] Classification: <!-- greenfield | brownfield | refactor | bugfix | migration -->
-- [ ] Reviewers generated: <!-- comma-separated list, e.g. architect-reviewer, code-reviewer, security-reviewer -->
-- [ ] Context collected: <!-- scope type, e.g. feature-scope, refactor-scope, bugfix-scope -->
-- [ ] Documents generated: <!-- comma-separated list, e.g. TRD, ADR-001, test-plan -->
+- [x] Discovery run: 2026-03-16T21:30:00Z
+- [x] Classification: greenfield
+- [x] Reviewers generated: architect-reviewer, code-reviewer, security-reviewer, type-reviewer
+- [x] Context collected: greenfield-scope
+- [x] Documents generated: TRD, test-plan
 
 ## Status Summary
-<!-- Auto-updated by agents after each state transition.
-     The stop hook and session-context hook read this section for quick state assessment.
-     Every agent that changes task state MUST update these counters. -->
-- Total tasks: 0
-- DONE: 0 | READY: 0 | IN_PROGRESS: 0 | IN_REVIEW: 0 | CHANGES_REQUESTED: 0 | BLOCKED: 0 | PLANNED: 0
-- Current iteration: 0/40
-- Active task: none
+- Total tasks: 14
+- DONE: 14 | READY: 0 | IN_PROGRESS: 0 | IN_REVIEW: 0 | CHANGES_REQUESTED: 0 | BLOCKED: 0 | PLANNED: 0
+- Current iteration: 6/40
+- Active task: none — ALL TASKS COMPLETE
 
-## Parallel Groups
-<!-- Tasks within a group can run simultaneously (zero file overlap, zero dependencies).
-     Tasks across groups MUST run sequentially — each group completes before the next starts.
-     The Planner populates these groups during planning.
-     The stop hook checks group completion to advance to the next group. -->
+## Wave Groups
 
-### Group 1
-<!-- Example:
-- [ ] TASK-001: Create user model (files: src/models/user.ts, tests/models/user.test.ts) -> PLANNED
-- [ ] TASK-002: Create product model (files: src/models/product.ts, tests/models/product.test.ts) -> PLANNED
--->
+### Wave 1 — COMPLETE
+- [x] TASK-001, TASK-002, TASK-003
 
-## Tasks
-<!-- Individual task entries are maintained in hydra/tasks/TASK-NNN.md manifests.
-     This section serves as a quick-reference index.
-     Status key: PLANNED | READY | IN_PROGRESS | IMPLEMENTED | IN_REVIEW | CHANGES_REQUESTED | DONE | BLOCKED
+### Wave 2 — COMPLETE
+- [x] TASK-004, TASK-005, TASK-006
 
-     Example entry:
-     ### TASK-001: Create user model
-     - **Status**: DONE
-     - **Group**: 1
-     - **Depends on**: none
-     - **Manifest**: hydra/tasks/TASK-001.md
--->
+### Wave 3 — COMPLETE
+- [x] TASK-007
+
+### Wave 4 — COMPLETE
+- [x] TASK-008, TASK-009
+
+### Wave 5 — COMPLETE
+- [x] TASK-010, TASK-011, TASK-012
+
+### Wave 6 — COMPLETE
+- [x] TASK-013, TASK-014
 
 ## Completed
-<!-- Tasks moved here after ALL reviewers approve and status is set to DONE.
-     Each entry includes the completion commit SHA for traceability.
-
-     Example:
-     - [x] TASK-001: Create user model -> DONE (sha: ghi9012)
-     - [x] TASK-002: Create product model -> DONE (sha: jkl3456)
--->
+- [x] TASK-001: Solution and Project Files Setup -> DONE (sha: 0387b24)
+- [x] TASK-002: DeltaMapperException Custom Exception -> DONE (sha: 0387b24)
+- [x] TASK-003: Shared Test Models -> DONE (sha: 0387b24)
+- [x] TASK-004: IMapper Interface and MapperContext -> DONE (sha: 7dbf5af)
+- [x] TASK-005: MappingProfile and MappingExpression Fluent API -> DONE (sha: 7dbf5af)
+- [x] TASK-006: Middleware Pipeline Stubs -> DONE (sha: 7dbf5af)
+- [x] TASK-007: MapperConfiguration and MapperConfigurationBuilder -> DONE (sha: ef20851)
+- [x] TASK-008: Mapper Runtime Executor and Convention Mapping Tests -> DONE (sha: 79adae1)
+- [x] TASK-009: ForMember Resolvers, Hooks, and ReverseMap Tests -> DONE (sha: 79adae1)
+- [x] TASK-010: Record and Init-Only Property Support -> DONE (sha: 87968d1)
+- [x] TASK-011: Collection Mapping and Nested Object Mapping Tests -> DONE (sha: 87968d1)
+- [x] TASK-012: Circular Reference Detection Tests -> DONE (sha: 87968d1)
+- [x] TASK-013: DI Integration (ServiceCollectionExtensions) -> DONE (sha: 876a22e)
+- [x] TASK-014: Non-Generic Map, Existing Destination, Error Handling Tests -> DONE (sha: 876a22e)
 
 ## Blocked
-<!-- Tasks that hit max retries, have unresolvable issues, or require human intervention.
-     Each entry includes the reason and whether human input is required.
-
-     Example:
-     - TASK-008: Add payment integration -> BLOCKED (requires human: API keys needed)
-       - Reason: Stripe API keys not configured in environment
-       - Attempted: 2 retries, both failed on missing STRIPE_SECRET_KEY
-       - Action needed: User must add API keys to .env and set status to READY
--->
+(none)
 
 ## Recovery Pointer
-<!-- THE MOST IMPORTANT SECTION IN THIS FILE.
-     Updated on EVERY state transition by the acting agent.
-     This is the FIRST thing read by:
-       - The stop hook re-injection message
-       - session-context.sh on startup/compaction
-       - Any agent starting work after interruption
-     It must be small enough to survive aggressive compaction summaries.
-     It must be human-readable for manual inspection. -->
-
 - **Current Task:** none
-- **Last Action:** Iteration 2 completed
+- **Last Action:** Iteration 10 completed
 - **Next Action:** Continue work on next READY task
-- **Last Checkpoint:** hydra/checkpoints/iteration-002.json
-- **Last Commit:** unknown no commits yet
+- **Last Checkpoint:** hydra/checkpoints/iteration-010.json
+- **Last Commit:** edf8866 feat(FEAT-001): fix task manifest format and add review evidence
