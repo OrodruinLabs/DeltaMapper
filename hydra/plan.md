@@ -57,7 +57,7 @@ Implement DeltaMapper Phase 1 — Runtime Core: project setup, core interfaces, 
 
 ## Recovery Pointer
 - **Current Task:** none
-- **Last Action:** Iteration 10 completed
+- **Last Action:** Iteration 1 completed
 - **Next Action:** Continue work on next READY task
-- **Last Checkpoint:** hydra/checkpoints/iteration-010.json
-- **Last Commit:** edf8866 feat(FEAT-001): fix task manifest format and add review evidence
+- **Last Checkpoint:** hydra/checkpoints/iteration-001.json
+- **Last Commit:** c95db46 feat(FEAT-002): update documentation for net10.0 target

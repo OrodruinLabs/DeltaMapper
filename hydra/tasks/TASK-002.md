@@ -1,6 +1,6 @@
 # TASK-002: Primary Constructors
 
-## Status: PLANNED
+## Status: DONE
 
 ## Metadata
 - **Task ID**: TASK-002

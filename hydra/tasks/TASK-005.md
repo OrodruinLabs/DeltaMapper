@@ -1,6 +1,6 @@
 # TASK-005: Extension Members for DI Registration
 
-## Status: PLANNED
+## Status: DONE
 
 ## Metadata
 - **Task ID**: TASK-005

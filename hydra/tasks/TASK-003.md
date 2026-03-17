@@ -1,6 +1,6 @@
 # TASK-003: Collection Expressions
 
-## Status: PLANNED
+## Status: DONE
 
 ## Metadata
 - **Task ID**: TASK-003

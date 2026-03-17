@@ -1,6 +1,6 @@
 # TASK-004: Null-Conditional Assignment
 
-## Status: PLANNED
+## Status: DONE
 
 ## Metadata
 - **Task ID**: TASK-004
