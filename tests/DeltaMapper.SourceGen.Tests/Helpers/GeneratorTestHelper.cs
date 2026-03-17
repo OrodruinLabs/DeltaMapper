@@ -5,21 +5,35 @@ namespace DeltaMapper.SourceGen.Tests.Helpers;
 
 public static class GeneratorTestHelper
 {
-    public static GeneratorDriverRunResult RunGenerator(string source)
+    /// <summary>
+    /// Builds the set of MetadataReferences used for all test compilations.
+    /// Includes all non-dynamic loaded assemblies plus DeltaMapper.Core explicitly,
+    /// so generated code referencing DeltaMapper.Runtime resolves correctly.
+    /// </summary>
+    private static IReadOnlyList<MetadataReference> BuildReferences()
     {
-        var syntaxTree = CSharpSyntaxTree.ParseText(source);
-
-        // Create references for compilation — include all loaded assemblies
-        var references = AppDomain.CurrentDomain.GetAssemblies()
+        var refs = AppDomain.CurrentDomain.GetAssemblies()
             .Where(a => !a.IsDynamic && !string.IsNullOrWhiteSpace(a.Location))
             .Select(a => MetadataReference.CreateFromFile(a.Location))
             .Cast<MetadataReference>()
             .ToList();
 
+        // Explicitly include DeltaMapper.Core so generated code can reference DeltaMapper.Runtime
+        var coreLocation = typeof(DeltaMapper.Runtime.GeneratedMapRegistry).Assembly.Location;
+        if (!string.IsNullOrWhiteSpace(coreLocation))
+            refs.Add(MetadataReference.CreateFromFile(coreLocation));
+
+        return refs;
+    }
+
+    public static GeneratorDriverRunResult RunGenerator(string source)
+    {
+        var syntaxTree = CSharpSyntaxTree.ParseText(source);
+
         var compilation = CSharpCompilation.Create(
             "TestAssembly",
             [syntaxTree],
-            references,
+            BuildReferences(),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
 
         var generator = new MapperGenerator();
@@ -35,16 +49,10 @@ public static class GeneratorTestHelper
     {
         var syntaxTree = CSharpSyntaxTree.ParseText(source);
 
-        var references = AppDomain.CurrentDomain.GetAssemblies()
-            .Where(a => !a.IsDynamic && !string.IsNullOrWhiteSpace(a.Location))
-            .Select(a => MetadataReference.CreateFromFile(a.Location))
-            .Cast<MetadataReference>()
-            .ToList();
-
         var compilation = CSharpCompilation.Create(
             "TestAssembly",
             [syntaxTree],
-            references,
+            BuildReferences(),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
 
         var generator = new MapperGenerator();

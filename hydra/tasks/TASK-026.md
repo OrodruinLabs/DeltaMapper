@@ -1,7 +1,7 @@
 ---
 id: TASK-026
 title: Generator support for nested types, collections, and Ignore
-status: READY
+status: IMPLEMENTED
 depends_on:
   - TASK-025
 wave: 3
@@ -15,7 +15,7 @@ acceptance_criteria:
   - Generator skips properties decorated with [DeltaMapper.Ignore] or properties named in ForMember(...Ignore()) — at minimum the [Ignore] attribute path
 ---
 
-- **Status**: READY
+- **Status**: IMPLEMENTED
 
 **Retry count**: 0/3
 

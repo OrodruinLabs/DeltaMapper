@@ -1,7 +1,7 @@
 ---
 id: TASK-027
 title: ModuleInitializer registration and MapperConfiguration fallback
-status: READY
+status: IMPLEMENTED
 depends_on:
   - TASK-022
   - TASK-025
@@ -16,7 +16,16 @@ acceptance_criteria:
   - Generator test verifies the emitted code contains ModuleInitializer attribute and GeneratedMapRegistry.Register call
 ---
 
-- **Status**: READY
+- **Status**: IMPLEMENTED
+
+## Implementation Log
+
+- Modified `EmitHelper.cs`: added `EmitModuleInitializer(profileClass, mappings)` and `BuildModuleInitializerFileName(profileClass)` methods
+- Modified `MapperGenerator.cs`: updated `Execute` to emit one `.ModuleInit.g.cs` file per profile class after emitting per-pair map files
+- Updated `GeneratorTestHelper.cs`: explicitly includes `DeltaMapper.Core` assembly reference so generated code referencing `DeltaMapper.Runtime` compiles correctly in test compilations
+- Updated `MapperGeneratorFlatTests.cs`: adjusted file-count assertions (+1 for the new ModuleInitializer file per profile)
+- Created `ModuleInitializerEmitTests.cs`: 8 tests covering attribute presence, Register call, static lambda delegate, method signature, partial class wrapping, multiple-attribute registration, and zero-error compilation
+- All 19 SourceGen tests pass; all 95 unit tests pass
 
 **Retry count**: 0/3
 

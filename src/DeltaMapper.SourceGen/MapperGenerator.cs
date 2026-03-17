@@ -56,12 +56,20 @@ namespace DeltaMapper.SourceGen
 
         private static void Execute(SourceProductionContext context, MappingInfo info)
         {
+            // Emit one map-method file per (src, dst) pair.
+            // Pass all mappings in the profile as knownPairs so nested types and
+            // collection elements can be mapped recursively within the same profile.
             foreach (var (src, dst) in info.Mappings)
             {
-                var source = EmitHelper.EmitMapMethod(info.ProfileClass, src, dst);
+                var source = EmitHelper.EmitMapMethod(info.ProfileClass, src, dst, info.Mappings);
                 var hintName = EmitHelper.BuildFileName(info.ProfileClass, src, dst);
                 context.AddSource(hintName, source);
             }
+
+            // Emit one ModuleInitializer file per profile class (covers all pairs)
+            var initSource = EmitHelper.EmitModuleInitializer(info.ProfileClass, info.Mappings);
+            var initHintName = EmitHelper.BuildModuleInitializerFileName(info.ProfileClass);
+            context.AddSource(initHintName, initSource);
         }
     }
 
