@@ -5,9 +5,9 @@ Implement MappingDiff<T> and Patch — Phase 2: PropertyChange record, MappingDi
 
 ## Status Summary
 - Total tasks: 6
-- DONE: 5 | READY: 1
-- Current iteration: 3/40
-- Active task: TASK-020
+- DONE: 6 | READY: 0
+- Current iteration: 4/40
+- Active task: none — ALL TASKS COMPLETE
 
 ## Wave Groups
 
@@ -20,11 +20,8 @@ Implement MappingDiff<T> and Patch — Phase 2: PropertyChange record, MappingDi
 ### Wave 3 — Nested Objects and Collection Diff — COMPLETE
 - [x] TASK-018, TASK-019
 
-### Wave 4 — Edge Cases, NullSubstitute, JSON Serialization
-- [ ] TASK-020
-
-## Ready
-- [ ] TASK-020: NullSubstitute Patch integration, JSON serialization, edge cases -> READY
+### Wave 4 — Edge Cases, NullSubstitute, JSON Serialization — COMPLETE
+- [x] TASK-020
 
 ## Completed
 - [x] TASK-015: ChangeKind enum, PropertyChange record, MappingDiff<T> -> DONE
@@ -32,13 +29,14 @@ Implement MappingDiff<T> and Patch — Phase 2: PropertyChange record, MappingDi
 - [x] TASK-017: DiffEngine, IMapper.Patch method, and basic Patch tests -> DONE (82 tests)
 - [x] TASK-018: Nested object diff with dot-notation paths -> DONE (85 tests)
 - [x] TASK-019: Collection diff (add/remove/modify by index) -> DONE (88 tests)
+- [x] TASK-020: NullSubstitute Patch, JSON serialization, edge cases -> DONE (91 tests)
 
 ## Blocked
 (none)
 
 ## Recovery Pointer
-- **Current Task:** TASK-020
-- **Last Action:** Wave 3 complete (TASK-018, TASK-019 DONE, 88 tests passing)
-- **Next Action:** Implement TASK-020 — edge cases, NullSubstitute, JSON serialization
+- **Current Task:** POST-LOOP
+- **Last Action:** All 6 tasks DONE, 91 tests passing
+- **Next Action:** Post-loop agents (documentation, release-manager), then PR
 - **Last Checkpoint:** none
-- **Last Commit:** (pending Wave 3 commit)
+- **Last Commit:** (pending Wave 4 commit)

@@ -1,7 +1,7 @@
 ---
 id: TASK-020
 title: NullSubstitute Patch integration, JSON serialization, edge cases
-status: READY
+status: DONE
 depends_on: [TASK-018, TASK-019]
 wave: 4
 delegates_to: implementer
