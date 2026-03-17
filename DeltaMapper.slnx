@@ -7,6 +7,7 @@
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/DeltaMapper.UnitTests/DeltaMapper.UnitTests.csproj" />
+    <Project Path="tests/DeltaMapper.Benchmarks/DeltaMapper.Benchmarks.csproj" />
     <Project Path="tests/DeltaMapper.IntegrationTests/DeltaMapper.IntegrationTests.csproj" />
     <Project Path="tests/DeltaMapper.SourceGen.Tests/DeltaMapper.SourceGen.Tests.csproj" />
   </Folder>

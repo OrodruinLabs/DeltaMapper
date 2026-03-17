@@ -10,23 +10,24 @@ Implement BenchmarkDotNet suite comparing DeltaMapper (runtime), DeltaMapper (so
 
 | Status | Count |
 |--------|-------|
-| PLANNED | 4 |
+| PLANNED | 3 |
 | IN_PROGRESS | 0 |
+| IMPLEMENTED | 1 |
 | DONE | 0 |
 | BLOCKED | 0 |
 | TOTAL | 4 |
 
 ## Recovery Pointer
 
-**Next**: TASK-035 — Benchmark project scaffold
-**State**: Planning complete, ready for Wave 1
-**Last updated**: 2026-03-17T20:30:00Z
+**Next**: TASK-036 / TASK-037 — Benchmark scenarios + BENCHMARKS.md (Wave 2, parallel)
+**State**: TASK-035 IMPLEMENTED — benchmark project scaffold + shared models complete
+**Last updated**: 2026-03-17T21:00:00Z
 
 ## Tasks
 
 | ID | Title | Status | Wave | Depends On |
 |----|-------|--------|------|------------|
-| TASK-035 | Benchmark project scaffold + shared models | PLANNED | 1 | -- |
+| TASK-035 | Benchmark project scaffold + shared models | IMPLEMENTED | 1 | -- |
 | TASK-036 | Benchmark scenarios (flat/nested/collection/patch) | PLANNED | 2 | TASK-035 |
 | TASK-037 | BENCHMARKS.md placeholder document | PLANNED | 2 | TASK-035 |
 | TASK-038 | README final polish + migration guide update | PLANNED | 3 | TASK-037 |
