@@ -7,7 +7,7 @@ namespace DeltaMapper;
 /// </summary>
 public abstract class MappingProfile
 {
-    internal List<TypeMapConfiguration> TypeMaps { get; } = new();
+    internal List<TypeMapConfiguration> TypeMaps { get; } = [];
 
     /// <summary>
     /// Creates a mapping configuration from TSrc to TDst.
@@ -27,7 +27,7 @@ internal sealed class TypeMapConfiguration
 {
     public Type SourceType { get; init; } = null!;
     public Type DestinationType { get; init; } = null!;
-    public List<MemberConfiguration> MemberConfigurations { get; } = new();
+    public List<MemberConfiguration> MemberConfigurations { get; } = [];
     public Action<object, object>? BeforeMapAction { get; set; }
     public Action<object, object>? AfterMapAction { get; set; }
     public bool HasReverseMap { get; set; }

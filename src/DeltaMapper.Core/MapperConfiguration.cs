@@ -27,7 +27,7 @@ public sealed class MapperConfiguration
     internal MapperConfiguration()
     {
         _registry = new Dictionary<(Type, Type), CompiledMap>().ToFrozenDictionary();
-        _pipeline = new MappingPipeline(Array.Empty<IMappingMiddleware>());
+        _pipeline = new MappingPipeline([]);
     }
 
     /// <summary>
