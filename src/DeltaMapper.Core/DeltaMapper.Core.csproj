@@ -11,11 +11,11 @@
     <PackageId>DeltaMapper</PackageId>
     <Version>0.1.0-alpha.1</Version>
     <Authors>Jose Mejia</Authors>
-    <Description>Fast, diff-aware .NET object mapper. Expression-compiled delegates, FrozenDictionary-backed lookup, fluent profile API, and DI integration. Zero runtime dependencies. MIT licensed.</Description>
+    <Description>Fast, diff-aware .NET object mapper. Expression-compiled delegates, FrozenDictionary-backed lookup, fluent profile API, and DI integration. MIT licensed.</Description>
     <PackageTags>mapper;object-mapper;automapper;dto;diff;patch;net10;csharp</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/josemejia/DeltaMapper</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/josemejia/DeltaMapper</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/OrodruinLabs/DeltaMapper</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/OrodruinLabs/DeltaMapper</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>

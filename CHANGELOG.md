@@ -18,7 +18,7 @@ DeltaMapper uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
-## [0.1.0] - 2026-03-17
+## [0.1.0-alpha.1] - 2026-03-17
 
 Initial release. Covers Phase 1 (runtime core) and the .NET 10 / C# 14 migration.
 
@@ -80,5 +80,5 @@ Initial release. Covers Phase 1 (runtime core) and the .NET 10 / C# 14 migration
 - Collection expressions (`[...]`) replace `new List<T>()` where applicable
 - Null-conditional assignment (`??=`) adopted where applicable
 
-[Unreleased]: https://github.com/your-org/DeltaMapper/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/your-org/DeltaMapper/releases/tag/v0.1.0
+[Unreleased]: https://github.com/OrodruinLabs/DeltaMapper/compare/v0.1.0-alpha.1...HEAD
+[0.1.0-alpha.1]: https://github.com/OrodruinLabs/DeltaMapper/releases/tag/v0.1.0-alpha.1

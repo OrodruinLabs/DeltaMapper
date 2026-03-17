@@ -50,6 +50,8 @@ builder.Services.AddAutoMapper(typeof(UserProfile).Assembly);
 
 ```csharp
 // Program.cs
+using DeltaMapper.Extensions;
+
 builder.Services.AddDeltaMapper(cfg =>
 {
     cfg.AddProfile<UserProfile>();
@@ -66,26 +68,42 @@ DeltaMapper requires profiles to be listed explicitly. Assembly scanning is not 
 
 The `Profile` base class rename and `MapperConfiguration` construction pattern are the two mechanical changes that affect every file. The following shell commands handle both in a typical project.
 
+> **Note:** The `sed -i` syntax differs between macOS (BSD) and Linux (GNU). The commands below show both variants. Use the one matching your platform, or use `dotnet format` / your IDE's find-and-replace for a portable alternative.
+
 Rename the base class in all `.cs` files:
 
 ```bash
+# macOS (BSD sed)
 find . -name "*.cs" -not -path "*/obj/*" \
   -exec sed -i '' 's/: Profile$/ : MappingProfile/g; s/: Profile {/ : MappingProfile {/g' {} +
+
+# Linux (GNU sed)
+find . -name "*.cs" -not -path "*/obj/*" \
+  -exec sed -i 's/: Profile$/ : MappingProfile/g; s/: Profile {/ : MappingProfile {/g' {} +
 ```
 
 Update `using` directives (AutoMapper's namespace is `AutoMapper`; DeltaMapper types live in `DeltaMapper.*`):
 
 ```bash
+# macOS (BSD sed)
 find . -name "*.cs" -not -path "*/obj/*" \
   -exec sed -i '' 's/using AutoMapper;/using DeltaMapper.Abstractions;\nusing DeltaMapper.Configuration;/g' {} +
+
+# Linux (GNU sed)
+find . -name "*.cs" -not -path "*/obj/*" \
+  -exec sed -i 's/using AutoMapper;/using DeltaMapper.Abstractions;\nusing DeltaMapper.Configuration;/g' {} +
 ```
 
 Update the configuration construction pattern:
 
 ```bash
-# new MapperConfiguration(cfg => ...) -> MapperConfiguration.Create(cfg => ...)
+# macOS (BSD sed)
 find . -name "*.cs" -not -path "*/obj/*" \
   -exec sed -i '' 's/new MapperConfiguration(\(cfg\)/MapperConfiguration.Create(\1/g' {} +
+
+# Linux (GNU sed)
+find . -name "*.cs" -not -path "*/obj/*" \
+  -exec sed -i 's/new MapperConfiguration(\(cfg\)/MapperConfiguration.Create(\1/g' {} +
 ```
 
 Review the diff after running these scripts — edge cases (inline `Profile` subclasses, `IMapper` injected as `AutoMapper.IMapper`, etc.) may need manual attention.

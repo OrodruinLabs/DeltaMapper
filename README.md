@@ -1,13 +1,13 @@
 # DeltaMapper
 
-> Fast, diff-aware .NET object mapper. MIT licensed. Zero runtime dependencies.
+> Fast, diff-aware .NET object mapper. MIT licensed. Minimal dependencies.
 
 - **Expression-compiled delegates + `FrozenDictionary`** — all reflection happens once at startup, never at call time
 - **`MappingDiff<T>`** — maps an object _and_ returns a structured change set in a single call (coming in v0.2)
 - **MIT licensed, no paid tiers, forever**
 
 [![NuGet](https://img.shields.io/nuget/v/DeltaMapper.svg)](https://www.nuget.org/packages/DeltaMapper)
-[![Build](https://github.com/your-org/DeltaMapper/actions/workflows/ci.yml/badge.svg)](https://github.com/your-org/DeltaMapper/actions/workflows/ci.yml)
+[![Build](https://github.com/OrodruinLabs/DeltaMapper/actions/workflows/ci.yml/badge.svg)](https://github.com/OrodruinLabs/DeltaMapper/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 ---
@@ -219,8 +219,7 @@ public class UserService(IMapper mapper)
 When no mapping is registered `DeltaMapperException` is thrown with a clear, actionable message:
 
 ```
-No mapping registered from 'User' to 'UserDto'.
-Register a mapping in a MappingProfile using CreateMap<User, UserDto>().
+No mapping registered from 'User' to 'UserDto'. Register a mapping in a MappingProfile using CreateMap<User, UserDto>().
 ```
 
 ---

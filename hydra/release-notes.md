@@ -18,16 +18,16 @@ Delivered via PRs #1 and #2 (commits 39b783a and 1dee2c6).
 **Mapper engine**
 - Expression-compiled delegates built once at configuration time — no per-call reflection.
 - `FrozenDictionary`-backed mapper registry for O(1) lookup at call time.
-- `IMapper` public interface with generic `Map<TDestination>`, `Map<TSource, TDestination>`, and `MapToExisting` overloads.
+- `IMapper` public interface with generic `Map<TDestination>`, `Map<TSource, TDestination>`, `Map<TSource, TDestination>(source, destination)`, `MapList`, and non-generic `Map` overloads.
 - `Mapper` concrete implementation.
 
 **Profile and fluent configuration**
-- `MappingProfile` base class — define maps in `Configure()`.
+- `MappingProfile` base class — define maps in the constructor via `CreateMap<TSrc, TDst>()`.
 - `MappingExpression<TSource, TDestination>` — fluent API: `ForMember`, `Ignore`, `MapFrom`.
 - `MapperConfiguration` / `MapperConfigurationBuilder` — assemble and freeze configuration from one or more profiles.
 
 **Dependency injection**
-- `ServiceCollectionExtensions.AddDeltaMapper(profiles[])` — registers `IMapper` as a singleton, compatible with `Microsoft.Extensions.DependencyInjection`.
+- `IServiceCollection.AddDeltaMapper(Action<MapperConfigurationBuilder>)` — registers `MapperConfiguration` and `IMapper` as singletons.
 
 **Middleware pipeline**
 - `IMappingMiddleware` interface.
@@ -61,7 +61,7 @@ Delivered via PRs #1 and #2 (commits 39b783a and 1dee2c6).
 - No Roslyn source generator (Phase 3).
 - No EF Core proxy detection (Phase 4).
 - No OpenTelemetry activity spans (Phase 4).
-- No published README or documentation site yet.
+- No documentation site yet (README is included in the NuGet package).
 
 ---
 
