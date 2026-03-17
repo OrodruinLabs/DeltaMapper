@@ -18,13 +18,22 @@ internal sealed class TracingMiddleware : IMappingMiddleware
         if (!Source.HasListeners())
             return next();
 
-        using var activity = Source.StartActivity($"Map {source.GetType().Name} -> {destType.Name}");
+        var sourceType = source.GetType();
+        using var activity = Source.StartActivity($"Map {sourceType.Name} -> {destType.Name}");
 
-        var result = next();
+        try
+        {
+            var result = next();
 
-        activity?.SetTag("mapper.source_type", source.GetType().FullName);
-        activity?.SetTag("mapper.dest_type", destType.FullName);
+            activity?.SetTag("mapper.source_type", sourceType.FullName);
+            activity?.SetTag("mapper.dest_type", destType.FullName);
 
-        return result;
+            return result;
+        }
+        catch (Exception ex)
+        {
+            activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+            throw;
+        }
     }
 }
