@@ -1,7 +1,7 @@
 # TASK-035: Benchmark project scaffold + shared models
 
 ## Metadata
-- **Status**: PLANNED
+- **Status**: READY
 - **Wave**: 1
 - **Depends on**: --
 - **Delegates to**: implementer

@@ -33,7 +33,7 @@ public static class HandWrittenMapper
     public static CollectionDest MapCollection(CollectionSource source) => new()
     {
         Id = source.Id,
-        Items = source.Items.Select(i => new ItemDest { Id = i.Id, Label = i.Label }).ToList(),
+        Items = source.Items.Select(MapItem).ToList(),
     };
 
     public static ItemDest MapItem(ItemSource source) => new()

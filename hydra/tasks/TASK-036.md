@@ -1,7 +1,7 @@
 # TASK-036: Benchmark scenarios (flat/nested/collection/patch)
 
 ## Metadata
-- **Status**: PLANNED
+- **Status**: IMPLEMENTED
 - **Wave**: 2
 - **Depends on**: TASK-035
 - **Delegates to**: implementer

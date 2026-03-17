@@ -58,7 +58,7 @@ public class PatchBenchmark
     }
 
     /// <summary>DeltaMapper Patch — maps onto existing instance and returns property diff.</summary>
-    [Benchmark(Baseline = true)]
+    [Benchmark]
     public DeltaMapper.Diff.MappingDiff<FlatDest> DeltaMapper_Patch_Runtime()
         => _deltaMapperRuntime.Patch<FlatSource, FlatDest>(_source, new FlatDest
         {
@@ -93,8 +93,8 @@ public class PatchBenchmark
             IsActive = _existing.IsActive,
         });
 
-    /// <summary>Hand-written in-place update — fastest possible baseline.</summary>
-    [Benchmark]
+    /// <summary>Hand-written in-place update — direct property assignment baseline.</summary>
+    [Benchmark(Baseline = true)]
     public FlatDest HandWritten_Overwrite()
     {
         var dest = new FlatDest

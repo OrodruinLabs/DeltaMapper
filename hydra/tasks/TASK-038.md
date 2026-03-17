@@ -1,7 +1,7 @@
 # TASK-038: README final polish + migration guide update
 
 ## Metadata
-- **Status**: PLANNED
+- **Status**: IMPLEMENTED
 - **Wave**: 3
 - **Depends on**: TASK-037
 - **Delegates to**: implementer
