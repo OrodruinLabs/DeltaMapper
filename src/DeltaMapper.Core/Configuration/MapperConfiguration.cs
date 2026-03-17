@@ -63,6 +63,15 @@ public sealed class MapperConfiguration
         if (ctx.TryGetMapped(source, out var cached))
             return cached!;
 
+        // Prefer source-generated delegates registered via GeneratedMapRegistry
+        if (GeneratedMapRegistry.TryGet(srcType, dstType, out var generatedDelegate))
+        {
+            var destination = existingDest ?? Activator.CreateInstance(dstType)
+                ?? throw new InvalidOperationException($"Cannot create an instance of '{dstType.FullName}'.");
+            generatedDelegate!.DynamicInvoke(source, destination);
+            return destination;
+        }
+
         if (!_registry.TryGetValue((srcType, dstType), out var compiledMap))
             throw DeltaMapperException.ForMissingMapping(srcType, dstType);
 

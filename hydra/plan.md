@@ -36,7 +36,7 @@ Implement Phase 3 — Roslyn Source Generator: [GenerateMap] attribute, IIncreme
 |------|-------|------|------------|-------|--------|
 | TASK-021 | SourceGen project scaffold | 1 | — | DeltaMapper.SourceGen.csproj, DeltaMapper.slnx | READY |
 | TASK-022 | GeneratedMapRegistry in Core | 1 | — | GeneratedMapRegistry.cs, MapperConfiguration.cs, MapperConfigurationBuilder.cs | READY |
-| TASK-023 | SourceGen test project scaffold | 1 | — | DeltaMapper.SourceGen.Tests.csproj, GeneratorTestHelper.cs | READY |
+| TASK-023 | SourceGen test project scaffold | 1 | — | DeltaMapper.SourceGen.Tests.csproj, GeneratorTestHelper.cs | IMPLEMENTED |
 | TASK-024 | GenerateMapAttribute source text | 2 | TASK-021 | GenerateMapAttributeSource.cs | READY |
 | TASK-025 | IIncrementalGenerator core (flat) | 2 | TASK-021, TASK-024 | MapperGenerator.cs, EmitHelper.cs | READY |
 | TASK-026 | Nested types, collections, Ignore | 3 | TASK-025 | EmitHelper.cs, MapperGenerator.cs | READY |
@@ -48,8 +48,8 @@ Implement Phase 3 — Roslyn Source Generator: [GenerateMap] attribute, IIncreme
 (none)
 
 ## Recovery Pointer
-- **Current Task:** TASK-021 (first in Wave 1)
-- **Last Action:** Plan created
-- **Next Action:** Execute Wave 1 tasks in parallel (TASK-021, TASK-022, TASK-023)
-- **Last Checkpoint:** none
-- **Last Commit:** 1dee2c6 Migrate to .NET 10 / C# 14 (#2)
+- **Current Task:** TASK-023
+- **Last Action:** TASK-023 IMPLEMENTED — SourceGen test project created, build verified
+- **Next Action:** Review TASK-023 then proceed to next READY task
+- **Last Checkpoint:** hydra/checkpoints/iteration-002.json
+- **Last Commit:** aab3d5a feat(FEAT-004): plan Phase 3 — Roslyn Source Generator

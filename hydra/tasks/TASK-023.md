@@ -1,7 +1,7 @@
 ---
 id: TASK-023
 title: SourceGen test project scaffold
-status: READY
+status: IMPLEMENTED
 depends_on: []
 wave: 1
 files_to_create:
@@ -15,7 +15,7 @@ acceptance_criteria:
   - "dotnet build tests/DeltaMapper.SourceGen.Tests -c Release" succeeds
 ---
 
-- **Status**: READY
+- **Status**: IMPLEMENTED
 
 **Retry count**: 0/3
 

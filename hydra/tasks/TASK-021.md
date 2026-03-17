@@ -1,7 +1,7 @@
 ---
 id: TASK-021
 title: SourceGen project scaffold and solution registration
-status: READY
+status: IMPLEMENTED
 depends_on: []
 wave: 1
 files_to_create:
@@ -14,7 +14,7 @@ acceptance_criteria:
   - "dotnet build src/DeltaMapper.SourceGen -c Release" succeeds with zero errors
 ---
 
-- **Status**: READY
+- **Status**: IMPLEMENTED
 
 **Retry count**: 0/3
 

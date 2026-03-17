@@ -1,7 +1,7 @@
 ---
 id: TASK-022
 title: GeneratedMapRegistry in DeltaMapper.Core
-status: READY
+status: IMPLEMENTED
 depends_on: []
 wave: 1
 files_to_create:
@@ -16,7 +16,7 @@ acceptance_criteria:
   - Existing 91 unit tests continue to pass with zero regressions
 ---
 
-- **Status**: READY
+- **Status**: IMPLEMENTED
 
 **Retry count**: 0/3
 
@@ -64,3 +64,22 @@ Run `dotnet test` — all 91 existing tests must pass. Add 2-3 unit tests in the
 ## Traces To
 
 docs/DELTAMAP_PLAN.md section 3.3 (Generator Output — GeneratedMapRegistry and MapperConfiguration fallback)
+
+## Implementation Log
+
+- **claimed_at**: 2026-03-17
+- **implemented_at**: 2026-03-17
+
+### Files Created
+- `src/DeltaMapper.Core/Runtime/GeneratedMapRegistry.cs` — ConcurrentDictionary-backed static registry with generic Register/TryGet and non-generic TryGet overload; internal Clear() for test isolation
+
+### Files Modified
+- `src/DeltaMapper.Core/Configuration/MapperConfiguration.cs` — ExecuteCore now checks GeneratedMapRegistry before FrozenDictionary lookup; uses Activator.CreateInstance for new destination or respects existingDest
+- `src/DeltaMapper.Core/Properties/AssemblyInfo.cs` — added InternalsVisibleTo("DeltaMapper.SourceGen.Tests")
+
+### Tests Added
+- `tests/DeltaMapper.UnitTests/GeneratedMapRegistryTests.cs` — 5 tests covering register/TryGet round-trip, missing key, non-generic overload, MapperConfiguration integration (delegate wins over compiled expression), overwrite behavior
+
+### Test Results
+- Total: 96 passed (91 existing + 5 new), 0 failed
+- Build: 0 warnings, 0 errors
