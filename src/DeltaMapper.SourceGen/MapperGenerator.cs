@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using DeltaMapper.SourceGen.Diagnostics;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -32,42 +33,67 @@ namespace DeltaMapper.SourceGen
             var classSymbol = context.TargetSymbol as INamedTypeSymbol;
             if (classSymbol is null) return null;
 
-            // Extract [GenerateMap(typeof(Src), typeof(Dst))] attributes
-            var mappings = new List<(INamedTypeSymbol Src, INamedTypeSymbol Dst)>();
+            // Extract [GenerateMap(typeof(Src), typeof(Dst))] attributes —
+            // capture raw AttributeData and the syntax location for diagnostics.
+            var rawAttributes = new List<(AttributeData Data, Location Location)>();
 
             foreach (var attr in classSymbol.GetAttributes())
             {
                 if (attr.AttributeClass?.ToDisplayString() != GenerateMapAttributeSource.AttributeName)
                     continue;
 
-                if (attr.ConstructorArguments.Length != 2) continue;
+                // Resolve syntax location for the attribute node (best-effort)
+                var attrLocation = attr.ApplicationSyntaxReference is not null
+                    ? Location.Create(
+                        attr.ApplicationSyntaxReference.SyntaxTree,
+                        attr.ApplicationSyntaxReference.Span)
+                    : context.TargetNode.GetLocation();
 
-                var srcType = attr.ConstructorArguments[0].Value as INamedTypeSymbol;
-                var dstType = attr.ConstructorArguments[1].Value as INamedTypeSymbol;
-
-                if (srcType is not null && dstType is not null)
-                    mappings.Add((srcType, dstType));
+                rawAttributes.Add((attr, attrLocation));
             }
 
-            if (mappings.Count == 0) return null;
+            if (rawAttributes.Count == 0) return null;
 
-            return new MappingInfo(classSymbol, mappings);
+            return new MappingInfo(classSymbol, rawAttributes);
         }
 
         private static void Execute(SourceProductionContext context, MappingInfo info)
         {
-            // Emit one map-method file per (src, dst) pair.
-            // Pass all mappings in the profile as knownPairs so nested types and
-            // collection elements can be mapped recursively within the same profile.
-            foreach (var (src, dst) in info.Mappings)
+            // Resolve types, report DM002 for unresolvable/error type arguments, and build
+            // the valid-pairs list.  Each valid pair carries its attribute location so
+            // DM001 can point back to the [GenerateMap] attribute site.
+            var validMappings = new List<(INamedTypeSymbol Src, INamedTypeSymbol Dst, Location Location)>();
+
+            foreach (var (attr, location) in info.RawAttributes)
             {
-                var source = EmitHelper.EmitMapMethod(info.ProfileClass, src, dst, info.Mappings);
+                var pair = MappingAnalyzer.ResolveAndValidateTypes(context, attr, location);
+                if (pair is not null)
+                    validMappings.Add((pair.Value.Src, pair.Value.Dst, location));
+            }
+
+            // Report DM001 for each valid (non-error) pair only.
+            // Invalid pairs already have DM002 reported by ResolveAndValidateTypes.
+            foreach (var (src, dst, location) in validMappings)
+            {
+                MappingAnalyzer.ReportUnmappedProperties(context, src, dst, location);
+            }
+
+            if (validMappings.Count == 0) return;
+
+            // Emit one map-method file per (src, dst) pair.
+            var pairs = new List<(INamedTypeSymbol Src, INamedTypeSymbol Dst)>(validMappings.Count);
+            foreach (var (src, dst, _) in validMappings)
+                pairs.Add((src, dst));
+
+            foreach (var (src, dst) in pairs)
+            {
+                var source   = EmitHelper.EmitMapMethod(info.ProfileClass, src, dst, pairs);
                 var hintName = EmitHelper.BuildFileName(info.ProfileClass, src, dst);
                 context.AddSource(hintName, source);
             }
 
             // Emit one ModuleInitializer file per profile class (covers all pairs)
-            var initSource = EmitHelper.EmitModuleInitializer(info.ProfileClass, info.Mappings);
+            var initSource   = EmitHelper.EmitModuleInitializer(info.ProfileClass, pairs);
             var initHintName = EmitHelper.BuildModuleInitializerFileName(info.ProfileClass);
             context.AddSource(initHintName, initSource);
         }
@@ -76,12 +102,14 @@ namespace DeltaMapper.SourceGen
     internal sealed class MappingInfo
     {
         public INamedTypeSymbol ProfileClass { get; }
-        public List<(INamedTypeSymbol Src, INamedTypeSymbol Dst)> Mappings { get; }
+        public List<(AttributeData Data, Location Location)> RawAttributes { get; }
 
-        public MappingInfo(INamedTypeSymbol profileClass, List<(INamedTypeSymbol, INamedTypeSymbol)> mappings)
+        public MappingInfo(
+            INamedTypeSymbol profileClass,
+            List<(AttributeData Data, Location Location)> rawAttributes)
         {
-            ProfileClass = profileClass;
-            Mappings = mappings;
+            ProfileClass   = profileClass;
+            RawAttributes  = rawAttributes;
         }
     }
 }
