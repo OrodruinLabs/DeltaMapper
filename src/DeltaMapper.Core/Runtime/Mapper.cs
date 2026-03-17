@@ -1,5 +1,7 @@
+using System.Reflection;
 using DeltaMapper.Abstractions;
 using DeltaMapper.Configuration;
+using DeltaMapper.Diff;
 
 namespace DeltaMapper.Runtime;
 
@@ -68,5 +70,29 @@ public sealed class Mapper : IMapper
 
         var ctx = new MapperContext(_config);
         return _config.Execute(source, sourceType, destinationType, ctx);
+    }
+
+    /// <inheritdoc />
+    public MappingDiff<TDestination> Patch<TSource, TDestination>(TSource source, TDestination destination)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(destination);
+
+        var props = typeof(TDestination).GetProperties(BindingFlags.Public | BindingFlags.Instance)
+            .Where(p => p.CanRead)
+            .ToArray();
+
+        var before = new Dictionary<string, object?>(props.Length);
+        foreach (var prop in props)
+            before[prop.Name] = prop.GetValue(destination);
+
+        Map<TSource, TDestination>(source, destination);
+
+        var after = new Dictionary<string, object?>(props.Length);
+        foreach (var prop in props)
+            after[prop.Name] = prop.GetValue(destination);
+
+        var changes = DiffEngine.Compare(before, after);
+        return new MappingDiff<TDestination> { Result = destination, Changes = changes };
     }
 }

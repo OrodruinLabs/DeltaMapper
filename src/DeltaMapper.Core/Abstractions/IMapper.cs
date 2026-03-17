@@ -1,3 +1,5 @@
+using DeltaMapper.Diff;
+
 namespace DeltaMapper.Abstractions;
 
 /// <summary>
@@ -29,4 +31,9 @@ public interface IMapper
     /// Maps the source object to the specified destination type. Non-generic overload for dynamic scenarios.
     /// </summary>
     object Map(object source, Type sourceType, Type destinationType);
+
+    /// <summary>
+    /// Maps from TSource onto the existing TDestination instance and returns a diff of changed properties.
+    /// </summary>
+    MappingDiff<TDestination> Patch<TSource, TDestination>(TSource source, TDestination destination);
 }
