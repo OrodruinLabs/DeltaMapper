@@ -1,0 +1,678 @@
+diff --git a/hydra/config.json b/hydra/config.json
+index 6009ee6..0158051 100644
+--- a/hydra/config.json
++++ b/hydra/config.json
+@@ -32,7 +32,7 @@
+     }
+   ],
+   "max_iterations": 40,
+-  "current_iteration": 2,
++  "current_iteration": 6,
+   "paused": false,
+   "completion_promise": "HYDRA_COMPLETE",
+   "task_file": "hydra/plan.md",
+@@ -131,7 +131,7 @@
+     "block_destructive_commands": true,
+     "require_tests_pass_before_review": true,
+     "max_consecutive_failures": 5,
+-    "consecutive_failures": 2,
++    "consecutive_failures": 6,
+     "_prev_done_count": 0
+   },
+   "branch": {
+diff --git a/hydra/logs/iterations.jsonl b/hydra/logs/iterations.jsonl
+index f702265..1223ab1 100644
+--- a/hydra/logs/iterations.jsonl
++++ b/hydra/logs/iterations.jsonl
+@@ -98,3 +98,63 @@
+   "git_sha": "5da906b",
+   "blocked_reason": ""
+ }
++{
++  "iteration": 1,
++  "timestamp": "2026-03-17T11:29:34Z",
++  "active_task": "TASK-021",
++  "status": "READY",
++  "done": 0,
++  "total": 9,
++  "git_sha": "aab3d5a",
++  "blocked_reason": ""
++}
++{
++  "iteration": 2,
++  "timestamp": "2026-03-17T11:29:43Z",
++  "active_task": "TASK-021",
++  "status": "READY",
++  "done": 0,
++  "total": 9,
++  "git_sha": "aab3d5a",
++  "blocked_reason": ""
++}
++{
++  "iteration": 3,
++  "timestamp": "2026-03-17T11:34:55Z",
++  "active_task": "TASK-021",
++  "status": "IMPLEMENTED",
++  "done": 0,
++  "total": 9,
++  "git_sha": "53605f0",
++  "blocked_reason": ""
++}
++{
++  "iteration": 4,
++  "timestamp": "2026-03-17T11:42:13Z",
++  "active_task": "TASK-021",
++  "status": "IMPLEMENTED",
++  "done": 0,
++  "total": 9,
++  "git_sha": "1a150cf",
++  "blocked_reason": ""
++}
++{
++  "iteration": 5,
++  "timestamp": "2026-03-17T11:42:28Z",
++  "active_task": "TASK-021",
++  "status": "IMPLEMENTED",
++  "done": 0,
++  "total": 9,
++  "git_sha": "1a150cf",
++  "blocked_reason": ""
++}
++{
++  "iteration": 6,
++  "timestamp": "2026-03-17T11:42:43Z",
++  "active_task": "TASK-021",
++  "status": "IMPLEMENTED",
++  "done": 0,
++  "total": 9,
++  "git_sha": "1a150cf",
++  "blocked_reason": ""
++}
+diff --git a/hydra/plan.md b/hydra/plan.md
+index 1902a97..b50e323 100644
+--- a/hydra/plan.md
++++ b/hydra/plan.md
+@@ -17,12 +17,12 @@ Implement Phase 3 — Roslyn Source Generator: [GenerateMap] attribute, IIncreme
+ - [ ] TASK-023: SourceGen test project scaffold
+ 
+ ### Wave 2 — Attribute and Core Generator (depends on Wave 1)
+-- [ ] TASK-024: GenerateMapAttribute emitted as source text (depends: TASK-021)
+-- [ ] TASK-025: IIncrementalGenerator core — flat type pair emission (depends: TASK-021, TASK-024)
++- [x] TASK-024: GenerateMapAttribute emitted as source text (depends: TASK-021)
++- [x] TASK-025: IIncrementalGenerator core — flat type pair emission (depends: TASK-021, TASK-024)
+ 
+ ### Wave 3 — Advanced Generation (depends on Wave 2)
+ - [ ] TASK-026: Generator support for nested types, collections, and Ignore (depends: TASK-025)
+-- [ ] TASK-027: ModuleInitializer registration and MapperConfiguration fallback (depends: TASK-022, TASK-025)
++- [x] TASK-027: ModuleInitializer registration and MapperConfiguration fallback (depends: TASK-022, TASK-025)
+ 
+ ### Wave 4 — Analyzer Diagnostics (depends on Wave 2)
+ - [ ] TASK-028: DM001/DM002/DM003 analyzer diagnostics (depends: TASK-025)
+@@ -37,10 +37,10 @@ Implement Phase 3 — Roslyn Source Generator: [GenerateMap] attribute, IIncreme
+ | TASK-021 | SourceGen project scaffold | 1 | — | DeltaMapper.SourceGen.csproj, DeltaMapper.slnx | READY |
+ | TASK-022 | GeneratedMapRegistry in Core | 1 | — | GeneratedMapRegistry.cs, MapperConfiguration.cs, MapperConfigurationBuilder.cs | READY |
+ | TASK-023 | SourceGen test project scaffold | 1 | — | DeltaMapper.SourceGen.Tests.csproj, GeneratorTestHelper.cs | IMPLEMENTED |
+-| TASK-024 | GenerateMapAttribute source text | 2 | TASK-021 | GenerateMapAttributeSource.cs | READY |
+-| TASK-025 | IIncrementalGenerator core (flat) | 2 | TASK-021, TASK-024 | MapperGenerator.cs, EmitHelper.cs | READY |
++| TASK-024 | GenerateMapAttribute source text | 2 | TASK-021 | GenerateMapAttributeSource.cs | IMPLEMENTED |
++| TASK-025 | IIncrementalGenerator core (flat) | 2 | TASK-021, TASK-024 | MapperGenerator.cs, EmitHelper.cs | IMPLEMENTED |
+ | TASK-026 | Nested types, collections, Ignore | 3 | TASK-025 | EmitHelper.cs, MapperGenerator.cs | READY |
+-| TASK-027 | ModuleInitializer + registry wiring | 3 | TASK-022, TASK-025 | MapperGenerator.cs, EmitHelper.cs | READY |
++| TASK-027 | ModuleInitializer + registry wiring | 3 | TASK-022, TASK-025 | MapperGenerator.cs, EmitHelper.cs | IMPLEMENTED |
+ | TASK-028 | DM001/DM002/DM003 diagnostics | 4 | TASK-025 | DiagnosticDescriptors.cs, MappingAnalyzer.cs, MapperGenerator.cs | READY |
+ | TASK-029 | Full test coverage gate | 5 | TASK-026, TASK-027, TASK-028 | 6 test files | READY |
+ 
+@@ -48,8 +48,8 @@ Implement Phase 3 — Roslyn Source Generator: [GenerateMap] attribute, IIncreme
+ (none)
+ 
+ ## Recovery Pointer
+-- **Current Task:** TASK-023
+-- **Last Action:** TASK-023 IMPLEMENTED — SourceGen test project created, build verified
+-- **Next Action:** Review TASK-023 then proceed to next READY task
+-- **Last Checkpoint:** hydra/checkpoints/iteration-002.json
+-- **Last Commit:** aab3d5a feat(FEAT-004): plan Phase 3 — Roslyn Source Generator
++- **Current Task:** TASK-027
++- **Last Action:** TASK-027 IMPLEMENTED — EmitModuleInitializer added to EmitHelper, MapperGenerator emits ModuleInit file, 8 new tests + updated count assertions; 19/19 SourceGen tests pass, 95/95 unit tests pass
++- **Next Action:** TASK-027 awaiting review; next ready tasks are TASK-026, TASK-028
++- **Last Checkpoint:** hydra/checkpoints/iteration-006.json
++- **Last Commit:** 1a150cf feat(FEAT-004): Wave 2 — GenerateMapAttribute + IIncrementalGenerator core
+diff --git a/hydra/tasks/TASK-026.md b/hydra/tasks/TASK-026.md
+index 2723268..ffa55d8 100644
+--- a/hydra/tasks/TASK-026.md
++++ b/hydra/tasks/TASK-026.md
+@@ -1,7 +1,7 @@
+ ---
+ id: TASK-026
+ title: Generator support for nested types, collections, and Ignore
+-status: READY
++status: IN_PROGRESS
+ depends_on:
+   - TASK-025
+ wave: 3
+@@ -15,7 +15,7 @@ acceptance_criteria:
+   - Generator skips properties decorated with [DeltaMapper.Ignore] or properties named in ForMember(...Ignore()) — at minimum the [Ignore] attribute path
+ ---
+ 
+-- **Status**: READY
++- **Status**: IN_PROGRESS
+ 
+ **Retry count**: 0/3
+ 
+diff --git a/hydra/tasks/TASK-027.md b/hydra/tasks/TASK-027.md
+index 85e9dd7..ec28d4f 100644
+--- a/hydra/tasks/TASK-027.md
++++ b/hydra/tasks/TASK-027.md
+@@ -1,7 +1,7 @@
+ ---
+ id: TASK-027
+ title: ModuleInitializer registration and MapperConfiguration fallback
+-status: READY
++status: IMPLEMENTED
+ depends_on:
+   - TASK-022
+   - TASK-025
+@@ -16,7 +16,16 @@ acceptance_criteria:
+   - Generator test verifies the emitted code contains ModuleInitializer attribute and GeneratedMapRegistry.Register call
+ ---
+ 
+-- **Status**: READY
++- **Status**: IMPLEMENTED
++
++## Implementation Log
++
++- Modified `EmitHelper.cs`: added `EmitModuleInitializer(profileClass, mappings)` and `BuildModuleInitializerFileName(profileClass)` methods
++- Modified `MapperGenerator.cs`: updated `Execute` to emit one `.ModuleInit.g.cs` file per profile class after emitting per-pair map files
++- Updated `GeneratorTestHelper.cs`: explicitly includes `DeltaMapper.Core` assembly reference so generated code referencing `DeltaMapper.Runtime` compiles correctly in test compilations
++- Updated `MapperGeneratorFlatTests.cs`: adjusted file-count assertions (+1 for the new ModuleInitializer file per profile)
++- Created `ModuleInitializerEmitTests.cs`: 8 tests covering attribute presence, Register call, static lambda delegate, method signature, partial class wrapping, multiple-attribute registration, and zero-error compilation
++- All 19 SourceGen tests pass; all 95 unit tests pass
+ 
+ **Retry count**: 0/3
+ 
+diff --git a/src/DeltaMapper.Core/Properties/AssemblyInfo.cs b/src/DeltaMapper.Core/Properties/AssemblyInfo.cs
+index 6541938..8bec1fc 100644
+--- a/src/DeltaMapper.Core/Properties/AssemblyInfo.cs
++++ b/src/DeltaMapper.Core/Properties/AssemblyInfo.cs
+@@ -1,3 +1,4 @@
+ using System.Runtime.CompilerServices;
+ 
+ [assembly: InternalsVisibleTo("DeltaMapper.UnitTests")]
++[assembly: InternalsVisibleTo("DeltaMapper.SourceGen.Tests")]
+diff --git a/src/DeltaMapper.SourceGen/EmitHelper.cs b/src/DeltaMapper.SourceGen/EmitHelper.cs
+index 4d4995a..577074f 100644
+--- a/src/DeltaMapper.SourceGen/EmitHelper.cs
++++ b/src/DeltaMapper.SourceGen/EmitHelper.cs
+@@ -1,13 +1,28 @@
+ using System;
+ using System.Collections.Generic;
+ using System.Linq;
++using System.Text;
+ using Microsoft.CodeAnalysis;
+ 
+ namespace DeltaMapper.SourceGen
+ {
+     internal static class EmitHelper
+     {
+-        public static string EmitMapMethod(INamedTypeSymbol profileClass, INamedTypeSymbol src, INamedTypeSymbol dst)
++        // Attribute short names that mark a destination property as ignored
++        private const string IgnoreAttributeShortName = "Ignore";
++        private const string IgnoreAttributeAltName   = "DeltaMapperIgnore";
++
++        // ── map method emission ──────────────────────────────────────────────
++
++        /// <summary>
++        /// Emits the partial-class map method for one (src, dst) pair.
++        /// knownPairs lets nested types and collection elements be mapped recursively.
++        /// </summary>
++        public static string EmitMapMethod(
++            INamedTypeSymbol profileClass,
++            INamedTypeSymbol src,
++            INamedTypeSymbol dst,
++            IReadOnlyList<(INamedTypeSymbol Src, INamedTypeSymbol Dst)>? knownPairs = null)
+         {
+             var ns = profileClass.ContainingNamespace.IsGlobalNamespace
+                 ? null
+@@ -15,16 +30,13 @@ namespace DeltaMapper.SourceGen
+ 
+             var srcFullName = src.ToDisplayString();
+             var dstFullName = dst.ToDisplayString();
+-            var methodName = $"Map_{src.Name}_To_{dst.Name}";
++            var methodName  = $"Map_{src.Name}_To_{dst.Name}";
+ 
+-            // Match destination writable properties to source readable properties by name
+-            var assignments = GetMatchingProperties(src, dst);
++            var pairs = knownPairs ?? Array.Empty<(INamedTypeSymbol, INamedTypeSymbol)>();
++            var assignmentLines = BuildAssignmentLines(src, dst, pairs);
+ 
+-            var assignmentLines = string.Join("\n            ",
+-                assignments.Select(p => $"dst.{p.DstName} = src.{p.SrcName};"));
+-
+-            var indent = ns is not null ? "    " : "";
+-            var nsOpen = ns is not null ? $"namespace {ns}\n{{\n" : "";
++            var indent  = ns is not null ? "    " : "";
++            var nsOpen  = ns is not null ? $"namespace {ns}\n{{\n" : "";
+             var nsClose = ns is not null ? "\n}" : "";
+ 
+             return $@"// <auto-generated />
+@@ -39,11 +51,70 @@ namespace DeltaMapper.SourceGen
+ ";
+         }
+ 
++        /// <summary>
++        /// Emits a single file containing the [ModuleInitializer] method that registers
++        /// all mappings from the given profile class with GeneratedMapRegistry.
++        /// One file per profile class; one Register call per (src, dst) pair.
++        /// </summary>
++        public static string EmitModuleInitializer(
++            INamedTypeSymbol profileClass,
++            IReadOnlyList<(INamedTypeSymbol Src, INamedTypeSymbol Dst)> mappings)
++        {
++            var ns = profileClass.ContainingNamespace.IsGlobalNamespace
++                ? null
++                : profileClass.ContainingNamespace.ToDisplayString();
++
++            var indent  = ns is not null ? "    " : "";
++            var nsOpen  = ns is not null ? $"namespace {ns}\n{{\n" : "";
++            var nsClose = ns is not null ? "\n}" : "";
++
++            var sb = new StringBuilder();
++            foreach (var (src, dst) in mappings)
++            {
++                var srcFull   = src.ToDisplayString();
++                var dstFull   = dst.ToDisplayString();
++                var mapMethod = $"Map_{src.Name}_To_{dst.Name}";
++                sb.AppendLine(
++                    $"{indent}        DeltaMapper.Runtime.GeneratedMapRegistry.Register<{srcFull}, {dstFull}>" +
++                    $"(static (src, dst) => {mapMethod}(src, dst));");
++            }
++
++            // Trim trailing newline added by AppendLine so the closing brace is on its own line
++            var registerCalls = sb.ToString().TrimEnd('\r', '\n');
++
++            return $@"// <auto-generated />
++#nullable enable
++{nsOpen}{indent}public partial class {profileClass.Name}
++{indent}{{
++{indent}    [System.Runtime.CompilerServices.ModuleInitializer]
++{indent}    internal static void RegisterGeneratedMaps_{profileClass.Name}()
++{indent}    {{
++{registerCalls}
++{indent}    }}
++{indent}}}{nsClose}
++";
++        }
++
++        /// <summary>Returns the hint name for the ModuleInitializer file.</summary>
++        public static string BuildModuleInitializerFileName(INamedTypeSymbol profileClass)
++        {
++            return $"{profileClass.Name}.ModuleInit.g.cs";
++        }
++
++        public static string BuildFileName(INamedTypeSymbol profileClass, INamedTypeSymbol src, INamedTypeSymbol dst)
++        {
++            return $"{profileClass.Name}.{src.Name}_To_{dst.Name}.g.cs";
++        }
++
++        // ── flat property matching (kept for backward-compat / legacy callers) ─
++
+         public static List<(string SrcName, string DstName)> GetMatchingProperties(
+             INamedTypeSymbol src, INamedTypeSymbol dst)
+         {
+-            var srcProps = GetReadableProperties(src);
+-            var dstProps = GetWritableProperties(dst);
++            var srcProps = GetReadablePropertiesSimple(src);
++            var dstProps = GetWritablePropertiesWithSymbol(dst)
++                               .Where(p => !IsIgnored(p))
++                               .ToList();
+ 
+             var matches = new List<(string, string)>();
+             foreach (var dstProp in dstProps)
+@@ -58,25 +129,223 @@ namespace DeltaMapper.SourceGen
+             return matches;
+         }
+ 
+-        public static string BuildFileName(INamedTypeSymbol profileClass, INamedTypeSymbol src, INamedTypeSymbol dst)
++        // ── assignment building ──────────────────────────────────────────────
++
++        private static string BuildAssignmentLines(
++            INamedTypeSymbol src,
++            INamedTypeSymbol dst,
++            IReadOnlyList<(INamedTypeSymbol Src, INamedTypeSymbol Dst)> knownPairs)
+         {
+-            return $"{profileClass.Name}.{src.Name}_To_{dst.Name}.g.cs";
++            var srcProps = GetReadablePropertiesWithSymbol(src);
++            var dstProps = GetWritablePropertiesWithSymbol(dst);
++
++            var lines = new List<string>();
++
++            foreach (var dstProp in dstProps)
++            {
++                // Skip [Ignore] properties
++                if (IsIgnored(dstProp))
++                    continue;
++
++                // Find matching source property by name (case-insensitive)
++                var srcProp = srcProps.FirstOrDefault(s =>
++                    string.Equals(s.Name, dstProp.Name, StringComparison.OrdinalIgnoreCase));
++
++                if (srcProp.Name is null)
++                    continue;
++
++                var line = BuildPropertyAssignment(srcProp, dstProp, knownPairs);
++                if (line is not null)
++                    lines.Add(line);
++            }
++
++            return lines.Count == 0
++                ? "// no matched properties"
++                : string.Join("\n            ", lines);
++        }
++
++        private static string? BuildPropertyAssignment(
++            (string Name, ITypeSymbol Type, IPropertySymbol Symbol) srcProp,
++            (string Name, ITypeSymbol Type, IPropertySymbol Symbol) dstProp,
++            IReadOnlyList<(INamedTypeSymbol Src, INamedTypeSymbol Dst)> knownPairs)
++        {
++            var dstType = dstProp.Type;
++            var srcName = srcProp.Name;
++            var dstName = dstProp.Name;
++
++            // ── array type ───────────────────────────────────────────────────
++            if (dstType is IArrayTypeSymbol dstArray)
++            {
++                ITypeSymbol? srcElement;
++                if (srcProp.Type is IArrayTypeSymbol srcArr)
++                    srcElement = srcArr.ElementType;
++                else
++                    srcElement = GetCollectionElementType(srcProp.Type as INamedTypeSymbol);
++
++                if (srcElement is null)
++                    return null;
++
++                var dstElement = dstArray.ElementType;
++
++                if (SymbolEqualityComparer.Default.Equals(srcElement, dstElement))
++                {
++                    // primitive/string elements — direct .ToArray()
++                    return $"dst.{dstName} = src.{srcName}?.ToArray();";
++                }
++
++                // complex element — check if nested pair exists
++                if (dstElement is INamedTypeSymbol dstElemNamedArr &&
++                    srcElement is INamedTypeSymbol srcElemNamedArr &&
++                    FindPair(knownPairs, srcElemNamedArr, dstElemNamedArr) is { } nestedPairArr)
++                {
++                    var nm      = $"Map_{nestedPairArr.Src.Name}_To_{nestedPairArr.Dst.Name}";
++                    var dstFull = nestedPairArr.Dst.ToDisplayString();
++                    return $"dst.{dstName} = src.{srcName}?.Select(x => {{ var mapped = new {dstFull}(); {nm}(x, mapped); return mapped; }}).ToArray();";
++                }
++
++                return null;
++            }
++
++            // ── List<T> type ─────────────────────────────────────────────────
++            if (dstType is INamedTypeSymbol dstListNamed && IsListType(dstListNamed))
++            {
++                var dstElement = dstListNamed.TypeArguments.Length == 1
++                    ? dstListNamed.TypeArguments[0]
++                    : null;
++                if (dstElement is null) return null;
++
++                ITypeSymbol? srcElement = GetCollectionElementType(srcProp.Type as INamedTypeSymbol);
++                if (srcElement is null && srcProp.Type is IArrayTypeSymbol srcArrT)
++                    srcElement = srcArrT.ElementType;
++
++                if (srcElement is null) return null;
++
++                if (SymbolEqualityComparer.Default.Equals(srcElement, dstElement))
++                {
++                    return $"dst.{dstName} = src.{srcName}?.ToList();";
++                }
++
++                if (dstElement is INamedTypeSymbol dstElemNamedList &&
++                    srcElement is INamedTypeSymbol srcElemNamedList &&
++                    FindPair(knownPairs, srcElemNamedList, dstElemNamedList) is { } nestedPairList)
++                {
++                    var nm      = $"Map_{nestedPairList.Src.Name}_To_{nestedPairList.Dst.Name}";
++                    var dstFull = nestedPairList.Dst.ToDisplayString();
++                    return $"dst.{dstName} = src.{srcName}?.Select(x => {{ var mapped = new {dstFull}(); {nm}(x, mapped); return mapped; }}).ToList();";
++                }
++
++                return null;
++            }
++
++            // ── nested complex type ──────────────────────────────────────────
++            if (dstType is INamedTypeSymbol dstComplex && IsComplexType(dstComplex))
++            {
++                if (srcProp.Type is INamedTypeSymbol srcComplex &&
++                    FindPair(knownPairs, srcComplex, dstComplex) is { } nestedPair)
++                {
++                    var nm      = $"Map_{nestedPair.Src.Name}_To_{nestedPair.Dst.Name}";
++                    var dstFull = nestedPair.Dst.ToDisplayString();
++                    return $"dst.{dstName} = new {dstFull}(); {nm}(src.{srcName}, dst.{dstName});";
++                }
++
++                // No known pair — skip
++                return null;
++            }
++
++            // ── simple same-type assignment ──────────────────────────────────
++            if (SymbolEqualityComparer.Default.Equals(srcProp.Type, dstType))
++                return $"dst.{dstName} = src.{srcName};";
++
++            return null; // type mismatch
++        }
++
++        // ── type-classification helpers ──────────────────────────────────────
++
++        private static bool IsIgnored((string Name, ITypeSymbol Type, IPropertySymbol Symbol) prop)
++        {
++            return prop.Symbol.GetAttributes().Any(a =>
++            {
++                var name     = a.AttributeClass?.Name ?? string.Empty;
++                var fullName = a.AttributeClass?.ToDisplayString() ?? string.Empty;
++
++                return name     == IgnoreAttributeShortName           ||
++                       name     == IgnoreAttributeAltName             ||
++                       name     == IgnoreAttributeShortName + "Attribute" ||
++                       name     == IgnoreAttributeAltName   + "Attribute" ||
++                       fullName == "DeltaMapper.Ignore"               ||
++                       fullName == "DeltaMapper.DeltaMapperIgnore"    ||
++                       fullName == "DeltaMapper.IgnoreAttribute"      ||
++                       fullName == "DeltaMapper.DeltaMapperIgnoreAttribute";
++            });
+         }
+ 
+-        private static List<(string Name, ITypeSymbol Type)> GetReadableProperties(INamedTypeSymbol type)
++        private static bool IsListType(INamedTypeSymbol type)
++        {
++            if (!type.IsGenericType) return false;
++            var fullName = type.ConstructedFrom.ToDisplayString();
++            return fullName == "System.Collections.Generic.List<T>" ||
++                   fullName == "System.Collections.Generic.IList<T>" ||
++                   fullName == "System.Collections.Generic.IEnumerable<T>" ||
++                   fullName == "System.Collections.Generic.ICollection<T>" ||
++                   fullName == "System.Collections.Generic.IReadOnlyList<T>" ||
++                   type.Name == "List";
++        }
++
++        private static bool IsComplexType(INamedTypeSymbol type)
++        {
++            if (type.SpecialType != SpecialType.None) return false; // primitives, string, etc.
++            if (IsListType(type)) return false;
++            if (type.TypeKind == TypeKind.Enum) return false;
++            return type.TypeKind == TypeKind.Class || type.TypeKind == TypeKind.Struct;
++        }
++
++        private static ITypeSymbol? GetCollectionElementType(INamedTypeSymbol? type)
++        {
++            if (type is null || !type.IsGenericType) return null;
++            return type.TypeArguments.Length == 1 ? type.TypeArguments[0] : null;
++        }
++
++        private static (INamedTypeSymbol Src, INamedTypeSymbol Dst)?
++            FindPair(IReadOnlyList<(INamedTypeSymbol Src, INamedTypeSymbol Dst)> pairs,
++                     INamedTypeSymbol src, INamedTypeSymbol dst)
++        {
++            foreach (var pair in pairs)
++            {
++                if (SymbolEqualityComparer.Default.Equals(pair.Src, src) &&
++                    SymbolEqualityComparer.Default.Equals(pair.Dst, dst))
++                    return pair;
++            }
++            return null;
++        }
++
++        // ── property readers ─────────────────────────────────────────────────
++
++        private static List<(string Name, ITypeSymbol Type, IPropertySymbol Symbol)>
++            GetReadablePropertiesWithSymbol(INamedTypeSymbol type)
+         {
+             return type.GetMembers()
+                 .OfType<IPropertySymbol>()
+                 .Where(p => !p.IsStatic && !p.IsIndexer && p.GetMethod is not null)
+-                .Select(p => (p.Name, (ITypeSymbol)p.Type))
++                .Select(p => (p.Name, (ITypeSymbol)p.Type, p))
+                 .ToList();
+         }
+ 
+-        private static List<(string Name, ITypeSymbol Type)> GetWritableProperties(INamedTypeSymbol type)
++        private static List<(string Name, ITypeSymbol Type, IPropertySymbol Symbol)>
++            GetWritablePropertiesWithSymbol(INamedTypeSymbol type)
+         {
+             return type.GetMembers()
+                 .OfType<IPropertySymbol>()
+                 .Where(p => !p.IsStatic && !p.IsIndexer && p.SetMethod is not null)
++                .Select(p => (p.Name, (ITypeSymbol)p.Type, p))
++                .ToList();
++        }
++
++        private static List<(string Name, ITypeSymbol Type)>
++            GetReadablePropertiesSimple(INamedTypeSymbol type)
++        {
++            return type.GetMembers()
++                .OfType<IPropertySymbol>()
++                .Where(p => !p.IsStatic && !p.IsIndexer && p.GetMethod is not null)
+                 .Select(p => (p.Name, (ITypeSymbol)p.Type))
+                 .ToList();
+         }
+diff --git a/src/DeltaMapper.SourceGen/MapperGenerator.cs b/src/DeltaMapper.SourceGen/MapperGenerator.cs
+index 1137054..74ebf66 100644
+--- a/src/DeltaMapper.SourceGen/MapperGenerator.cs
++++ b/src/DeltaMapper.SourceGen/MapperGenerator.cs
+@@ -56,12 +56,20 @@ namespace DeltaMapper.SourceGen
+ 
+         private static void Execute(SourceProductionContext context, MappingInfo info)
+         {
++            // Emit one map-method file per (src, dst) pair.
++            // Pass all mappings in the profile as knownPairs so nested types and
++            // collection elements can be mapped recursively within the same profile.
+             foreach (var (src, dst) in info.Mappings)
+             {
+-                var source = EmitHelper.EmitMapMethod(info.ProfileClass, src, dst);
++                var source = EmitHelper.EmitMapMethod(info.ProfileClass, src, dst, info.Mappings);
+                 var hintName = EmitHelper.BuildFileName(info.ProfileClass, src, dst);
+                 context.AddSource(hintName, source);
+             }
++
++            // Emit one ModuleInitializer file per profile class (covers all pairs)
++            var initSource = EmitHelper.EmitModuleInitializer(info.ProfileClass, info.Mappings);
++            var initHintName = EmitHelper.BuildModuleInitializerFileName(info.ProfileClass);
++            context.AddSource(initHintName, initSource);
+         }
+     }
+ 
+diff --git a/tests/DeltaMapper.SourceGen.Tests/Helpers/GeneratorTestHelper.cs b/tests/DeltaMapper.SourceGen.Tests/Helpers/GeneratorTestHelper.cs
+index a2ffeea..bc8bc2d 100644
+--- a/tests/DeltaMapper.SourceGen.Tests/Helpers/GeneratorTestHelper.cs
++++ b/tests/DeltaMapper.SourceGen.Tests/Helpers/GeneratorTestHelper.cs
+@@ -5,21 +5,35 @@ namespace DeltaMapper.SourceGen.Tests.Helpers;
+ 
+ public static class GeneratorTestHelper
+ {
+-    public static GeneratorDriverRunResult RunGenerator(string source)
++    /// <summary>
++    /// Builds the set of MetadataReferences used for all test compilations.
++    /// Includes all non-dynamic loaded assemblies plus DeltaMapper.Core explicitly,
++    /// so generated code referencing DeltaMapper.Runtime resolves correctly.
++    /// </summary>
++    private static IReadOnlyList<MetadataReference> BuildReferences()
+     {
+-        var syntaxTree = CSharpSyntaxTree.ParseText(source);
+-
+-        // Create references for compilation — include all loaded assemblies
+-        var references = AppDomain.CurrentDomain.GetAssemblies()
++        var refs = AppDomain.CurrentDomain.GetAssemblies()
+             .Where(a => !a.IsDynamic && !string.IsNullOrWhiteSpace(a.Location))
+             .Select(a => MetadataReference.CreateFromFile(a.Location))
+             .Cast<MetadataReference>()
+             .ToList();
+ 
++        // Explicitly include DeltaMapper.Core so generated code can reference DeltaMapper.Runtime
++        var coreLocation = typeof(DeltaMapper.Runtime.GeneratedMapRegistry).Assembly.Location;
++        if (!string.IsNullOrWhiteSpace(coreLocation))
++            refs.Add(MetadataReference.CreateFromFile(coreLocation));
++
++        return refs;
++    }
++
++    public static GeneratorDriverRunResult RunGenerator(string source)
++    {
++        var syntaxTree = CSharpSyntaxTree.ParseText(source);
++
+         var compilation = CSharpCompilation.Create(
+             "TestAssembly",
+             [syntaxTree],
+-            references,
++            BuildReferences(),
+             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+ 
+         var generator = new MapperGenerator();
+@@ -35,16 +49,10 @@ public static class GeneratorTestHelper
+     {
+         var syntaxTree = CSharpSyntaxTree.ParseText(source);
+ 
+-        var references = AppDomain.CurrentDomain.GetAssemblies()
+-            .Where(a => !a.IsDynamic && !string.IsNullOrWhiteSpace(a.Location))
+-            .Select(a => MetadataReference.CreateFromFile(a.Location))
+-            .Cast<MetadataReference>()
+-            .ToList();
+-
+         var compilation = CSharpCompilation.Create(
+             "TestAssembly",
+             [syntaxTree],
+-            references,
++            BuildReferences(),
+             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+ 
+         var generator = new MapperGenerator();
+diff --git a/tests/DeltaMapper.SourceGen.Tests/MapperGeneratorFlatTests.cs b/tests/DeltaMapper.SourceGen.Tests/MapperGeneratorFlatTests.cs
+index deb392d..3e8420d 100644
+--- a/tests/DeltaMapper.SourceGen.Tests/MapperGeneratorFlatTests.cs
++++ b/tests/DeltaMapper.SourceGen.Tests/MapperGeneratorFlatTests.cs
+@@ -36,9 +36,9 @@ public class MapperGeneratorFlatTests
+     {
+         var result = GeneratorTestHelper.RunGenerator(FlatPocoSource);
+ 
+-        // The generator adds 2 sources: the attribute file + the map file
+-        result.GeneratedTrees.Should().HaveCount(2,
+-            "one for GenerateMapAttribute.g.cs and one for the flat map method");
++        // The generator adds 3 sources: the attribute file + the map method file + the ModuleInitializer file
++        result.GeneratedTrees.Should().HaveCount(3,
++            "one for GenerateMapAttribute.g.cs, one for the flat map method, and one for the ModuleInitializer");
+     }
+ 
+     [Fact]
+@@ -177,9 +177,9 @@ public class MapperGeneratorFlatTests
+ 
+         var result = GeneratorTestHelper.RunGenerator(source);
+ 
+-        // attribute file + 2 map files
+-        result.GeneratedTrees.Should().HaveCount(3,
+-            "one attribute file plus one map file per [GenerateMap] attribute");
++        // attribute file + 2 map files + 1 ModuleInitializer file (one per profile class)
++        result.GeneratedTrees.Should().HaveCount(4,
++            "one attribute file plus one map file per [GenerateMap] attribute plus one ModuleInitializer file per profile");
+ 
+         result.GeneratedTrees
+             .Select(t => System.IO.Path.GetFileName(t.FilePath))

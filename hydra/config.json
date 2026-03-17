@@ -1,12 +1,12 @@
 {
   "schema_version": 5,
   "mode": "afk",
-  "objective": "Implement Phase 4 — Ecosystem Integrations: DeltaMapper.EFCore package with EFCoreProxyMiddleware that detects EF Core proxy types and skips unloaded navigation properties, DeltaMapper.OpenTelemetry package with TracingMiddleware that emits Activity spans for every mapping call, DI extension methods (AddEFCoreSupport, AddMapperTracing), and full test coverage for both packages",
-  "feat_id": "FEAT-005",
-  "feat_display_id": "FEAT-005",
+  "objective": "Implement Phase 5 \u2014 Benchmarks, Docs, Community: BenchmarkDotNet suite comparing DeltaMapper (runtime), DeltaMapper (source-gen), Mapperly, AutoMapper, and hand-written code across flat/nested/collection/patch scenarios, publish BENCHMARKS.md, AutoMapper migration guide, and final README polish",
+  "feat_id": "FEAT-006",
+  "feat_display_id": "FEAT-006",
   "objectives_history": [
     {
-      "objective": "Implement DeltaMapper Phase 1 — Runtime Core",
+      "objective": "Implement DeltaMapper Phase 1 \u2014 Runtime Core",
       "started_at": "2026-03-16T21:45:00Z",
       "feat_id": "FEAT-001",
       "completed_at": "2026-03-17T00:00:00Z"
@@ -19,24 +19,30 @@
       "plan_archived_to": "hydra/archive/2026-03-17-100000"
     },
     {
-      "objective": "Implement MappingDiff<T> and Patch — Phase 2",
+      "objective": "Implement MappingDiff<T> and Patch \u2014 Phase 2",
       "started_at": "2026-03-17T10:30:00Z",
       "feat_id": "FEAT-003",
       "completed_at": "2026-03-17T12:00:00Z",
       "plan_archived_to": "hydra/archive/2026-03-17-120000"
     },
     {
-      "objective": "Implement Phase 3 — Roslyn Source Generator",
+      "objective": "Implement Phase 3 \u2014 Roslyn Source Generator",
       "started_at": "2026-03-17T12:00:00Z",
       "completed_at": "2026-03-17T18:00:00Z",
       "feat_id": "FEAT-004",
       "plan_archived_to": "hydra/archive/2026-03-17-180000"
     },
     {
-      "objective": "Implement Phase 4 — Ecosystem Integrations: EF Core proxy awareness + OpenTelemetry spans",
+      "objective": "Implement Phase 4 \u2014 Ecosystem Integrations: EF Core proxy awareness + OpenTelemetry spans",
       "started_at": "2026-03-17T18:00:00Z",
       "feat_id": "FEAT-005",
-      "completed_at": "2026-03-17T20:00:00Z"
+      "completed_at": "2026-03-17T20:00:00Z",
+      "plan_archived_to": "hydra/archive/2026-03-17-200000"
+    },
+    {
+      "objective": "Implement Phase 5 \u2014 Benchmarks, Docs, Community",
+      "started_at": "2026-03-17T20:30:00Z",
+      "feat_id": "FEAT-006"
     }
   ],
   "max_iterations": 40,
@@ -143,12 +149,12 @@
     "_prev_done_count": 0
   },
   "branch": {
-    "feature": "feat/FEAT-005-efcore-opentelemetry",
+    "feature": "feat/FEAT-006-benchmarks-docs",
     "base": "master",
     "main_worktree_path": "/Users/josemejia/Documents/Software Development/DeltaMapper",
     "worktree_dir": null,
     "last_task_branch": null,
-    "created_at": "2026-03-17T18:00:00Z",
+    "created_at": "2026-03-17T20:30:00Z",
     "auto_pr_on_complete": true,
     "sparse_paths": null
   },
@@ -159,7 +165,7 @@
     "timeout_minutes": 90,
     "checkpoint_every_n_iterations": 5,
     "auto_commit": true,
-    "commit_prefix": "feat(FEAT-005):"
+    "commit_prefix": "feat(FEAT-006):"
   },
   "context": {
     "budget_strategy": "aggressive",
@@ -210,5 +216,5 @@
   "notifications": {
     "on_complete": "say 'hydra loop complete'"
   },
-  "objective_set_at": "2026-03-17T18:00:00Z"
+  "objective_set_at": "2026-03-17T20:30:00Z"
 }

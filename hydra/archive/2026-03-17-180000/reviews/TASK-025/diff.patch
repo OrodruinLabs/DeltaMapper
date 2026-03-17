@@ -1,0 +1,245 @@
+diff --git a/hydra/config.json b/hydra/config.json
+index 6009ee6..28e1239 100644
+--- a/hydra/config.json
++++ b/hydra/config.json
+@@ -32,7 +32,7 @@
+     }
+   ],
+   "max_iterations": 40,
+-  "current_iteration": 2,
++  "current_iteration": 3,
+   "paused": false,
+   "completion_promise": "HYDRA_COMPLETE",
+   "task_file": "hydra/plan.md",
+@@ -131,7 +131,7 @@
+     "block_destructive_commands": true,
+     "require_tests_pass_before_review": true,
+     "max_consecutive_failures": 5,
+-    "consecutive_failures": 2,
++    "consecutive_failures": 3,
+     "_prev_done_count": 0
+   },
+   "branch": {
+diff --git a/hydra/logs/iterations.jsonl b/hydra/logs/iterations.jsonl
+index f702265..405cb83 100644
+--- a/hydra/logs/iterations.jsonl
++++ b/hydra/logs/iterations.jsonl
+@@ -98,3 +98,33 @@
+   "git_sha": "5da906b",
+   "blocked_reason": ""
+ }
++{
++  "iteration": 1,
++  "timestamp": "2026-03-17T11:29:34Z",
++  "active_task": "TASK-021",
++  "status": "READY",
++  "done": 0,
++  "total": 9,
++  "git_sha": "aab3d5a",
++  "blocked_reason": ""
++}
++{
++  "iteration": 2,
++  "timestamp": "2026-03-17T11:29:43Z",
++  "active_task": "TASK-021",
++  "status": "READY",
++  "done": 0,
++  "total": 9,
++  "git_sha": "aab3d5a",
++  "blocked_reason": ""
++}
++{
++  "iteration": 3,
++  "timestamp": "2026-03-17T11:34:55Z",
++  "active_task": "TASK-021",
++  "status": "IMPLEMENTED",
++  "done": 0,
++  "total": 9,
++  "git_sha": "53605f0",
++  "blocked_reason": ""
++}
+diff --git a/hydra/plan.md b/hydra/plan.md
+index 1902a97..392c1c9 100644
+--- a/hydra/plan.md
++++ b/hydra/plan.md
+@@ -17,8 +17,8 @@ Implement Phase 3 — Roslyn Source Generator: [GenerateMap] attribute, IIncreme
+ - [ ] TASK-023: SourceGen test project scaffold
+ 
+ ### Wave 2 — Attribute and Core Generator (depends on Wave 1)
+-- [ ] TASK-024: GenerateMapAttribute emitted as source text (depends: TASK-021)
+-- [ ] TASK-025: IIncrementalGenerator core — flat type pair emission (depends: TASK-021, TASK-024)
++- [x] TASK-024: GenerateMapAttribute emitted as source text (depends: TASK-021)
++- [x] TASK-025: IIncrementalGenerator core — flat type pair emission (depends: TASK-021, TASK-024)
+ 
+ ### Wave 3 — Advanced Generation (depends on Wave 2)
+ - [ ] TASK-026: Generator support for nested types, collections, and Ignore (depends: TASK-025)
+@@ -37,8 +37,8 @@ Implement Phase 3 — Roslyn Source Generator: [GenerateMap] attribute, IIncreme
+ | TASK-021 | SourceGen project scaffold | 1 | — | DeltaMapper.SourceGen.csproj, DeltaMapper.slnx | READY |
+ | TASK-022 | GeneratedMapRegistry in Core | 1 | — | GeneratedMapRegistry.cs, MapperConfiguration.cs, MapperConfigurationBuilder.cs | READY |
+ | TASK-023 | SourceGen test project scaffold | 1 | — | DeltaMapper.SourceGen.Tests.csproj, GeneratorTestHelper.cs | IMPLEMENTED |
+-| TASK-024 | GenerateMapAttribute source text | 2 | TASK-021 | GenerateMapAttributeSource.cs | READY |
+-| TASK-025 | IIncrementalGenerator core (flat) | 2 | TASK-021, TASK-024 | MapperGenerator.cs, EmitHelper.cs | READY |
++| TASK-024 | GenerateMapAttribute source text | 2 | TASK-021 | GenerateMapAttributeSource.cs | IMPLEMENTED |
++| TASK-025 | IIncrementalGenerator core (flat) | 2 | TASK-021, TASK-024 | MapperGenerator.cs, EmitHelper.cs | IMPLEMENTED |
+ | TASK-026 | Nested types, collections, Ignore | 3 | TASK-025 | EmitHelper.cs, MapperGenerator.cs | READY |
+ | TASK-027 | ModuleInitializer + registry wiring | 3 | TASK-022, TASK-025 | MapperGenerator.cs, EmitHelper.cs | READY |
+ | TASK-028 | DM001/DM002/DM003 diagnostics | 4 | TASK-025 | DiagnosticDescriptors.cs, MappingAnalyzer.cs, MapperGenerator.cs | READY |
+@@ -48,8 +48,8 @@ Implement Phase 3 — Roslyn Source Generator: [GenerateMap] attribute, IIncreme
+ (none)
+ 
+ ## Recovery Pointer
+-- **Current Task:** TASK-023
+-- **Last Action:** TASK-023 IMPLEMENTED — SourceGen test project created, build verified
+-- **Next Action:** Review TASK-023 then proceed to next READY task
+-- **Last Checkpoint:** hydra/checkpoints/iteration-002.json
+-- **Last Commit:** aab3d5a feat(FEAT-004): plan Phase 3 — Roslyn Source Generator
++- **Current Task:** TASK-025
++- **Last Action:** TASK-025 IMPLEMENTED — MapperGenerator.cs, EmitHelper.cs created; 11/11 tests pass
++- **Next Action:** TASK-025 awaiting review; next ready tasks are TASK-026, TASK-027, TASK-028 (depend on TASK-025)
++- **Last Checkpoint:** hydra/checkpoints/iteration-003.json
++- **Last Commit:** 53605f0 feat(FEAT-004): Wave 1 — SourceGen project, GeneratedMapRegistry, test scaffold
+diff --git a/hydra/tasks/TASK-024.md b/hydra/tasks/TASK-024.md
+index 4fb9034..9d981ee 100644
+--- a/hydra/tasks/TASK-024.md
++++ b/hydra/tasks/TASK-024.md
+@@ -1,7 +1,7 @@
+ ---
+ id: TASK-024
+ title: GenerateMapAttribute emitted as source text
+-status: READY
++status: IMPLEMENTED
+ depends_on:
+   - TASK-021
+ wave: 2
+@@ -14,7 +14,7 @@ acceptance_criteria:
+   - Attribute is in the DeltaMapper namespace (not DeltaMapper.SourceGen)
+ ---
+ 
+-- **Status**: READY
++- **Status**: IMPLEMENTED
+ 
+ **Retry count**: 0/3
+ 
+diff --git a/hydra/tasks/TASK-025.md b/hydra/tasks/TASK-025.md
+index 2726093..a2d8430 100644
+--- a/hydra/tasks/TASK-025.md
++++ b/hydra/tasks/TASK-025.md
+@@ -1,7 +1,7 @@
+ ---
+ id: TASK-025
+ title: IIncrementalGenerator core — flat type pair emission
+-status: READY
++status: IMPLEMENTED
+ depends_on:
+   - TASK-021
+   - TASK-024
+@@ -16,7 +16,18 @@ acceptance_criteria:
+   - Generator test verifies correct output for a 3-property flat POCO pair (name, content, no diagnostics)
+ ---
+ 
+-- **Status**: READY
++- **Status**: IMPLEMENTED
++- **Base SHA**: 1dee2c6
++- **claimed_at**: 2026-03-17T00:00:00Z
++- **implemented_at**: 2026-03-17T00:01:00Z
++
++## Implementation Log
++
++- Created `src/DeltaMapper.SourceGen/MapperGenerator.cs`: `IIncrementalGenerator` using `ForAttributeWithMetadataName`, `RegisterPostInitializationOutput` for attribute, syntax provider filtering `ClassDeclarationSyntax`, transforms to `MappingInfo`, emits via `EmitHelper`.
++- Created `src/DeltaMapper.SourceGen/EmitHelper.cs`: `EmitMapMethod` (builds partial class source), `GetMatchingProperties` (case-insensitive name + `SymbolEqualityComparer` type match), `BuildFileName`, readable/writable property helpers.
++- Updated `tests/DeltaMapper.SourceGen.Tests/Helpers/GeneratorTestHelper.cs`: wired `MapperGenerator`, added `RunGeneratorWithCompilation` overload.
++- Created `tests/DeltaMapper.SourceGen.Tests/MapperGeneratorFlatTests.cs`: 10 tests covering hint names, assignment content, partial class wrapping, method signature, type-mismatch skip, multi-attribute, no-match empty body, and zero-error output compilation.
++- All 11 tests pass (1 pre-existing + 10 new). Build clean, zero warnings.
+ 
+ **Retry count**: 0/3
+ 
+diff --git a/src/DeltaMapper.Core/Properties/AssemblyInfo.cs b/src/DeltaMapper.Core/Properties/AssemblyInfo.cs
+index 6541938..8bec1fc 100644
+--- a/src/DeltaMapper.Core/Properties/AssemblyInfo.cs
++++ b/src/DeltaMapper.Core/Properties/AssemblyInfo.cs
+@@ -1,3 +1,4 @@
+ using System.Runtime.CompilerServices;
+ 
+ [assembly: InternalsVisibleTo("DeltaMapper.UnitTests")]
++[assembly: InternalsVisibleTo("DeltaMapper.SourceGen.Tests")]
+diff --git a/src/DeltaMapper.SourceGen/DeltaMapper.SourceGen.csproj b/src/DeltaMapper.SourceGen/DeltaMapper.SourceGen.csproj
+index 8903a8d..af37586 100644
+--- a/src/DeltaMapper.SourceGen/DeltaMapper.SourceGen.csproj
++++ b/src/DeltaMapper.SourceGen/DeltaMapper.SourceGen.csproj
+@@ -22,4 +22,9 @@
+   <ItemGroup>
+     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.*" PrivateAssets="all" />
+   </ItemGroup>
++  <ItemGroup>
++    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
++      <_Parameter1>DeltaMapper.SourceGen.Tests</_Parameter1>
++    </AssemblyAttribute>
++  </ItemGroup>
+ </Project>
+diff --git a/tests/DeltaMapper.SourceGen.Tests/DeltaMapper.SourceGen.Tests.csproj b/tests/DeltaMapper.SourceGen.Tests/DeltaMapper.SourceGen.Tests.csproj
+index bde9a04..c9874ae 100644
+--- a/tests/DeltaMapper.SourceGen.Tests/DeltaMapper.SourceGen.Tests.csproj
++++ b/tests/DeltaMapper.SourceGen.Tests/DeltaMapper.SourceGen.Tests.csproj
+@@ -15,7 +15,7 @@
+     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.*" />
+   </ItemGroup>
+   <ItemGroup>
+-    <ProjectReference Include="..\..\src\DeltaMapper.SourceGen\DeltaMapper.SourceGen.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
++    <ProjectReference Include="..\..\src\DeltaMapper.SourceGen\DeltaMapper.SourceGen.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="true" />
+     <ProjectReference Include="..\..\src\DeltaMapper.Core\DeltaMapper.Core.csproj" />
+   </ItemGroup>
+ </Project>
+diff --git a/tests/DeltaMapper.SourceGen.Tests/Helpers/GeneratorTestHelper.cs b/tests/DeltaMapper.SourceGen.Tests/Helpers/GeneratorTestHelper.cs
+index 86d2a87..a2ffeea 100644
+--- a/tests/DeltaMapper.SourceGen.Tests/Helpers/GeneratorTestHelper.cs
++++ b/tests/DeltaMapper.SourceGen.Tests/Helpers/GeneratorTestHelper.cs
+@@ -9,7 +9,7 @@ public static class GeneratorTestHelper
+     {
+         var syntaxTree = CSharpSyntaxTree.ParseText(source);
+ 
+-        // Create references for compilation
++        // Create references for compilation — include all loaded assemblies
+         var references = AppDomain.CurrentDomain.GetAssemblies()
+             .Where(a => !a.IsDynamic && !string.IsNullOrWhiteSpace(a.Location))
+             .Select(a => MetadataReference.CreateFromFile(a.Location))
+@@ -22,12 +22,34 @@ public static class GeneratorTestHelper
+             references,
+             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+ 
+-        // TODO: Replace with actual generator type once TASK-025 creates it
+-        // var generator = new DeltaMapperSourceGenerator();
+-        // GeneratorDriver driver = CSharpGeneratorDriver.Create(generator);
+-        // driver = driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out var diagnostics);
+-        // return driver.GetRunResult();
++        var generator = new MapperGenerator();
++        GeneratorDriver driver = CSharpGeneratorDriver.Create(generator);
++        driver = driver.RunGeneratorsAndUpdateCompilation(compilation, out _, out _);
++        return driver.GetRunResult();
++    }
++
++    /// <summary>
++    /// Runs the generator and also returns the output compilation for diagnostic checking.
++    /// </summary>
++    public static (GeneratorDriverRunResult RunResult, Compilation OutputCompilation) RunGeneratorWithCompilation(string source)
++    {
++        var syntaxTree = CSharpSyntaxTree.ParseText(source);
++
++        var references = AppDomain.CurrentDomain.GetAssemblies()
++            .Where(a => !a.IsDynamic && !string.IsNullOrWhiteSpace(a.Location))
++            .Select(a => MetadataReference.CreateFromFile(a.Location))
++            .Cast<MetadataReference>()
++            .ToList();
++
++        var compilation = CSharpCompilation.Create(
++            "TestAssembly",
++            [syntaxTree],
++            references,
++            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+ 
+-        throw new NotImplementedException("Generator not yet implemented — will be wired in TASK-025");
++        var generator = new MapperGenerator();
++        GeneratorDriver driver = CSharpGeneratorDriver.Create(generator);
++        driver = driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
++        return (driver.GetRunResult(), outputCompilation);
+     }
+ }
