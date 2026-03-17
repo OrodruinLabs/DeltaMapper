@@ -1,4 +1,4 @@
-namespace DeltaMapper;
+namespace DeltaMapper.Configuration;
 
 /// <summary>
 /// Stores configuration for a single destination member override.

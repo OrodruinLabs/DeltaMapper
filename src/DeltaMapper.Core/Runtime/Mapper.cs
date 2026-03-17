@@ -1,4 +1,7 @@
-namespace DeltaMapper;
+using DeltaMapper.Abstractions;
+using DeltaMapper.Configuration;
+
+namespace DeltaMapper.Runtime;
 
 /// <summary>
 /// Runtime mapper that executes compiled mapping delegates.

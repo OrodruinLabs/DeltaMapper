@@ -1,4 +1,4 @@
-namespace DeltaMapper;
+namespace DeltaMapper.Runtime;
 
 /// <summary>
 /// Holds the compiled mapping delegate and hooks for a single type pair.

@@ -1,4 +1,6 @@
-namespace DeltaMapper;
+using DeltaMapper.Abstractions;
+
+namespace DeltaMapper.Configuration;
 
 /// <summary>
 /// Base class for mapping configuration profiles. Users subclass this and call CreateMap in the constructor.

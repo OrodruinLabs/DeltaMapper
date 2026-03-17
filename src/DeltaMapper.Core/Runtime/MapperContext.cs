@@ -1,4 +1,6 @@
-namespace DeltaMapper;
+using DeltaMapper.Configuration;
+
+namespace DeltaMapper.Runtime;
 
 /// <summary>
 /// Tracks per-call mapping state including circular reference detection.

@@ -1,3 +1,5 @@
+using DeltaMapper.Runtime;
+
 namespace DeltaMapper.Middleware;
 
 /// <summary>

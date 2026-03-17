@@ -1,8 +1,9 @@
 using System.Reflection;
 using DeltaMapper.Exceptions;
 using DeltaMapper.Middleware;
+using DeltaMapper.Runtime;
 
-namespace DeltaMapper;
+namespace DeltaMapper.Configuration;
 
 /// <summary>
 /// Builder for constructing MapperConfiguration. Collects profiles and middleware,

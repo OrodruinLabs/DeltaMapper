@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
+using DeltaMapper.Abstractions;
 
-namespace DeltaMapper;
+namespace DeltaMapper.Configuration;
 
 internal sealed class MappingExpression<TSrc, TDst> : IMappingExpression<TSrc, TDst>
 {

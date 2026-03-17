@@ -1,4 +1,4 @@
-namespace DeltaMapper;
+namespace DeltaMapper.Configuration;
 
 /// <summary>
 /// Stores all configuration for a single source-to-destination type pair.
