@@ -45,14 +45,14 @@ Requires .NET 10+.
 
 ## Benchmarks
 
-Summary across four mapping scenarios (DeltaMapper Runtime vs. competitors):
+DeltaMapper SourceGen vs. competitors (Apple M1 Max, .NET 10):
 
-| Scenario | Mean | Allocated |
-|---|---|---|
-| Flat Object (5 properties) | `<pending>` | `<pending>` |
-| Nested Object (2 levels) | `<pending>` | `<pending>` |
-| Collection (10 items) | `<pending>` | `<pending>` |
-| Patch (MappingDiff + change tracking) | `<pending>` | `<pending>` |
+| Scenario | DeltaMapper SourceGen | Mapperly | AutoMapper | Hand-written |
+|---|---:|---:|---:|---:|
+| Flat Object (5 props) | 79.5 ns / 456 B | 7.2 ns / 48 B | 45.5 ns / 48 B | 7.2 ns / 48 B |
+| Nested Object (2 levels) | 85.9 ns / 488 B | 18.3 ns / 120 B | 55.8 ns / 120 B | 18.8 ns / 120 B |
+| Collection (10 items) | 82.0 ns / 472 B | 109.9 ns / 520 B | 186.7 ns / 712 B | 126.1 ns / 592 B |
+| Patch (diff tracking) | 523.1 ns / 1,776 B | — | 48.9 ns / 48 B | 8.6 ns / 48 B |
 
 See [BENCHMARKS.md](BENCHMARKS.md) for full results and methodology.
 

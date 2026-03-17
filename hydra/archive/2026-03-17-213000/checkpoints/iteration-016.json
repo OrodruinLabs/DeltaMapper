@@ -1,0 +1,51 @@
+{
+  "iteration": 16,
+  "timestamp": "2026-03-17T18:32:52Z",
+  "mode": "afk",
+  "active_task": {
+    "id": null,
+    "status": null,
+    "retry_count": 0,
+    "last_action": null,
+    "next_action": null,
+    "files_modified_this_iteration": []
+  },
+  "plan_snapshot": {
+    "total_tasks": 5,
+    "done": 0,
+    "approved": 0,
+    "ready": 0,
+    "in_progress": 0,
+    "in_review": 0,
+    "changes_requested": 0,
+    "blocked": 0,
+    "planned": 5
+  },
+  "git": {
+    "branch": "feat/FEAT-005-efcore-opentelemetry",
+    "last_commit_sha": "c3538d2",
+    "last_commit_message": "feat(FEAT-005): address PR #7 review feedback",
+    "uncommitted_changes": true
+  },
+  "branch": {
+    "feature": "feat/FEAT-005-efcore-opentelemetry",
+    "base": "master",
+    "active_worktrees": 0
+  },
+  "reviewers": {
+    "active": [
+      "architect-reviewer",
+      "code-reviewer",
+      "security-reviewer",
+      "type-reviewer"
+    ],
+    "last_review_task": null,
+    "last_review_verdict": null
+  },
+  "context_health": {
+    "compactions_this_session": 0,
+    "iterations_since_last_compaction": 16,
+    "consecutive_failures": 16
+  },
+  "recovery_instructions": "Read hydra/plan.md Recovery Pointer. No active task — find first READY task in plan."
+}
