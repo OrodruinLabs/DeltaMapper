@@ -1,7 +1,7 @@
 ---
 id: TASK-018
 title: Nested object diff with dot-notation paths
-status: READY
+status: DONE
 depends_on: [TASK-017]
 wave: 3
 delegates_to: implementer
@@ -17,6 +17,14 @@ acceptance_criteria:
 ---
 
 **Retry count**: 0/3
+
+## Implementation Log
+- Added `IsSimpleType(Type)` helper to `DiffEngine.cs` — classifies primitives, string, decimal, DateTime, DateTimeOffset, Guid, enums, and nullable variants
+- Extended `Compare` with optional `string prefix = ""` parameter — recurses into complex properties using dot-notation keys; emits single change for null-to-value transitions without recursing
+- `Snapshot` remains flat as specified
+- `Mapper.Patch` required no changes — backwards-compatible signature extension
+- Created `tests/DeltaMapper.UnitTests/PatchNestedTests.cs` with 3 tests (PN-01, PN-02, PN-03)
+- Build: 0 warnings, 0 errors; Tests: 85/85 passed
 
 ## Description
 Extend `DiffEngine.Compare` to detect complex object properties and recurse into them, flattening change paths with dot notation. A property is "complex" if its type is not a primitive, string, decimal, DateTime, Guid, or enum.

@@ -1,7 +1,7 @@
 ---
 id: TASK-019
 title: Collection diff (add/remove/modify by index)
-status: READY
+status: DONE
 depends_on: [TASK-017]
 wave: 3
 delegates_to: implementer
