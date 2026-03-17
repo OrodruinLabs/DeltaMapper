@@ -169,8 +169,7 @@ public class EFCoreProxyTests : IDisposable
         // operational — meaning registration did not throw and mapping succeeds.
         var act = () => mapper.Map<Blog, BlogDto>(blog);
 
-        act.Should().NotThrow();
-        var dto = act();
+        var dto = act.Should().NotThrow().Subject;
         dto.Id.Should().Be(4);
         dto.Title.Should().Be("Middleware Blog");
     }

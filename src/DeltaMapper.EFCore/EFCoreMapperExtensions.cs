@@ -16,6 +16,7 @@ public static class EFCoreMapperExtensions
     /// <returns>The builder for fluent chaining.</returns>
     public static MapperConfigurationBuilder AddEFCoreSupport(this MapperConfigurationBuilder builder)
     {
+        ArgumentNullException.ThrowIfNull(builder);
         builder.Use<EFCoreProxyMiddleware>();
         return builder;
     }

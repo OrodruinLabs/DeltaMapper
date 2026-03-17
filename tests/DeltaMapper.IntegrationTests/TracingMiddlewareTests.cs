@@ -106,8 +106,7 @@ public class TracingMiddlewareTests
         var act = () => mapper.Map<TracingSource, TracingDest>(source);
 
         // Assert — zero-overhead path: no exception, result is correct
-        act.Should().NotThrow();
-        var dest = act();
+        var dest = act.Should().NotThrow().Subject;
         dest.Id.Should().Be(3);
         dest.Name.Should().Be("Gamma");
     }

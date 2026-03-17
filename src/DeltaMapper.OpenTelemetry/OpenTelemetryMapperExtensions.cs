@@ -16,6 +16,7 @@ public static class OpenTelemetryMapperExtensions
     /// <returns>The builder for fluent chaining.</returns>
     public static MapperConfigurationBuilder AddMapperTracing(this MapperConfigurationBuilder builder)
     {
+        ArgumentNullException.ThrowIfNull(builder);
         builder.Use<TracingMiddleware>();
         return builder;
     }
