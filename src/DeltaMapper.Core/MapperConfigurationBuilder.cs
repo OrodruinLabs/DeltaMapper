@@ -43,7 +43,8 @@ public sealed class MapperConfigurationBuilder
 
     /// <summary>
     /// Compiles all registered profiles into an immutable MapperConfiguration.
-    /// All reflection happens here — the resulting delegates use cached PropertyInfo.
+    /// PropertyInfo lookups are resolved here at build time; the resulting delegates
+    /// use cached PropertyInfo.GetValue/SetValue for property access at map time.
     /// </summary>
     public MapperConfiguration Build()
     {
@@ -309,10 +310,32 @@ public sealed class MapperConfigurationBuilder
             var memberConfig = tm.MemberConfigurations
                 .FirstOrDefault(mc => mc.DestinationMemberName.Equals(param.Name!, StringComparison.OrdinalIgnoreCase));
 
-            if (memberConfig?.CustomResolver != null)
+            if (memberConfig?.IsIgnored == true)
+            {
+                // Ignored — use parameter default or type default
+                var defaultValue = param.HasDefaultValue && param.DefaultValue != DBNull.Value
+                    ? param.DefaultValue
+                    : (param.ParameterType.IsValueType ? Activator.CreateInstance(param.ParameterType) : null);
+                paramResolvers.Add((src, ctx) => defaultValue);
+            }
+            else if (memberConfig?.CustomResolver != null)
             {
                 var resolver = memberConfig.CustomResolver;
                 paramResolvers.Add((src, ctx) => resolver(src));
+            }
+            else if (memberConfig?.HasNullSubstitute == true)
+            {
+                var srcProp = FindSourceProperty(srcProps, param.Name!);
+                var substituteValue = memberConfig.NullSubstituteValue;
+                if (srcProp != null)
+                {
+                    var capturedSrcProp = srcProp;
+                    paramResolvers.Add((src, ctx) => capturedSrcProp.GetValue(src) ?? substituteValue);
+                }
+                else
+                {
+                    paramResolvers.Add((src, ctx) => substituteValue);
+                }
             }
             else
             {
@@ -324,7 +347,9 @@ public sealed class MapperConfigurationBuilder
                 }
                 else
                 {
-                    var defaultValue = param.HasDefaultValue ? param.DefaultValue : (param.ParameterType.IsValueType ? Activator.CreateInstance(param.ParameterType) : null);
+                    var defaultValue = param.HasDefaultValue && param.DefaultValue != DBNull.Value
+                        ? param.DefaultValue
+                        : (param.ParameterType.IsValueType ? Activator.CreateInstance(param.ParameterType) : null);
                     paramResolvers.Add((src, ctx) => defaultValue);
                 }
             }
@@ -352,6 +377,22 @@ public sealed class MapperConfigurationBuilder
                 continue;
             }
 
+            if (memberConfig?.HasNullSubstitute == true)
+            {
+                var srcProp2 = FindSourceProperty(srcProps, dstProp.Name);
+                var substituteValue = memberConfig.NullSubstituteValue;
+                var setter = dstProp;
+                if (srcProp2 != null)
+                {
+                    initOnlyAssignments.Add((src, dst, ctx) => setter.SetValue(dst, srcProp2.GetValue(src) ?? substituteValue));
+                }
+                else
+                {
+                    initOnlyAssignments.Add((src, dst, ctx) => setter.SetValue(dst, substituteValue));
+                }
+                continue;
+            }
+
             var srcProp = FindSourceProperty(srcProps, dstProp.Name);
             if (srcProp != null && IsDirectlyAssignable(srcProp.PropertyType, dstProp.PropertyType))
             {
@@ -367,7 +408,9 @@ public sealed class MapperConfigurationBuilder
 
         Func<object, object?, MapperContext, object> mapFunc = (src, existingDst, ctx) =>
         {
-            // Build constructor arguments
+            // For constructor-injected types, we must always create a new instance
+            // because the values are set via the constructor. If an existing destination
+            // was provided, we log this but still construct fresh.
             var args = new object?[paramResolvers.Count];
             for (int i = 0; i < paramResolvers.Count; i++)
             {
@@ -404,24 +447,33 @@ public sealed class MapperConfigurationBuilder
         return dstType.IsAssignableFrom(srcType);
     }
 
-    private static readonly HashSet<Type> _numericTypes = new()
+    /// <summary>
+    /// Defines the safe widening paths for numeric types.
+    /// A mapping is only considered "widening" if the destination type can represent
+    /// all values of the source type without overflow or precision loss.
+    /// </summary>
+    private static readonly Dictionary<Type, HashSet<Type>> _wideningMap = new()
     {
-        typeof(byte), typeof(sbyte),
-        typeof(short), typeof(ushort),
-        typeof(int), typeof(uint),
-        typeof(long), typeof(ulong),
-        typeof(float), typeof(double), typeof(decimal)
+        [typeof(byte)]   = new() { typeof(short), typeof(ushort), typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(float), typeof(double), typeof(decimal) },
+        [typeof(sbyte)]  = new() { typeof(short), typeof(int), typeof(long), typeof(float), typeof(double), typeof(decimal) },
+        [typeof(short)]  = new() { typeof(int), typeof(long), typeof(float), typeof(double), typeof(decimal) },
+        [typeof(ushort)] = new() { typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(float), typeof(double), typeof(decimal) },
+        [typeof(int)]    = new() { typeof(long), typeof(double), typeof(decimal) },
+        [typeof(uint)]   = new() { typeof(long), typeof(ulong), typeof(double), typeof(decimal) },
+        [typeof(long)]   = new() { typeof(decimal) },
+        [typeof(ulong)]  = new() { typeof(decimal) },
+        [typeof(float)]  = new() { typeof(double) },
     };
 
     /// <summary>
-    /// Returns true when srcType can be widened to dstType via Convert.ChangeType,
+    /// Returns true when srcType can be safely widened to dstType without overflow or precision loss.
     /// e.g. int → long, float → double. Handles nullable variants too.
     /// </summary>
     private static bool IsNumericWidening(Type srcType, Type dstType)
     {
         var srcUnderlying = Nullable.GetUnderlyingType(srcType) ?? srcType;
         var dstUnderlying = Nullable.GetUnderlyingType(dstType) ?? dstType;
-        return _numericTypes.Contains(srcUnderlying) && _numericTypes.Contains(dstUnderlying);
+        return _wideningMap.TryGetValue(srcUnderlying, out var targets) && targets.Contains(dstUnderlying);
     }
 
     private static bool IsComplexType(Type type)

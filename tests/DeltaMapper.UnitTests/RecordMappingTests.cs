@@ -119,7 +119,7 @@ public class RecordMappingTests
         public REC05_PersonRecordForMemberProfile()
         {
             CreateMap<PersonRecord, PersonRecordDto>()
-                .ForMember(d => d.FirstName, o => o.MapFrom(s => s.FirstName.ToUpper()));
+                .ForMember(d => d.FirstName, o => o.MapFrom(s => s.FirstName.ToUpperInvariant()));
         }
     }
 

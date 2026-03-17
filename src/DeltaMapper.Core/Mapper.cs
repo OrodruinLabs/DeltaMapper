@@ -57,6 +57,12 @@ public sealed class Mapper : IMapper
         ArgumentNullException.ThrowIfNull(source);
         ArgumentNullException.ThrowIfNull(sourceType);
         ArgumentNullException.ThrowIfNull(destinationType);
+
+        if (!sourceType.IsInstanceOfType(source))
+            throw new ArgumentException(
+                $"Source object of type '{source.GetType().Name}' is not assignable to sourceType '{sourceType.Name}'.",
+                nameof(source));
+
         var ctx = new MapperContext(_config);
         return _config.Execute(source, sourceType, destinationType, ctx);
     }
