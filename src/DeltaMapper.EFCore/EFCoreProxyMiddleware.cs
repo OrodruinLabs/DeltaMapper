@@ -7,7 +7,7 @@ using DeltaMapper.Runtime;
 /// Middleware that detects EF Core proxy entities and skips unloaded navigation properties
 /// to prevent lazy loading triggers during mapping.
 /// </summary>
-public sealed class EFCoreProxyMiddleware : IMappingMiddleware
+internal sealed class EFCoreProxyMiddleware : IMappingMiddleware
 {
     /// <inheritdoc />
     public object Map(object source, Type destType, MapperContext ctx, Func<object> next)

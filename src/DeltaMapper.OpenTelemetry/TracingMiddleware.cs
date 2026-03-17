@@ -8,13 +8,16 @@ using DeltaMapper.Runtime;
 /// Middleware that emits <see cref="Activity"/> spans for every mapping operation,
 /// enabling OpenTelemetry-compatible distributed tracing.
 /// </summary>
-public sealed class TracingMiddleware : IMappingMiddleware
+internal sealed class TracingMiddleware : IMappingMiddleware
 {
     private static readonly ActivitySource Source = new("DeltaMapper");
 
     /// <inheritdoc />
     public object Map(object source, Type destType, MapperContext ctx, Func<object> next)
     {
+        if (!Source.HasListeners())
+            return next();
+
         using var activity = Source.StartActivity($"Map {source.GetType().Name} -> {destType.Name}");
 
         var result = next();
