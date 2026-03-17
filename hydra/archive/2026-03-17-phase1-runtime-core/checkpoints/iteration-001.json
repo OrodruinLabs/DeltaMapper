@@ -1,0 +1,53 @@
+{
+  "iteration": 1,
+  "timestamp": "2026-03-16T22:03:32Z",
+  "mode": "afk",
+  "active_task": {
+    "id": null,
+    "status": null,
+    "retry_count": 0,
+    "last_action": null,
+    "next_action": null,
+    "files_modified_this_iteration": [
+      "hydra/plan.md"
+    ]
+  },
+  "plan_snapshot": {
+    "total_tasks": 14,
+    "done": 0,
+    "approved": 0,
+    "ready": 0,
+    "in_progress": 0,
+    "in_review": 0,
+    "changes_requested": 0,
+    "blocked": 0,
+    "planned": 14
+  },
+  "git": {
+    "branch": "feat/FEAT-001-runtime-core",
+    "last_commit_sha": "663d630",
+    "last_commit_message": "feat(FEAT-001): mark all tasks complete in plan — 14/14 DONE",
+    "uncommitted_changes": true
+  },
+  "branch": {
+    "feature": "feat/FEAT-001-runtime-core",
+    "base": "master",
+    "active_worktrees": 0
+  },
+  "reviewers": {
+    "active": [
+      "architect-reviewer",
+      "code-reviewer",
+      "security-reviewer",
+      "type-reviewer"
+    ],
+    "last_review_task": null,
+    "last_review_verdict": null
+  },
+  "context_health": {
+    "compactions_this_session": 0,
+    "iterations_since_last_compaction": 1,
+    "consecutive_failures": 3
+  },
+  "recovery_instructions": "Read hydra/plan.md Recovery Pointer. No active task — find first READY task in plan."
+}

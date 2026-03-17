@@ -1,4 +1,4 @@
-namespace DeltaMapper;
+namespace DeltaMapper.Abstractions;
 
 /// <summary>
 /// Defines the contract for object mapping operations.

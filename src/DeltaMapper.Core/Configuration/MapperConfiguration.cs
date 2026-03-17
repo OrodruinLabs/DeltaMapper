@@ -1,8 +1,10 @@
 using System.Collections.Frozen;
+using DeltaMapper.Abstractions;
 using DeltaMapper.Exceptions;
 using DeltaMapper.Middleware;
+using DeltaMapper.Runtime;
 
-namespace DeltaMapper;
+namespace DeltaMapper.Configuration;
 
 /// <summary>
 /// Holds compiled mapping configuration. Created at startup, immutable after construction.
@@ -27,7 +29,7 @@ public sealed class MapperConfiguration
     internal MapperConfiguration()
     {
         _registry = new Dictionary<(Type, Type), CompiledMap>().ToFrozenDictionary();
-        _pipeline = new MappingPipeline(Array.Empty<IMappingMiddleware>());
+        _pipeline = new MappingPipeline([]);
     }
 
     /// <summary>
@@ -78,24 +80,5 @@ public sealed class MapperConfiguration
     {
         var frozen = maps.ToFrozenDictionary();
         return new MapperConfiguration(frozen, new MappingPipeline(middlewares));
-    }
-}
-
-/// <summary>
-/// Holds the compiled mapping delegate and hooks for a single type pair.
-/// </summary>
-internal sealed class CompiledMap
-{
-    private readonly Func<object, object?, MapperContext, object> _mapFunc;
-
-    internal CompiledMap(
-        Func<object, object?, MapperContext, object> mapFunc)
-    {
-        _mapFunc = mapFunc;
-    }
-
-    internal object Execute(object source, object? existingDest, MapperContext ctx)
-    {
-        return _mapFunc(source, existingDest, ctx);
     }
 }

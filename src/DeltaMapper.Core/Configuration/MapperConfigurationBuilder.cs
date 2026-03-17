@@ -1,8 +1,9 @@
 using System.Reflection;
 using DeltaMapper.Exceptions;
 using DeltaMapper.Middleware;
+using DeltaMapper.Runtime;
 
-namespace DeltaMapper;
+namespace DeltaMapper.Configuration;
 
 /// <summary>
 /// Builder for constructing MapperConfiguration. Collects profiles and middleware,
@@ -10,8 +11,8 @@ namespace DeltaMapper;
 /// </summary>
 public sealed class MapperConfigurationBuilder
 {
-    private readonly List<MappingProfile> _profiles = new();
-    private readonly List<IMappingMiddleware> _middlewares = new();
+    private readonly List<MappingProfile> _profiles = [];
+    private readonly List<IMappingMiddleware> _middlewares = [];
 
     /// <summary>
     /// Adds a mapping profile by type (instantiates via parameterless constructor).
@@ -48,7 +49,7 @@ public sealed class MapperConfigurationBuilder
     /// </summary>
     public MapperConfiguration Build()
     {
-        var allTypeMaps = new List<TypeMapConfiguration>();
+        List<TypeMapConfiguration> allTypeMaps = [];
 
         foreach (var profile in _profiles)
         {
@@ -56,7 +57,7 @@ public sealed class MapperConfigurationBuilder
         }
 
         // Handle ReverseMap — generate inverse type maps with convention-only matching
-        var reverseMaps = new List<TypeMapConfiguration>();
+        List<TypeMapConfiguration> reverseMaps = [];
         foreach (var tm in allTypeMaps)
         {
             if (tm.HasReverseMap)
@@ -95,7 +96,7 @@ public sealed class MapperConfigurationBuilder
         }
 
         // Build property assignment list at compile time — reflection cost is paid here only
-        var assignments = new List<Action<object, object, MapperContext>>();
+        List<Action<object, object, MapperContext>> assignments = [];
 
         foreach (var dstProp in dstProps)
         {
@@ -191,7 +192,7 @@ public sealed class MapperConfigurationBuilder
                     }
 
                     var enumerable = (System.Collections.IEnumerable)srcCollection;
-                    var items = new List<object>();
+                    List<object> items = [];
                     foreach (var item in enumerable)
                     {
                         if (item == null)
@@ -303,7 +304,7 @@ public sealed class MapperConfigurationBuilder
         var ctorParams = bestCtor.GetParameters();
 
         // Build parameter resolvers
-        var paramResolvers = new List<Func<object, MapperContext, object?>>();
+        List<Func<object, MapperContext, object?>> paramResolvers = [];
         foreach (var param in ctorParams)
         {
             // Check for ForMember override
@@ -357,7 +358,7 @@ public sealed class MapperConfigurationBuilder
 
         // Find init-only properties NOT covered by constructor params
         var ctorParamNames = new HashSet<string>(ctorParams.Select(p => p.Name!), StringComparer.OrdinalIgnoreCase);
-        var initOnlyAssignments = new List<Action<object, object, MapperContext>>();
+        List<Action<object, object, MapperContext>> initOnlyAssignments = [];
 
         foreach (var dstProp in dstProps)
         {

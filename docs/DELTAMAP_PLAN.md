@@ -67,8 +67,7 @@ DeltaMapper/
 
 ## Target Framework & Dependencies
 
-- **Target**: `net8.0` (minimum)
-- **Multi-target**: `net8.0;net9.0`
+- **Target**: `net10.0`
 - **Core has zero runtime dependencies**
 - Test projects: `xunit`, `FluentAssertions`, `BenchmarkDotNet`
 - SourceGen project: `Microsoft.CodeAnalysis.CSharp`
@@ -85,7 +84,7 @@ DeltaMapper/
 <!-- src/DeltaMapper.Core/DeltaMapper.Core.csproj -->
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
+    <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>latest</LangVersion>
