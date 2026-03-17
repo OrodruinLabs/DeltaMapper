@@ -9,7 +9,7 @@
 
     <!-- NuGet package identity -->
     <PackageId>DeltaMapper</PackageId>
-    <Version>0.3.0-alpha.1</Version>
+    <Version>0.4.0-alpha.1</Version>
     <Authors>Jose Mejia</Authors>
     <Description>Fast, diff-aware .NET object mapper. Expression-compiled delegates, FrozenDictionary-backed lookup, fluent profile API, MappingDiff&lt;T&gt; / Patch support, source-generator integration, and DI extensions. MIT licensed.</Description>
     <PackageTags>mapper;object-mapper;automapper;dto;diff;patch;source-generator;net10;csharp</PackageTags>
@@ -20,19 +20,14 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
-v0.3.0-alpha.1
+v0.4.0-alpha.1
 
-Phase 2 — MappingDiff and Patch (FEAT-003):
-- MappingDiff&lt;T&gt; value object that captures per-property before/after pairs
-- IMapper.Patch&lt;TSource, TDestination&gt;() that applies only changed properties
-- Fluent ForMember diff overrides and NullSubstitute support in patch paths
-
-Phase 3 — Roslyn Source Generator (FEAT-004):
-- [GenerateMap] attribute for compile-time mapping delegate emission
-- IIncrementalGenerator emitting assignment code at build time (zero reflection at runtime)
-- GeneratedMapRegistry with ModuleInitializer auto-registration and MapperConfiguration fallback
-- DM001 / DM002 / DM003 analyzer diagnostics for misconfigured attributes
-- Full nested-type, collection, and Ignore support in generated code
+Phase 4 — Ecosystem Integrations (FEAT-005):
+- DeltaMapper.EFCore: EFCoreProxyMiddleware detects Castle.Core proxies, AddEFCoreSupport() extension
+- DeltaMapper.OpenTelemetry: TracingMiddleware emits Activity spans, AddMapperTracing() extension
+- HasListeners() fast path for zero-overhead tracing when no listener subscribed
+- Error recording on Activity spans (OTel convention)
+- GitHub Actions CI workflow (build + test on PRs)
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>

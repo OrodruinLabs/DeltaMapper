@@ -35,7 +35,8 @@
     {
       "objective": "Implement Phase 4 — Ecosystem Integrations: EF Core proxy awareness + OpenTelemetry spans",
       "started_at": "2026-03-17T18:00:00Z",
-      "feat_id": "FEAT-005"
+      "feat_id": "FEAT-005",
+      "completed_at": "2026-03-17T20:00:00Z"
     }
   ],
   "max_iterations": 40,
