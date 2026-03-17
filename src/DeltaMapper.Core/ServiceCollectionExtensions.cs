@@ -7,20 +7,20 @@ namespace DeltaMapper;
 /// </summary>
 public static class ServiceCollectionExtensions
 {
-    /// <summary>
-    /// Registers DeltaMapper services: MapperConfiguration (singleton) and IMapper (singleton).
-    /// </summary>
-    public static IServiceCollection AddDeltaMapper(
-        this IServiceCollection services,
-        Action<MapperConfigurationBuilder> configure)
+    extension(IServiceCollection services)
     {
-        ArgumentNullException.ThrowIfNull(services);
-        ArgumentNullException.ThrowIfNull(configure);
-        var builder = new MapperConfigurationBuilder();
-        configure(builder);
-        var config = builder.Build();
-        services.AddSingleton(config);
-        services.AddSingleton<IMapper>(sp => new Mapper(sp.GetRequiredService<MapperConfiguration>()));
-        return services;
+        /// <summary>
+        /// Registers DeltaMapper services: MapperConfiguration (singleton) and IMapper (singleton).
+        /// </summary>
+        public IServiceCollection AddDeltaMapper(Action<MapperConfigurationBuilder> configure)
+        {
+            ArgumentNullException.ThrowIfNull(configure);
+            var builder = new MapperConfigurationBuilder();
+            configure(builder);
+            var config = builder.Build();
+            services.AddSingleton(config);
+            services.AddSingleton<IMapper>(sp => new Mapper(sp.GetRequiredService<MapperConfiguration>()));
+            return services;
+        }
     }
 }
