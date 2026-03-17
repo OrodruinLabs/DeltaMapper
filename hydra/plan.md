@@ -1,52 +1,55 @@
-# Hydra Plan
+# Plan — Phase 4: Ecosystem Integrations (FEAT-005)
+
+─── ◈ HYDRA ▸ PLANNING ─────────────────────────────
 
 ## Objective
-Implement Phase 3 — Roslyn Source Generator: [GenerateMap] attribute, IIncrementalGenerator that emits assignment code at build time, GeneratedMapRegistry for runtime fallback integration, DM001/DM002/DM003 analyzer diagnostics, and generator test coverage.
+
+Implement Phase 4 — Ecosystem Integrations: DeltaMapper.EFCore package with EFCoreProxyMiddleware that detects EF Core proxy types and skips unloaded navigation properties, DeltaMapper.OpenTelemetry package with TracingMiddleware that emits Activity spans for every mapping call, DI extension methods (AddEFCoreSupport, AddMapperTracing), and full test coverage for both packages.
 
 ## Status Summary
-- Total tasks: 9
-- IMPLEMENTED: 9
-- Current iteration: 10/40
-- Active task: none — ALL TASKS IMPLEMENTED, reviews complete
+
+| Status | Count |
+|--------|-------|
+| READY  | 0     |
+| IN_PROGRESS | 0 |
+| IMPLEMENTED | 5     |
+| DONE   | 0     |
+| BLOCKED | 0    |
+| TOTAL  | 5     |
+
+## Recovery Pointer
+
+**Next**: All tasks IMPLEMENTED — awaiting review / post-loop
+**State**: TASK-034 IMPLEMENTED
+**Last updated**: 2026-03-17T19:05:00Z
+
+## Tasks
+
+| ID | Title | Status | Wave | Depends On |
+|----|-------|--------|------|------------|
+| TASK-030 | DeltaMapper.EFCore project scaffolding + EFCoreProxyMiddleware | IMPLEMENTED | 1 | -- |
+| TASK-031 | DeltaMapper.OpenTelemetry project scaffolding + TracingMiddleware | IMPLEMENTED | 1 | -- |
+| TASK-032 | DI extension methods (AddEFCoreSupport, AddMapperTracing) | IMPLEMENTED | 2 | TASK-030, TASK-031 |
+| TASK-033 | Integration test project + EF Core proxy tests | IMPLEMENTED | 3 | TASK-032 |
+| TASK-034 | OpenTelemetry tracing tests + solution wiring | IMPLEMENTED | 3 | TASK-032 |
 
 ## Wave Groups
 
-### Wave 1 — Project Scaffolding — COMPLETE
-- [x] TASK-021: SourceGen project scaffold and solution registration
-- [x] TASK-022: GeneratedMapRegistry in DeltaMapper.Core
-- [x] TASK-023: SourceGen test project scaffold
+### Wave 1
+- TASK-030, TASK-031 (independent packages, no file overlap)
 
-### Wave 2 — Attribute and Core Generator — COMPLETE
-- [x] TASK-024: GenerateMapAttribute emitted as source text
-- [x] TASK-025: IIncrementalGenerator core — flat type pair emission
+### Wave 2
+- TASK-032 (depends on TASK-030 and TASK-031, adds DI extensions to both packages)
 
-### Wave 3 — Advanced Generation — COMPLETE
-- [x] TASK-026: Generator support for nested types, collections, and Ignore
-- [x] TASK-027: ModuleInitializer registration and MapperConfiguration fallback
+### Wave 3
+- TASK-033, TASK-034 (independent test suites, share only the new integration test project file creation — but TASK-033 creates the project, TASK-034 only adds to it; sequenced within wave if needed)
 
-### Wave 4 — Analyzer Diagnostics — COMPLETE
-- [x] TASK-028: DM001/DM002 analyzer diagnostics
+## Design Notes
 
-### Wave 5 — Test Coverage Gate — COMPLETE
-- [x] TASK-029: Full generator test coverage and compile verification
-
-## Completed
-- [x] TASK-021 -> IMPLEMENTED (95 tests)
-- [x] TASK-022 -> IMPLEMENTED (95 tests)
-- [x] TASK-023 -> IMPLEMENTED (95 tests)
-- [x] TASK-024 -> IMPLEMENTED (96 tests)
-- [x] TASK-025 -> IMPLEMENTED (106 tests)
-- [x] TASK-026 -> IMPLEMENTED (127 tests)
-- [x] TASK-027 -> IMPLEMENTED (127 tests)
-- [x] TASK-028 -> IMPLEMENTED (136 tests)
-- [x] TASK-029 -> IMPLEMENTED (136 tests)
-
-## Blocked
-(none)
-
-## Recovery Pointer
-- **Current Task:** none — HYDRA_COMPLETE
-- **Last Action:** Post-loop complete — README, CHANGELOG, NuGet v0.3.0-alpha.1, release notes
-- **Next Action:** none — objective complete
-- **Last Checkpoint:** hydra/checkpoints/iteration-010.json
-- **Last Commit:** 0dd0431 Post-loop: README, CHANGELOG, NuGet v0.3.0-alpha.1, release notes (FEAT-004)
+- EFCoreProxyMiddleware detects Castle.Core proxy types via `type.Assembly.GetName().Name` containing "DynamicProxyGenAssembly" or type name containing "Proxy" and base type matching the entity type. Navigation properties are identified via EF Core's `INavigation` metadata when available, or by convention (reference/collection types with known entity base).
+- TracingMiddleware uses `System.Diagnostics.ActivitySource` — no external OpenTelemetry SDK dependency needed. The BCL ActivitySource/Activity API is the .NET native observability primitive.
+- Both middleware classes are thread-safe (stateless or use static readonly fields).
+- DeltaMapper.EFCore targets net10.0 with Microsoft.EntityFrameworkCore 10.* dependency.
+- DeltaMapper.OpenTelemetry targets net10.0 (System.Diagnostics.DiagnosticSource is in-box for net10.0).
+- Integration tests use Microsoft.EntityFrameworkCore.InMemory for EF Core proxy testing.
+- OpenTelemetry tests use ActivityListener from System.Diagnostics for span assertions.

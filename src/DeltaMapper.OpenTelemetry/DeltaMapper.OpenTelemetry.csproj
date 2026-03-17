@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>DeltaMapper.OpenTelemetry</RootNamespace>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+
+    <!-- NuGet package identity -->
+    <PackageId>DeltaMapper.OpenTelemetry</PackageId>
+    <Version>0.4.0-alpha.1</Version>
+    <Authors>Jose Mejia</Authors>
+    <Description>OpenTelemetry tracing middleware for DeltaMapper — emits Activity spans for every mapping operation</Description>
+    <PackageTags>mapper;opentelemetry;tracing;activity;observability;net10;csharp</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/OrodruinLabs/DeltaMapper</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/OrodruinLabs/DeltaMapper</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../DeltaMapper.Core/DeltaMapper.Core.csproj" />
+  </ItemGroup>
+</Project>

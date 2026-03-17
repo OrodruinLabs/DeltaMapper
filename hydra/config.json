@@ -1,9 +1,9 @@
 {
   "schema_version": 5,
   "mode": "afk",
-  "objective": "Implement Phase 3 — Roslyn Source Generator: [GenerateMap] attribute, IIncrementalGenerator that emits assignment code at build time, GeneratedMapRegistry for runtime fallback integration, DM001/DM002/DM003 analyzer diagnostics, and generator test coverage",
-  "feat_id": "FEAT-004",
-  "feat_display_id": "FEAT-004",
+  "objective": "Implement Phase 4 — Ecosystem Integrations: DeltaMapper.EFCore package with EFCoreProxyMiddleware that detects EF Core proxy types and skips unloaded navigation properties, DeltaMapper.OpenTelemetry package with TracingMiddleware that emits Activity spans for every mapping call, DI extension methods (AddEFCoreSupport, AddMapperTracing), and full test coverage for both packages",
+  "feat_id": "FEAT-005",
+  "feat_display_id": "FEAT-005",
   "objectives_history": [
     {
       "objective": "Implement DeltaMapper Phase 1 — Runtime Core",
@@ -29,11 +29,17 @@
       "objective": "Implement Phase 3 — Roslyn Source Generator",
       "started_at": "2026-03-17T12:00:00Z",
       "completed_at": "2026-03-17T18:00:00Z",
-      "feat_id": "FEAT-004"
+      "feat_id": "FEAT-004",
+      "plan_archived_to": "hydra/archive/2026-03-17-180000"
+    },
+    {
+      "objective": "Implement Phase 4 — Ecosystem Integrations: EF Core proxy awareness + OpenTelemetry spans",
+      "started_at": "2026-03-17T18:00:00Z",
+      "feat_id": "FEAT-005"
     }
   ],
   "max_iterations": 40,
-  "current_iteration": 10,
+  "current_iteration": 0,
   "paused": false,
   "completion_promise": "HYDRA_COMPLETE",
   "task_file": "hydra/plan.md",
@@ -132,16 +138,16 @@
     "block_destructive_commands": true,
     "require_tests_pass_before_review": true,
     "max_consecutive_failures": 5,
-    "consecutive_failures": 10,
+    "consecutive_failures": 0,
     "_prev_done_count": 0
   },
   "branch": {
-    "feature": "feat/FEAT-004-roslyn-source-generator",
+    "feature": "feat/FEAT-005-efcore-opentelemetry",
     "base": "master",
     "main_worktree_path": "/Users/josemejia/Documents/Software Development/DeltaMapper",
     "worktree_dir": null,
     "last_task_branch": null,
-    "created_at": "2026-03-17T12:00:00Z",
+    "created_at": "2026-03-17T18:00:00Z",
     "auto_pr_on_complete": true,
     "sparse_paths": null
   },
@@ -152,7 +158,7 @@
     "timeout_minutes": 90,
     "checkpoint_every_n_iterations": 5,
     "auto_commit": true,
-    "commit_prefix": "feat(FEAT-004):"
+    "commit_prefix": "feat(FEAT-005):"
   },
   "context": {
     "budget_strategy": "aggressive",
@@ -203,5 +209,5 @@
   "notifications": {
     "on_complete": "say 'hydra loop complete'"
   },
-  "objective_set_at": "2026-03-17T12:00:00Z"
+  "objective_set_at": "2026-03-17T18:00:00Z"
 }
