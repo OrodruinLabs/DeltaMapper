@@ -1,18 +1,23 @@
 {
   "schema_version": 5,
   "mode": "afk",
-  "objective": "Implement DeltaMapper Phase 1 — Runtime Core: project setup, core interfaces, fluent profile API, MapperConfiguration with expression-compiled delegates and FrozenDictionary, Mapper runtime executor, MapperContext for circular reference detection, DI integration, record/init-only property support, and full unit test coverage",
-  "feat_id": "FEAT-001",
-  "feat_display_id": "FEAT-001",
+  "objective": "Migrate DeltaMapper to .NET 10 only and adopt C# 14 language features: primary constructors, collection expressions, extension members, null-conditional assignment",
+  "feat_id": "FEAT-002",
+  "feat_display_id": "FEAT-002",
   "objectives_history": [
     {
       "objective": "Implement DeltaMapper Phase 1 — Runtime Core",
       "started_at": "2026-03-16T21:45:00Z",
       "feat_id": "FEAT-001"
+    },
+    {
+      "objective": "Migrate to .NET 10 / C# 14",
+      "started_at": "2026-03-17T00:00:00Z",
+      "feat_id": "FEAT-002"
     }
   ],
   "max_iterations": 40,
-  "current_iteration": 10,
+  "current_iteration": 0,
   "paused": false,
   "completion_promise": "HYDRA_COMPLETE",
   "task_file": "hydra/plan.md",
@@ -20,7 +25,7 @@
   "review_dir": "hydra/reviews",
   "project": {
     "language": "csharp",
-    "framework": "dotnet8",
+    "framework": "dotnet10",
     "test_command": "dotnet test --no-build -c Release --logger trx",
     "build_command": "dotnet build -c Release",
     "lint_command": "dotnet format --verify-no-changes",
@@ -28,9 +33,9 @@
     "classification_confidence": "high",
     "classified_at": "2026-03-16T21:30:00Z",
     "stack": {
-      "runtime": "dotnet9",
+      "runtime": "dotnet10",
       "package_manager": "nuget",
-      "framework": "dotnet8-net9-multitarget",
+      "framework": "net10",
       "database": null,
       "orm": null,
       "testing": "xunit-fluentassertions-benchmarkdotnet",
@@ -111,12 +116,12 @@
     "block_destructive_commands": true,
     "require_tests_pass_before_review": true,
     "max_consecutive_failures": 5,
-    "consecutive_failures": 1,
-    "_prev_done_count": 14
+    "consecutive_failures": 0,
+    "_prev_done_count": 0
   },
   "branch": {
-    "feature": "feat/FEAT-001-runtime-core",
-    "base": "master",
+    "feature": "feat/FEAT-002-net10-csharp14",
+    "base": "feat/FEAT-001-runtime-core",
     "main_worktree_path": "/Users/josemejia/Documents/Software Development/DeltaMapper",
     "worktree_dir": null,
     "last_task_branch": null,
@@ -131,7 +136,7 @@
     "timeout_minutes": 90,
     "checkpoint_every_n_iterations": 5,
     "auto_commit": true,
-    "commit_prefix": "feat(FEAT-001):"
+    "commit_prefix": "feat(FEAT-002):"
   },
   "context": {
     "budget_strategy": "aggressive",
@@ -182,5 +187,5 @@
   "notifications": {
     "on_complete": "say 'hydra loop complete'"
   },
-  "objective_set_at": "2026-03-16T21:45:00Z"
+  "objective_set_at": "2026-03-17T00:00:00Z"
 }
