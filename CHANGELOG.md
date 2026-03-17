@@ -10,9 +10,31 @@ DeltaMapper uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Planned
-- EF Core proxy-aware middleware (Phase 4)
-- OpenTelemetry `TracingMiddleware` (Phase 4)
 - BenchmarkDotNet results published to `BENCHMARKS.md` (Phase 5)
+
+---
+
+## [0.4.0-alpha.1] - 2026-03-17
+
+Phase 4: Ecosystem Integrations
+
+### Added
+
+#### `DeltaMapper.EFCore` package
+- `EFCoreProxyMiddleware` — detects Castle.Core dynamic proxies emitted by EF Core and skips unloaded navigation properties to prevent lazy loading triggers during mapping
+- `AddEFCoreSupport()` extension method on `MapperConfigurationBuilder` — registers `EFCoreProxyMiddleware` in the pipeline with a single fluent call
+
+#### `DeltaMapper.OpenTelemetry` package
+- `TracingMiddleware` — emits an `System.Diagnostics.Activity` span per mapping call using the `"DeltaMapper"` `ActivitySource`; sets `mapper.source_type` and `mapper.dest_type` tags and records exception events on failure
+- `AddMapperTracing()` extension method on `MapperConfigurationBuilder` — registers `TracingMiddleware` in the pipeline with a single fluent call
+- `ActivitySource.HasListeners()` fast path — zero allocation overhead when no OpenTelemetry listener is attached
+
+#### CI
+- GitHub Actions workflow (`.github/workflows/ci.yml`) — runs `dotnet build -c Release` and the full test suite on every pull request and push to master
+
+#### Test coverage
+- 4 EF Core integration tests verifying proxy detection and safe passthrough
+- 5 OpenTelemetry tracing tests verifying span emission, tag values, error recording, and the no-listener fast path
 
 ---
 
@@ -121,7 +143,8 @@ Initial release. Covers Phase 1 (runtime core) and the .NET 10 / C# 14 migration
 - Collection expressions (`[...]`) replace `new List<T>()` where applicable
 - Null-conditional assignment (`??=`) adopted where applicable
 
-[Unreleased]: https://github.com/OrodruinLabs/DeltaMapper/compare/v0.3.0-alpha.1...HEAD
+[Unreleased]: https://github.com/OrodruinLabs/DeltaMapper/compare/v0.4.0-alpha.1...HEAD
+[0.4.0-alpha.1]: https://github.com/OrodruinLabs/DeltaMapper/compare/v0.3.0-alpha.1...v0.4.0-alpha.1
 [0.3.0-alpha.1]: https://github.com/OrodruinLabs/DeltaMapper/compare/v0.2.0-alpha.1...v0.3.0-alpha.1
 [0.2.0-alpha.1]: https://github.com/OrodruinLabs/DeltaMapper/compare/v0.1.0-alpha.1...v0.2.0-alpha.1
 [0.1.0-alpha.1]: https://github.com/OrodruinLabs/DeltaMapper/releases/tag/v0.1.0-alpha.1

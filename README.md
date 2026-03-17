@@ -5,6 +5,8 @@
 - **Expression-compiled delegates + `FrozenDictionary`** — all reflection happens once at startup, never at call time
 - **`MappingDiff<T>`** — maps an object _and_ returns a structured change set in a single call
 - **Roslyn source generator** — optional `[GenerateMap]` attribute emits assignment code at build time with zero reflection
+- **EF Core proxy awareness** — safely maps lazy-loaded proxy entities without triggering navigation loads
+- **OpenTelemetry tracing** — zero-overhead `Activity` spans when no listener is attached
 - **MIT licensed, no paid tiers, forever**
 
 [![NuGet](https://img.shields.io/nuget/v/DeltaMapper.svg)](https://www.nuget.org/packages/DeltaMapper)
@@ -23,6 +25,18 @@ For compile-time source generation (optional):
 
 ```
 dotnet add package DeltaMapper.SourceGen
+```
+
+For EF Core proxy awareness (optional):
+
+```
+dotnet add package DeltaMapper.EFCore
+```
+
+For OpenTelemetry tracing (optional):
+
+```
+dotnet add package DeltaMapper.OpenTelemetry
 ```
 
 Requires .NET 10+.
@@ -78,6 +92,63 @@ The generated map is registered automatically via `GeneratedMapRegistry` and pic
 | DM001 | Class must be `partial` |
 | DM002 | Class must have a parameterless constructor |
 | DM003 | Ambiguous mapping detected |
+
+---
+
+## EF Core Integration
+
+Install `DeltaMapper.EFCore` and call `AddEFCoreSupport()` when building the mapper. The middleware detects Castle.Core dynamic proxies emitted by EF Core and skips unloaded navigation properties so lazy loading is never triggered during a mapping call.
+
+```csharp
+var config = MapperConfiguration.Create(cfg =>
+{
+    cfg.AddProfile<UserProfile>();
+    cfg.AddEFCoreSupport();   // from DeltaMapper.EFCore
+});
+
+IMapper mapper = config.CreateMapper();
+
+// Proxy entities are mapped safely — no lazy load triggered
+var dto = mapper.Map<User, UserDto>(proxyUser);
+```
+
+`AddEFCoreSupport()` is an extension on `MapperConfigurationBuilder` and returns the builder for fluent chaining alongside other configuration calls.
+
+---
+
+## OpenTelemetry Tracing
+
+Install `DeltaMapper.OpenTelemetry` and call `AddMapperTracing()` to emit an `Activity` span for every mapping operation. The `ActivitySource` name is `"DeltaMapper"`.
+
+```csharp
+var config = MapperConfiguration.Create(cfg =>
+{
+    cfg.AddProfile<UserProfile>();
+    cfg.AddMapperTracing();   // from DeltaMapper.OpenTelemetry
+});
+
+IMapper mapper = config.CreateMapper();
+```
+
+Each span is named `"Map {SourceType} -> {DestType}"` and carries two tags:
+
+| Tag | Value |
+|---|---|
+| `mapper.source_type` | Fully-qualified source type name |
+| `mapper.dest_type` | Fully-qualified destination type name |
+
+If a mapping throws, the span status is set to `Error` and an `"exception"` event is recorded with `exception.type` and `exception.message` tags.
+
+The middleware uses `ActivitySource.HasListeners()` as a fast path: when no OpenTelemetry listener is attached the entire tracing path is bypassed with zero allocation overhead.
+
+Wire up the `"DeltaMapper"` source in your OpenTelemetry SDK setup:
+
+```csharp
+builder.Services.AddOpenTelemetry()
+    .WithTracing(tracing => tracing
+        .AddSource("DeltaMapper")
+        .AddOtlpExporter());
+```
 
 ---
 
@@ -271,7 +342,7 @@ See [docs/migration-from-automapper.md](docs/migration-from-automapper.md) for a
 | 1 | Runtime core — profiles, convention mapping, DI | Done |
 | 2 | `MappingDiff<T>` — structured change sets + `Patch()` | Done |
 | 3 | Roslyn source generator — zero-overhead paths | Done |
-| 4 | EF Core proxy awareness + OpenTelemetry spans | Planned |
+| 4 | EF Core proxy awareness + OpenTelemetry spans | Done |
 | 5 | Benchmarks + full docs site | Planned |
 
 Full design specification: [docs/DELTAMAP_PLAN.md](docs/DELTAMAP_PLAN.md)
