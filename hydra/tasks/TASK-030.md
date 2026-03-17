@@ -1,6 +1,6 @@
 # TASK-030: DeltaMapper.EFCore project scaffolding + EFCoreProxyMiddleware
 
-**Status**: IMPLEMENTED
+**Status**: DONE
 **Depends on**: --
 **Wave**: 1
 **Retry count**: 0/3

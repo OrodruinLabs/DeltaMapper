@@ -1,6 +1,6 @@
 # TASK-034: OpenTelemetry tracing tests + solution wiring
 
-**Status**: READY
+**Status**: DONE
 **Depends on**: TASK-032
 **Wave**: 3
 **Retry count**: 0/3

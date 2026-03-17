@@ -1,6 +1,6 @@
 # TASK-033: Integration test project + EF Core proxy tests
 
-**Status**: READY
+**Status**: DONE
 **Depends on**: TASK-032
 **Wave**: 3
 **Retry count**: 0/3

@@ -12,7 +12,7 @@ Implement Phase 4 — Ecosystem Integrations: DeltaMapper.EFCore package with EF
 |--------|-------|
 | READY  | 0     |
 | IN_PROGRESS | 0 |
-| IMPLEMENTED | 5     |
+| DONE | 5     |
 | DONE   | 0     |
 | BLOCKED | 0    |
 | TOTAL  | 5     |
@@ -27,11 +27,11 @@ Implement Phase 4 — Ecosystem Integrations: DeltaMapper.EFCore package with EF
 
 | ID | Title | Status | Wave | Depends On |
 |----|-------|--------|------|------------|
-| TASK-030 | DeltaMapper.EFCore project scaffolding + EFCoreProxyMiddleware | IMPLEMENTED | 1 | -- |
-| TASK-031 | DeltaMapper.OpenTelemetry project scaffolding + TracingMiddleware | IMPLEMENTED | 1 | -- |
-| TASK-032 | DI extension methods (AddEFCoreSupport, AddMapperTracing) | IMPLEMENTED | 2 | TASK-030, TASK-031 |
-| TASK-033 | Integration test project + EF Core proxy tests | IMPLEMENTED | 3 | TASK-032 |
-| TASK-034 | OpenTelemetry tracing tests + solution wiring | IMPLEMENTED | 3 | TASK-032 |
+| TASK-030 | DeltaMapper.EFCore project scaffolding + EFCoreProxyMiddleware | DONE | 1 | -- |
+| TASK-031 | DeltaMapper.OpenTelemetry project scaffolding + TracingMiddleware | DONE | 1 | -- |
+| TASK-032 | DI extension methods (AddEFCoreSupport, AddMapperTracing) | DONE | 2 | TASK-030, TASK-031 |
+| TASK-033 | Integration test project + EF Core proxy tests | DONE | 3 | TASK-032 |
+| TASK-034 | OpenTelemetry tracing tests + solution wiring | DONE | 3 | TASK-032 |
 
 ## Wave Groups
 
