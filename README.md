@@ -45,7 +45,16 @@ Requires .NET 10+.
 
 ## Benchmarks
 
-Formal BenchmarkDotNet results will be published in [BENCHMARKS.md](BENCHMARKS.md). The benchmark suite (`tests/DeltaMapper.Benchmarks/`) compares DeltaMapper (runtime), DeltaMapper (source-gen), Mapperly, AutoMapper, and hand-written code across flat objects, nested objects, and collections.
+Summary across four mapping scenarios (DeltaMapper Runtime vs. competitors):
+
+| Scenario | Mean | Allocated |
+|---|---|---|
+| Flat Object (5 properties) | `<pending>` | `<pending>` |
+| Nested Object (3 levels deep) | `<pending>` | `<pending>` |
+| Collection (100 items) | `<pending>` | `<pending>` |
+| Patch (MappingDiff + change tracking) | `<pending>` | `<pending>` |
+
+See [BENCHMARKS.md](BENCHMARKS.md) for full results and methodology.
 
 ---
 
@@ -343,7 +352,7 @@ See [docs/migration-from-automapper.md](docs/migration-from-automapper.md) for a
 | 2 | `MappingDiff<T>` — structured change sets + `Patch()` | Done |
 | 3 | Roslyn source generator — zero-overhead paths | Done |
 | 4 | EF Core proxy awareness + OpenTelemetry spans | Done |
-| 5 | Benchmarks + full docs site | Planned |
+| 5 | Benchmarks + full docs site | Done |
 
 Full design specification: [docs/DELTAMAP_PLAN.md](docs/DELTAMAP_PLAN.md)
 

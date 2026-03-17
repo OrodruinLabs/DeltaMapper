@@ -10,18 +10,18 @@ Implement BenchmarkDotNet suite comparing DeltaMapper (runtime), DeltaMapper (so
 
 | Status | Count |
 |--------|-------|
-| PLANNED | 1 |
+| PLANNED | 0 |
 | IN_PROGRESS | 0 |
-| IMPLEMENTED | 3 |
+| IMPLEMENTED | 4 |
 | DONE | 0 |
 | BLOCKED | 0 |
 | TOTAL | 4 |
 
 ## Recovery Pointer
 
-**Next**: TASK-038 — README final polish + migration guide update
-**State**: TASK-036 IMPLEMENTED — benchmark scenarios (flat/nested/collection/patch) complete
-**Last updated**: 2026-03-17T21:15:00Z
+**Next**: All tasks IMPLEMENTED — FEAT-006 complete
+**State**: TASK-038 IMPLEMENTED — README benchmarks table + roadmap Phase 5 Done + migration guide v0.4 polish
+**Last updated**: 2026-03-17T21:30:00Z
 
 ## Tasks
 
@@ -30,7 +30,7 @@ Implement BenchmarkDotNet suite comparing DeltaMapper (runtime), DeltaMapper (so
 | TASK-035 | Benchmark project scaffold + shared models | IMPLEMENTED | 1 | -- |
 | TASK-036 | Benchmark scenarios (flat/nested/collection/patch) | IMPLEMENTED | 2 | TASK-035 |
 | TASK-037 | BENCHMARKS.md placeholder document | IMPLEMENTED | 2 | TASK-035 |
-| TASK-038 | README final polish + migration guide update | PLANNED | 3 | TASK-037 |
+| TASK-038 | README final polish + migration guide update | IMPLEMENTED | 3 | TASK-037 |
 
 ## Wave Groups
 
