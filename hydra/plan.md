@@ -35,8 +35,8 @@ Implement MappingDiff<T> and Patch — Phase 2: PropertyChange record, MappingDi
 (none)
 
 ## Recovery Pointer
-- **Current Task:** POST-LOOP
-- **Last Action:** All 6 tasks DONE, 91 tests passing
-- **Next Action:** Post-loop agents (documentation, release-manager), then PR
-- **Last Checkpoint:** none
-- **Last Commit:** (pending Wave 4 commit)
+- **Current Task:** none
+- **Last Action:** Iteration 2 completed
+- **Next Action:** Continue work on next READY task
+- **Last Checkpoint:** hydra/checkpoints/iteration-002.json
+- **Last Commit:** db7c881 feat(FEAT-003): Wave 4 — NullSubstitute, JSON serialization, edge cases

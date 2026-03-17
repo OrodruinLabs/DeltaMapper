@@ -1,0 +1,63 @@
+{
+  "iteration": 1,
+  "timestamp": "2026-03-17T10:38:10Z",
+  "mode": "afk",
+  "active_task": {
+    "id": null,
+    "status": null,
+    "retry_count": 0,
+    "last_action": "All 6 tasks completed",
+    "next_action": "Post-loop or HYDRA_COMPLETE",
+    "files_modified_this_iteration": [
+      "src/DeltaMapper.Core/Diff/ChangeKind.cs",
+      "src/DeltaMapper.Core/Diff/PropertyChange.cs",
+      "src/DeltaMapper.Core/Diff/MappingDiff.cs",
+      "src/DeltaMapper.Core/Diff/DiffEngine.cs",
+      "src/DeltaMapper.Core/Abstractions/IMapper.cs",
+      "src/DeltaMapper.Core/Runtime/Mapper.cs",
+      "tests/DeltaMapper.UnitTests/TestModels/DiffModels.cs",
+      "tests/DeltaMapper.UnitTests/PatchBasicTests.cs",
+      "tests/DeltaMapper.UnitTests/PatchNestedTests.cs",
+      "tests/DeltaMapper.UnitTests/PatchCollectionTests.cs",
+      "tests/DeltaMapper.UnitTests/PatchEdgeCaseTests.cs"
+    ]
+  },
+  "plan_snapshot": {
+    "total_tasks": 6,
+    "done": 6,
+    "approved": 0,
+    "ready": 0,
+    "in_progress": 0,
+    "in_review": 0,
+    "changes_requested": 0,
+    "blocked": 0,
+    "planned": 0
+  },
+  "git": {
+    "branch": "feat/FEAT-003-mappingdiff-patch",
+    "last_commit_sha": "db7c881",
+    "last_commit_message": "feat(FEAT-003): Wave 4 — NullSubstitute, JSON serialization, edge cases",
+    "uncommitted_changes": false
+  },
+  "branch": {
+    "feature": "feat/FEAT-003-mappingdiff-patch",
+    "base": "master",
+    "active_worktrees": 0
+  },
+  "reviewers": {
+    "active": [
+      "architect-reviewer",
+      "code-reviewer",
+      "security-reviewer",
+      "type-reviewer"
+    ],
+    "last_review_task": null,
+    "last_review_verdict": null
+  },
+  "context_health": {
+    "compactions_this_session": 0,
+    "iterations_since_last_compaction": 1,
+    "consecutive_failures": 0
+  },
+  "recovery_instructions": "All tasks DONE. 91 tests passing. PR #4 created. HYDRA_COMPLETE."
+}
