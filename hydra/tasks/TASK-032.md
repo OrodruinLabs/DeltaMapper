@@ -1,6 +1,6 @@
 # TASK-032: DI extension methods (AddEFCoreSupport, AddMapperTracing)
 
-**Status**: READY
+**Status**: DONE
 **Depends on**: TASK-030, TASK-031
 **Wave**: 2
 **Retry count**: 0/3
