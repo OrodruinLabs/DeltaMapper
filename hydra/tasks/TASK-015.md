@@ -1,7 +1,7 @@
 ---
 id: TASK-015
 title: ChangeKind enum, PropertyChange record, MappingDiff<T>
-status: READY
+status: DONE
 depends_on: []
 wave: 1
 delegates_to: implementer
@@ -18,6 +18,14 @@ acceptance_criteria:
 ---
 
 **Retry count**: 0/3
+
+## Implementation Log
+
+- Created `src/DeltaMapper.Core/Diff/ChangeKind.cs` — `public enum ChangeKind` with Modified, Added, Removed
+- Created `src/DeltaMapper.Core/Diff/PropertyChange.cs` — `public sealed record PropertyChange(string PropertyName, object? From, object? To, ChangeKind Kind)`
+- Created `src/DeltaMapper.Core/Diff/MappingDiff.cs` — `public sealed class MappingDiff<T>` with `Result`, `Changes`, and `HasChanges` computed property
+- `dotnet build -c Release` — Build succeeded, 0 warnings, 0 errors
+- Namespace: `DeltaMapper.Diff` (file-scoped, matches Diff/ folder convention)
 
 ## Description
 Create the three core Phase 2 types under a new `DeltaMapper.Diff` namespace in `src/DeltaMapper.Core/Diff/`. These are pure data types with no behavior beyond the `HasChanges` computed property.

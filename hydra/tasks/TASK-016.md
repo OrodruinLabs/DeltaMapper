@@ -1,7 +1,7 @@
 ---
 id: TASK-016
 title: Phase 2 test models for diff scenarios
-status: READY
+status: DONE
 depends_on: []
 wave: 1
 delegates_to: implementer
@@ -16,6 +16,13 @@ acceptance_criteria:
 ---
 
 **Retry count**: 0/3
+
+## Implementation Log
+
+- Created `tests/DeltaMapper.UnitTests/TestModels/DiffModels.cs` with all required model pairs
+- Reused `Address`/`AddressDto` from `NestedModels.cs` for `Warehouse`/`WarehouseDto` nested property
+- Used C# 14 collection expression `[]` for `List<T>` defaults, consistent with .NET 10 style
+- Build passed: 0 warnings, 0 errors (`dotnet build -c Release`)
 
 ## Description
 Create test model classes specifically designed for Phase 2 diff/patch testing. These need to cover: flat property changes, nested objects (for dot-notation), collections of complex objects, and nullable properties.
