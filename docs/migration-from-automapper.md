@@ -28,7 +28,7 @@ dotnet add package DeltaMapper
 | `ReverseMap()` | `ReverseMap()` | Same signature |
 | `MapperConfiguration` (ctor) | `MapperConfiguration.Create(cfg => ...)` | Static factory replaces `new MapperConfiguration(cfg => ...)` |
 | `cfg.AddProfile<P>()` | `cfg.AddProfile<P>()` | Same signature |
-| `cfg.AssertConfigurationIsValid()` | Not yet implemented — planned for v0.2 | Remove the call for now; a compile-time analyzer (`DM001`) is planned for Phase 3 |
+| `cfg.AssertConfigurationIsValid()` | DM001/DM002 analyzer diagnostics (compile-time) | Remove the runtime call; the source generator emits DM001 (unmapped destination property) and DM002 (type not found) at compile time. Note: these cover common misconfiguration but are not a full equivalent of `AssertConfigurationIsValid()` |
 | `mapper.Map<T>(src)` | `mapper.Map<T>(src)` | Same signature |
 | `mapper.Map<Src, Dst>(src)` | `mapper.Map<Src, Dst>(src)` | Same signature |
 | `mapper.Map(src, dst)` | `mapper.Map<Src, Dst>(src, dst)` | DeltaMapper requires explicit type arguments |
@@ -60,7 +60,7 @@ builder.Services.AddDeltaMapper(cfg =>
 });
 ```
 
-DeltaMapper requires profiles to be listed explicitly. Assembly scanning is not supported in v0.1; explicit registration is intentional — it makes the full mapping surface visible at a glance.
+DeltaMapper requires profiles to be listed explicitly. Assembly scanning is not supported in v0.4; explicit registration is intentional — it makes the full mapping surface visible at a glance.
 
 ---
 
@@ -110,13 +110,17 @@ Review the diff after running these scripts — edge cases (inline `Profile` sub
 
 ---
 
-## Features not in v0.1
+## Feature status as of v0.4
 
-The following AutoMapper features have no equivalent in DeltaMapper v0.1. Check the [roadmap in README.md](../README.md#roadmap) for planned phases.
+The following table summarises AutoMapper features relative to DeltaMapper v0.4. All five planned phases are now complete.
 
-| AutoMapper feature | Status |
+| AutoMapper feature | DeltaMapper v0.4 status |
 |---|---|
-| `AssertConfigurationIsValid()` | Planned — Phase 3 analyzer (`DM001`) |
+| `AssertConfigurationIsValid()` | Implemented — DM001/DM002 compile-time analyzer diagnostics (Phase 3) |
+| `MappingDiff<T>` / change tracking | Implemented — `MapWithDiff` and `Patch` methods (Phase 2) |
+| Source generator / zero-overhead path | Implemented — `[GenerateMap]` attribute via `DeltaMapper.SourceGen` (Phase 3) |
+| EF Core proxy awareness | Implemented — `AddEFCoreSupport()` via `DeltaMapper.EFCore` (Phase 4) |
+| OpenTelemetry tracing | Implemented — `AddMapperTracing()` via `DeltaMapper.OpenTelemetry` (Phase 4) |
 | `ProjectTo<T>()` for EF Core | Not planned — use Mapster |
 | `TypeConverter<Src, Dst>` | Not implemented |
 | `ValueConverter<Src, Dst>` | Not implemented — use `MapFrom` resolver |

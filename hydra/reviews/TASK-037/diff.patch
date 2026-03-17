@@ -1,0 +1,864 @@
+diff --git a/hydra/checkpoints/iteration-001.json b/hydra/checkpoints/iteration-001.json
+index 28103de..ef632ac 100644
+--- a/hydra/checkpoints/iteration-001.json
++++ b/hydra/checkpoints/iteration-001.json
+@@ -1,84 +1,254 @@
+ {
+   "iteration": 1,
+-  "timestamp": "2026-03-17T11:29:34Z",
++  "timestamp": "2026-03-17T18:48:43Z",
+   "mode": "afk",
+   "active_task": {
+-    "id": "TASK-021",
+-    "status": "READY",
++    "id": null,
++    "status": null,
+     "retry_count": 0,
+     "last_action": null,
+-    "next_action": "Read hydra/tasks/TASK-021.md and continue work",
++    "next_action": null,
+     "files_modified_this_iteration": [
+-      "hydra/archive/2026-03-17-120000/checkpoints/iteration-001.json",
+-      "hydra/archive/2026-03-17-120000/checkpoints/iteration-002.json",
+-      "hydra/archive/2026-03-17-120000/checkpoints/iteration-003.json",
+-      "hydra/archive/2026-03-17-120000/checkpoints/iteration-004.json",
+-      "hydra/archive/2026-03-17-120000/checkpoints/iteration-005.json",
+-      "hydra/archive/2026-03-17-120000/checkpoints/iteration-006.json",
+-      "hydra/archive/2026-03-17-120000/plan.md",
+-      "hydra/archive/2026-03-17-120000/reviews/TASK-015/architect-reviewer.md",
+-      "hydra/archive/2026-03-17-120000/reviews/TASK-015/code-reviewer.md",
+-      "hydra/archive/2026-03-17-120000/reviews/TASK-015/security-reviewer.md",
+-      "hydra/archive/2026-03-17-120000/reviews/TASK-015/type-reviewer.md",
+-      "hydra/archive/2026-03-17-120000/reviews/TASK-016/architect-reviewer.md",
+-      "hydra/archive/2026-03-17-120000/reviews/TASK-016/code-reviewer.md",
+-      "hydra/archive/2026-03-17-120000/reviews/TASK-016/security-reviewer.md",
+-      "hydra/archive/2026-03-17-120000/reviews/TASK-016/type-reviewer.md",
+-      "hydra/archive/2026-03-17-120000/reviews/TASK-017/architect-reviewer.md",
+-      "hydra/archive/2026-03-17-120000/reviews/TASK-017/code-reviewer.md",
+-      "hydra/archive/2026-03-17-120000/reviews/TASK-017/security-reviewer.md",
+-      "hydra/archive/2026-03-17-120000/reviews/TASK-017/type-reviewer.md",
+-      "hydra/archive/2026-03-17-120000/reviews/TASK-018/architect-reviewer.md",
+-      "hydra/archive/2026-03-17-120000/reviews/TASK-018/code-reviewer.md",
+-      "hydra/archive/2026-03-17-120000/reviews/TASK-018/security-reviewer.md",
+-      "hydra/archive/2026-03-17-120000/reviews/TASK-018/type-reviewer.md",
+-      "hydra/archive/2026-03-17-120000/reviews/TASK-019/architect-reviewer.md",
+-      "hydra/archive/2026-03-17-120000/reviews/TASK-019/code-reviewer.md",
+-      "hydra/archive/2026-03-17-120000/reviews/TASK-019/security-reviewer.md",
+-      "hydra/archive/2026-03-17-120000/reviews/TASK-019/type-reviewer.md",
+-      "hydra/archive/2026-03-17-120000/reviews/TASK-020/architect-reviewer.md",
+-      "hydra/archive/2026-03-17-120000/reviews/TASK-020/code-reviewer.md",
+-      "hydra/archive/2026-03-17-120000/reviews/TASK-020/security-reviewer.md",
+-      "hydra/archive/2026-03-17-120000/reviews/TASK-020/type-reviewer.md",
+-      "hydra/archive/2026-03-17-120000/tasks/TASK-015.md",
+-      "hydra/archive/2026-03-17-120000/tasks/TASK-016.md",
+-      "hydra/archive/2026-03-17-120000/tasks/TASK-017.md",
+-      "hydra/archive/2026-03-17-120000/tasks/TASK-018.md",
+-      "hydra/archive/2026-03-17-120000/tasks/TASK-019.md",
+-      "hydra/archive/2026-03-17-120000/tasks/TASK-020.md",
++      ".github/workflows/ci.yml",
++      ".gitignore",
++      "CHANGELOG.md",
++      "DeltaMapper.slnx",
++      "README.md",
++      "hydra/.session_id",
++      "hydra/archive/2026-03-17-180000/checkpoints/iteration-001.json",
++      "hydra/archive/2026-03-17-180000/checkpoints/iteration-002.json",
++      "hydra/archive/2026-03-17-180000/checkpoints/iteration-003.json",
++      "hydra/archive/2026-03-17-180000/checkpoints/iteration-004.json",
++      "hydra/archive/2026-03-17-180000/checkpoints/iteration-005.json",
++      "hydra/archive/2026-03-17-180000/checkpoints/iteration-006.json",
++      "hydra/archive/2026-03-17-180000/checkpoints/iteration-007.json",
++      "hydra/archive/2026-03-17-180000/checkpoints/iteration-008.json",
++      "hydra/archive/2026-03-17-180000/checkpoints/iteration-009.json",
++      "hydra/archive/2026-03-17-180000/checkpoints/iteration-010.json",
++      "hydra/archive/2026-03-17-180000/plan.md",
++      "hydra/archive/2026-03-17-180000/reviews/TASK-021/architect-reviewer.md",
++      "hydra/archive/2026-03-17-180000/reviews/TASK-021/code-reviewer.md",
++      "hydra/archive/2026-03-17-180000/reviews/TASK-021/security-reviewer.md",
++      "hydra/archive/2026-03-17-180000/reviews/TASK-021/type-reviewer.md",
++      "hydra/archive/2026-03-17-180000/reviews/TASK-022/architect-reviewer.md",
++      "hydra/archive/2026-03-17-180000/reviews/TASK-022/code-reviewer.md",
++      "hydra/archive/2026-03-17-180000/reviews/TASK-022/security-reviewer.md",
++      "hydra/archive/2026-03-17-180000/reviews/TASK-022/type-reviewer.md",
++      "hydra/archive/2026-03-17-180000/reviews/TASK-023/architect-reviewer.md",
++      "hydra/archive/2026-03-17-180000/reviews/TASK-023/code-reviewer.md",
++      "hydra/archive/2026-03-17-180000/reviews/TASK-023/security-reviewer.md",
++      "hydra/archive/2026-03-17-180000/reviews/TASK-023/type-reviewer.md",
++      "hydra/archive/2026-03-17-180000/reviews/TASK-024/architect-reviewer.md",
++      "hydra/archive/2026-03-17-180000/reviews/TASK-024/code-reviewer.md",
++      "hydra/archive/2026-03-17-180000/reviews/TASK-024/security-reviewer.md",
++      "hydra/archive/2026-03-17-180000/reviews/TASK-024/type-reviewer.md",
++      "hydra/archive/2026-03-17-180000/reviews/TASK-025/architect-reviewer.md",
++      "hydra/archive/2026-03-17-180000/reviews/TASK-025/code-reviewer.md",
++      "hydra/archive/2026-03-17-180000/reviews/TASK-025/diff.patch",
++      "hydra/archive/2026-03-17-180000/reviews/TASK-025/security-reviewer.md",
++      "hydra/archive/2026-03-17-180000/reviews/TASK-025/type-reviewer.md",
++      "hydra/archive/2026-03-17-180000/reviews/TASK-026/architect-reviewer.md",
++      "hydra/archive/2026-03-17-180000/reviews/TASK-026/code-reviewer.md",
++      "hydra/archive/2026-03-17-180000/reviews/TASK-026/security-reviewer.md",
++      "hydra/archive/2026-03-17-180000/reviews/TASK-026/type-reviewer.md",
++      "hydra/archive/2026-03-17-180000/reviews/TASK-027/architect-reviewer.md",
++      "hydra/archive/2026-03-17-180000/reviews/TASK-027/code-reviewer.md",
++      "hydra/archive/2026-03-17-180000/reviews/TASK-027/diff.patch",
++      "hydra/archive/2026-03-17-180000/reviews/TASK-027/security-reviewer.md",
++      "hydra/archive/2026-03-17-180000/reviews/TASK-027/type-reviewer.md",
++      "hydra/archive/2026-03-17-180000/reviews/TASK-028/architect-reviewer.md",
++      "hydra/archive/2026-03-17-180000/reviews/TASK-028/code-reviewer.md",
++      "hydra/archive/2026-03-17-180000/reviews/TASK-028/security-reviewer.md",
++      "hydra/archive/2026-03-17-180000/reviews/TASK-028/type-reviewer.md",
++      "hydra/archive/2026-03-17-180000/reviews/TASK-029/architect-reviewer.md",
++      "hydra/archive/2026-03-17-180000/reviews/TASK-029/code-reviewer.md",
++      "hydra/archive/2026-03-17-180000/reviews/TASK-029/security-reviewer.md",
++      "hydra/archive/2026-03-17-180000/reviews/TASK-029/type-reviewer.md",
++      "hydra/archive/2026-03-17-180000/tasks/TASK-021.md",
++      "hydra/archive/2026-03-17-180000/tasks/TASK-022.md",
++      "hydra/archive/2026-03-17-180000/tasks/TASK-023.md",
++      "hydra/archive/2026-03-17-180000/tasks/TASK-024.md",
++      "hydra/archive/2026-03-17-180000/tasks/TASK-025.md",
++      "hydra/archive/2026-03-17-180000/tasks/TASK-026.md",
++      "hydra/archive/2026-03-17-180000/tasks/TASK-027.md",
++      "hydra/archive/2026-03-17-180000/tasks/TASK-028.md",
++      "hydra/archive/2026-03-17-180000/tasks/TASK-029.md",
++      "hydra/archive/2026-03-17-200000/checkpoints/iteration-001.json",
++      "hydra/archive/2026-03-17-200000/checkpoints/iteration-002.json",
++      "hydra/archive/2026-03-17-200000/checkpoints/iteration-003.json",
++      "hydra/archive/2026-03-17-200000/checkpoints/iteration-004.json",
++      "hydra/archive/2026-03-17-200000/checkpoints/iteration-005.json",
++      "hydra/archive/2026-03-17-200000/checkpoints/iteration-006.json",
++      "hydra/archive/2026-03-17-200000/checkpoints/iteration-007.json",
++      "hydra/archive/2026-03-17-200000/checkpoints/iteration-008.json",
++      "hydra/archive/2026-03-17-200000/checkpoints/iteration-009.json",
++      "hydra/archive/2026-03-17-200000/checkpoints/iteration-010.json",
++      "hydra/archive/2026-03-17-200000/checkpoints/iteration-011.json",
++      "hydra/archive/2026-03-17-200000/checkpoints/iteration-012.json",
++      "hydra/archive/2026-03-17-200000/checkpoints/iteration-013.json",
++      "hydra/archive/2026-03-17-200000/checkpoints/iteration-014.json",
++      "hydra/archive/2026-03-17-200000/checkpoints/iteration-015.json",
++      "hydra/archive/2026-03-17-200000/checkpoints/iteration-016.json",
++      "hydra/archive/2026-03-17-200000/checkpoints/iteration-017.json",
++      "hydra/archive/2026-03-17-200000/plan.md",
++      "hydra/archive/2026-03-17-200000/reviews/FEAT-005/architect-reviewer.md",
++      "hydra/archive/2026-03-17-200000/reviews/FEAT-005/code-reviewer.md",
++      "hydra/archive/2026-03-17-200000/reviews/FEAT-005/security-reviewer.md",
++      "hydra/archive/2026-03-17-200000/reviews/FEAT-005/type-reviewer.md",
++      "hydra/archive/2026-03-17-200000/reviews/TASK-021/architect-reviewer.md",
++      "hydra/archive/2026-03-17-200000/reviews/TASK-021/code-reviewer.md",
++      "hydra/archive/2026-03-17-200000/reviews/TASK-021/security-reviewer.md",
++      "hydra/archive/2026-03-17-200000/reviews/TASK-021/type-reviewer.md",
++      "hydra/archive/2026-03-17-200000/reviews/TASK-022/architect-reviewer.md",
++      "hydra/archive/2026-03-17-200000/reviews/TASK-022/code-reviewer.md",
++      "hydra/archive/2026-03-17-200000/reviews/TASK-022/security-reviewer.md",
++      "hydra/archive/2026-03-17-200000/reviews/TASK-022/type-reviewer.md",
++      "hydra/archive/2026-03-17-200000/reviews/TASK-023/architect-reviewer.md",
++      "hydra/archive/2026-03-17-200000/reviews/TASK-023/code-reviewer.md",
++      "hydra/archive/2026-03-17-200000/reviews/TASK-023/security-reviewer.md",
++      "hydra/archive/2026-03-17-200000/reviews/TASK-023/type-reviewer.md",
++      "hydra/archive/2026-03-17-200000/reviews/TASK-024/architect-reviewer.md",
++      "hydra/archive/2026-03-17-200000/reviews/TASK-024/code-reviewer.md",
++      "hydra/archive/2026-03-17-200000/reviews/TASK-024/security-reviewer.md",
++      "hydra/archive/2026-03-17-200000/reviews/TASK-024/type-reviewer.md",
++      "hydra/archive/2026-03-17-200000/reviews/TASK-025/architect-reviewer.md",
++      "hydra/archive/2026-03-17-200000/reviews/TASK-025/code-reviewer.md",
++      "hydra/archive/2026-03-17-200000/reviews/TASK-025/diff.patch",
++      "hydra/archive/2026-03-17-200000/reviews/TASK-025/security-reviewer.md",
++      "hydra/archive/2026-03-17-200000/reviews/TASK-025/type-reviewer.md",
++      "hydra/archive/2026-03-17-200000/reviews/TASK-026/architect-reviewer.md",
++      "hydra/archive/2026-03-17-200000/reviews/TASK-026/code-reviewer.md",
++      "hydra/archive/2026-03-17-200000/reviews/TASK-026/security-reviewer.md",
++      "hydra/archive/2026-03-17-200000/reviews/TASK-026/type-reviewer.md",
++      "hydra/archive/2026-03-17-200000/reviews/TASK-027/architect-reviewer.md",
++      "hydra/archive/2026-03-17-200000/reviews/TASK-027/code-reviewer.md",
++      "hydra/archive/2026-03-17-200000/reviews/TASK-027/diff.patch",
++      "hydra/archive/2026-03-17-200000/reviews/TASK-027/security-reviewer.md",
++      "hydra/archive/2026-03-17-200000/reviews/TASK-027/type-reviewer.md",
++      "hydra/archive/2026-03-17-200000/reviews/TASK-028/architect-reviewer.md",
++      "hydra/archive/2026-03-17-200000/reviews/TASK-028/code-reviewer.md",
++      "hydra/archive/2026-03-17-200000/reviews/TASK-028/security-reviewer.md",
++      "hydra/archive/2026-03-17-200000/reviews/TASK-028/type-reviewer.md",
++      "hydra/archive/2026-03-17-200000/reviews/TASK-029/architect-reviewer.md",
++      "hydra/archive/2026-03-17-200000/reviews/TASK-029/code-reviewer.md",
++      "hydra/archive/2026-03-17-200000/reviews/TASK-029/security-reviewer.md",
++      "hydra/archive/2026-03-17-200000/reviews/TASK-029/type-reviewer.md",
++      "hydra/archive/2026-03-17-200000/reviews/TASK-030/diff.patch",
++      "hydra/archive/2026-03-17-200000/reviews/TASK-031/diff.patch",
++      "hydra/archive/2026-03-17-200000/tasks/TASK-030.md",
++      "hydra/archive/2026-03-17-200000/tasks/TASK-031.md",
++      "hydra/archive/2026-03-17-200000/tasks/TASK-032.md",
++      "hydra/archive/2026-03-17-200000/tasks/TASK-033.md",
++      "hydra/archive/2026-03-17-200000/tasks/TASK-034.md",
++      "hydra/checkpoints/iteration-001.json",
++      "hydra/checkpoints/iteration-002.json",
++      "hydra/checkpoints/iteration-003.json",
++      "hydra/checkpoints/iteration-004.json",
++      "hydra/checkpoints/iteration-005.json",
++      "hydra/checkpoints/iteration-006.json",
++      "hydra/checkpoints/iteration-007.json",
++      "hydra/checkpoints/iteration-008.json",
++      "hydra/checkpoints/iteration-009.json",
++      "hydra/checkpoints/iteration-010.json",
++      "hydra/checkpoints/iteration-011.json",
++      "hydra/checkpoints/iteration-012.json",
++      "hydra/checkpoints/iteration-013.json",
++      "hydra/checkpoints/iteration-014.json",
++      "hydra/checkpoints/iteration-015.json",
++      "hydra/checkpoints/iteration-016.json",
++      "hydra/checkpoints/iteration-017.json",
+       "hydra/config.json",
+       "hydra/logs/iterations.jsonl",
+       "hydra/plan.md",
+-      "hydra/tasks/TASK-021.md",
+-      "hydra/tasks/TASK-022.md",
+-      "hydra/tasks/TASK-023.md",
+-      "hydra/tasks/TASK-024.md",
+-      "hydra/tasks/TASK-025.md",
+-      "hydra/tasks/TASK-026.md",
+-      "hydra/tasks/TASK-027.md",
+-      "hydra/tasks/TASK-028.md",
+-      "hydra/tasks/TASK-029.md"
++      "hydra/release-notes-FEAT-004.md",
++      "hydra/release-notes-FEAT-005.md",
++      "hydra/reviews/TASK-021/architect-reviewer.md",
++      "hydra/reviews/TASK-021/code-reviewer.md",
++      "hydra/reviews/TASK-021/security-reviewer.md",
++      "hydra/reviews/TASK-021/type-reviewer.md",
++      "hydra/reviews/TASK-022/architect-reviewer.md",
++      "hydra/reviews/TASK-022/code-reviewer.md",
++      "hydra/reviews/TASK-022/security-reviewer.md",
++      "hydra/reviews/TASK-022/type-reviewer.md",
++      "hydra/reviews/TASK-023/architect-reviewer.md",
++      "hydra/reviews/TASK-023/code-reviewer.md",
++      "hydra/reviews/TASK-023/security-reviewer.md",
++      "hydra/reviews/TASK-023/type-reviewer.md",
++      "hydra/reviews/TASK-024/architect-reviewer.md",
++      "hydra/reviews/TASK-024/code-reviewer.md",
++      "hydra/reviews/TASK-024/security-reviewer.md",
++      "hydra/reviews/TASK-024/type-reviewer.md",
++      "hydra/reviews/TASK-025/architect-reviewer.md",
++      "hydra/reviews/TASK-025/code-reviewer.md",
++      "hydra/reviews/TASK-025/diff.patch",
++      "hydra/reviews/TASK-025/security-reviewer.md",
++      "hydra/reviews/TASK-025/type-reviewer.md",
++      "hydra/reviews/TASK-026/architect-reviewer.md",
++      "hydra/reviews/TASK-026/code-reviewer.md",
++      "hydra/reviews/TASK-026/security-reviewer.md",
++      "hydra/reviews/TASK-026/type-reviewer.md",
++      "hydra/reviews/TASK-027/architect-reviewer.md",
++      "hydra/reviews/TASK-027/code-reviewer.md",
++      "hydra/reviews/TASK-027/diff.patch",
++      "hydra/reviews/TASK-027/security-reviewer.md",
++      "hydra/reviews/TASK-027/type-reviewer.md",
++      "hydra/reviews/TASK-028/architect-reviewer.md",
++      "hydra/reviews/TASK-028/code-reviewer.md",
++      "hydra/reviews/TASK-028/security-reviewer.md",
++      "hydra/reviews/TASK-028/type-reviewer.md",
++      "hydra/reviews/TASK-029/architect-reviewer.md",
++      "hydra/reviews/TASK-029/code-reviewer.md",
++      "hydra/reviews/TASK-029/security-reviewer.md",
++      "hydra/reviews/TASK-029/type-reviewer.md",
++      "hydra/tasks/TASK-035.md",
++      "hydra/tasks/TASK-036.md",
++      "hydra/tasks/TASK-037.md",
++      "hydra/tasks/TASK-038.md",
++      "src/DeltaMapper.Core/Configuration/MapperConfiguration.cs",
++      "src/DeltaMapper.Core/DeltaMapper.Core.csproj",
++      "src/DeltaMapper.Core/Properties/AssemblyInfo.cs",
++      "src/DeltaMapper.Core/Runtime/GeneratedMapRegistry.cs",
++      "src/DeltaMapper.EFCore/DeltaMapper.EFCore.csproj",
++      "src/DeltaMapper.EFCore/EFCoreMapperExtensions.cs",
++      "src/DeltaMapper.EFCore/EFCoreProxyMiddleware.cs",
++      "src/DeltaMapper.OpenTelemetry/DeltaMapper.OpenTelemetry.csproj",
++      "src/DeltaMapper.OpenTelemetry/OpenTelemetryMapperExtensions.cs",
++      "src/DeltaMapper.OpenTelemetry/TracingMiddleware.cs",
++      "src/DeltaMapper.SourceGen/DeltaMapper.SourceGen.csproj",
++      "src/DeltaMapper.SourceGen/Diagnostics/DiagnosticDescriptors.cs",
++      "src/DeltaMapper.SourceGen/Diagnostics/MappingAnalyzer.cs",
++      "src/DeltaMapper.SourceGen/EmitHelper.cs",
++      "src/DeltaMapper.SourceGen/MapperGenerator.cs",
++      "tests/DeltaMapper.IntegrationTests/DeltaMapper.IntegrationTests.csproj",
++      "tests/DeltaMapper.IntegrationTests/EFCoreProxyTests.cs",
++      "tests/DeltaMapper.IntegrationTests/TracingMiddlewareTests.cs",
++      "tests/DeltaMapper.SourceGen.Tests/AnalyzerDiagnosticTests.cs",
++      "tests/DeltaMapper.SourceGen.Tests/Helpers/GeneratorTestHelper.cs",
++      "tests/DeltaMapper.SourceGen.Tests/MapperGeneratorAdvancedTests.cs",
++      "tests/DeltaMapper.SourceGen.Tests/MapperGeneratorFlatTests.cs",
++      "tests/DeltaMapper.SourceGen.Tests/ModuleInitializerEmitTests.cs",
++      "tests/DeltaMapper.UnitTests/GeneratedMapRegistryTests.cs"
+     ]
+   },
+   "plan_snapshot": {
+-    "total_tasks": 9,
++    "total_tasks": 4,
+     "done": 0,
+     "approved": 0,
+-    "ready": 9,
++    "ready": 0,
+     "in_progress": 0,
+     "in_review": 0,
+     "changes_requested": 0,
+     "blocked": 0,
+-    "planned": 0
++    "planned": 4
+   },
+   "git": {
+-    "branch": "feat/FEAT-004-roslyn-source-generator",
+-    "last_commit_sha": "aab3d5a",
+-    "last_commit_message": "feat(FEAT-004): plan Phase 3 — Roslyn Source Generator",
++    "branch": "feat/FEAT-006-benchmarks-docs",
++    "last_commit_sha": "470a7a2",
++    "last_commit_message": "feat(FEAT-006): plan Phase 5 — Benchmarks, Docs, Community (4 tasks, 3 waves)",
+     "uncommitted_changes": true
+   },
+   "branch": {
+-    "feature": "feat/FEAT-004-roslyn-source-generator",
++    "feature": "feat/FEAT-006-benchmarks-docs",
+     "base": "master",
+     "active_worktrees": 0
+   },
+@@ -97,5 +267,5 @@
+     "iterations_since_last_compaction": 1,
+     "consecutive_failures": 1
+   },
+-  "recovery_instructions": "Read hydra/plan.md Recovery Pointer, then hydra/tasks/TASK-021.md for current state."
++  "recovery_instructions": "Read hydra/plan.md Recovery Pointer. No active task — find first READY task in plan."
+ }
+diff --git a/hydra/checkpoints/iteration-002.json b/hydra/checkpoints/iteration-002.json
+index a6ff512..4be43c0 100644
+--- a/hydra/checkpoints/iteration-002.json
++++ b/hydra/checkpoints/iteration-002.json
+@@ -1,34 +1,34 @@
+ {
+   "iteration": 2,
+-  "timestamp": "2026-03-17T11:29:43Z",
++  "timestamp": "2026-03-17T18:48:51Z",
+   "mode": "afk",
+   "active_task": {
+-    "id": "TASK-021",
++    "id": "TASK-035",
+     "status": "READY",
+     "retry_count": 0,
+     "last_action": null,
+-    "next_action": "Read hydra/tasks/TASK-021.md and continue work",
++    "next_action": "Read hydra/tasks/TASK-035.md and continue work",
+     "files_modified_this_iteration": []
+   },
+   "plan_snapshot": {
+-    "total_tasks": 9,
++    "total_tasks": 4,
+     "done": 0,
+     "approved": 0,
+-    "ready": 9,
++    "ready": 1,
+     "in_progress": 0,
+     "in_review": 0,
+     "changes_requested": 0,
+     "blocked": 0,
+-    "planned": 0
++    "planned": 3
+   },
+   "git": {
+-    "branch": "feat/FEAT-004-roslyn-source-generator",
+-    "last_commit_sha": "aab3d5a",
+-    "last_commit_message": "feat(FEAT-004): plan Phase 3 — Roslyn Source Generator",
++    "branch": "feat/FEAT-006-benchmarks-docs",
++    "last_commit_sha": "470a7a2",
++    "last_commit_message": "feat(FEAT-006): plan Phase 5 — Benchmarks, Docs, Community (4 tasks, 3 waves)",
+     "uncommitted_changes": true
+   },
+   "branch": {
+-    "feature": "feat/FEAT-004-roslyn-source-generator",
++    "feature": "feat/FEAT-006-benchmarks-docs",
+     "base": "master",
+     "active_worktrees": 0
+   },
+@@ -47,5 +47,5 @@
+     "iterations_since_last_compaction": 2,
+     "consecutive_failures": 2
+   },
+-  "recovery_instructions": "Read hydra/plan.md Recovery Pointer, then hydra/tasks/TASK-021.md for current state."
++  "recovery_instructions": "Read hydra/plan.md Recovery Pointer, then hydra/tasks/TASK-035.md for current state."
+ }
+diff --git a/hydra/checkpoints/iteration-003.json b/hydra/checkpoints/iteration-003.json
+index 70612ae..7355bd9 100644
+--- a/hydra/checkpoints/iteration-003.json
++++ b/hydra/checkpoints/iteration-003.json
+@@ -1,47 +1,34 @@
+ {
+   "iteration": 3,
+-  "timestamp": "2026-03-17T11:34:55Z",
++  "timestamp": "2026-03-17T18:48:58Z",
+   "mode": "afk",
+   "active_task": {
+-    "id": "TASK-021",
+-    "status": "IMPLEMENTED",
++    "id": "TASK-035",
++    "status": "READY",
+     "retry_count": 0,
+     "last_action": null,
+-    "next_action": "Read hydra/tasks/TASK-021.md and continue work",
+-    "files_modified_this_iteration": [
+-      "DeltaMapper.slnx",
+-      "hydra/config.json",
+-      "hydra/plan.md",
+-      "hydra/tasks/TASK-021.md",
+-      "hydra/tasks/TASK-022.md",
+-      "hydra/tasks/TASK-023.md",
+-      "src/DeltaMapper.Core/Configuration/MapperConfiguration.cs",
+-      "src/DeltaMapper.Core/Runtime/GeneratedMapRegistry.cs",
+-      "src/DeltaMapper.SourceGen/DeltaMapper.SourceGen.csproj",
+-      "tests/DeltaMapper.SourceGen.Tests/DeltaMapper.SourceGen.Tests.csproj",
+-      "tests/DeltaMapper.SourceGen.Tests/Helpers/GeneratorTestHelper.cs",
+-      "tests/DeltaMapper.UnitTests/GeneratedMapRegistryTests.cs"
+-    ]
++    "next_action": "Read hydra/tasks/TASK-035.md and continue work",
++    "files_modified_this_iteration": []
+   },
+   "plan_snapshot": {
+-    "total_tasks": 9,
++    "total_tasks": 4,
+     "done": 0,
+     "approved": 0,
+-    "ready": 6,
++    "ready": 1,
+     "in_progress": 0,
+-    "in_review": 3,
++    "in_review": 0,
+     "changes_requested": 0,
+     "blocked": 0,
+-    "planned": 0
++    "planned": 3
+   },
+   "git": {
+-    "branch": "feat/FEAT-004-roslyn-source-generator",
+-    "last_commit_sha": "53605f0",
+-    "last_commit_message": "feat(FEAT-004): Wave 1 — SourceGen project, GeneratedMapRegistry, test scaffold",
++    "branch": "feat/FEAT-006-benchmarks-docs",
++    "last_commit_sha": "470a7a2",
++    "last_commit_message": "feat(FEAT-006): plan Phase 5 — Benchmarks, Docs, Community (4 tasks, 3 waves)",
+     "uncommitted_changes": true
+   },
+   "branch": {
+-    "feature": "feat/FEAT-004-roslyn-source-generator",
++    "feature": "feat/FEAT-006-benchmarks-docs",
+     "base": "master",
+     "active_worktrees": 0
+   },
+@@ -60,5 +47,5 @@
+     "iterations_since_last_compaction": 3,
+     "consecutive_failures": 3
+   },
+-  "recovery_instructions": "Read hydra/plan.md Recovery Pointer, then hydra/tasks/TASK-021.md for current state."
++  "recovery_instructions": "Read hydra/plan.md Recovery Pointer, then hydra/tasks/TASK-035.md for current state."
+ }
+diff --git a/hydra/checkpoints/iteration-004.json b/hydra/checkpoints/iteration-004.json
+index 9b19b00..6c19387 100644
+--- a/hydra/checkpoints/iteration-004.json
++++ b/hydra/checkpoints/iteration-004.json
+@@ -1,45 +1,34 @@
+ {
+   "iteration": 4,
+-  "timestamp": "2026-03-17T11:42:13Z",
++  "timestamp": "2026-03-17T18:49:15Z",
+   "mode": "afk",
+   "active_task": {
+-    "id": "TASK-021",
+-    "status": "IMPLEMENTED",
++    "id": "TASK-035",
++    "status": "READY",
+     "retry_count": 0,
+     "last_action": null,
+-    "next_action": "Read hydra/tasks/TASK-021.md and continue work",
+-    "files_modified_this_iteration": [
+-      "hydra/tasks/TASK-024.md",
+-      "hydra/tasks/TASK-025.md",
+-      "src/DeltaMapper.SourceGen/DeltaMapper.SourceGen.csproj",
+-      "src/DeltaMapper.SourceGen/EmitHelper.cs",
+-      "src/DeltaMapper.SourceGen/GenerateMapAttributeSource.cs",
+-      "src/DeltaMapper.SourceGen/MapperGenerator.cs",
+-      "tests/DeltaMapper.SourceGen.Tests/DeltaMapper.SourceGen.Tests.csproj",
+-      "tests/DeltaMapper.SourceGen.Tests/GenerateMapAttributeTests.cs",
+-      "tests/DeltaMapper.SourceGen.Tests/Helpers/GeneratorTestHelper.cs",
+-      "tests/DeltaMapper.SourceGen.Tests/MapperGeneratorFlatTests.cs"
+-    ]
++    "next_action": "Read hydra/tasks/TASK-035.md and continue work",
++    "files_modified_this_iteration": []
+   },
+   "plan_snapshot": {
+-    "total_tasks": 9,
++    "total_tasks": 4,
+     "done": 0,
+     "approved": 0,
+-    "ready": 4,
++    "ready": 1,
+     "in_progress": 0,
+-    "in_review": 5,
++    "in_review": 0,
+     "changes_requested": 0,
+     "blocked": 0,
+-    "planned": 0
++    "planned": 3
+   },
+   "git": {
+-    "branch": "feat/FEAT-004-roslyn-source-generator",
+-    "last_commit_sha": "1a150cf",
+-    "last_commit_message": "feat(FEAT-004): Wave 2 — GenerateMapAttribute + IIncrementalGenerator core",
++    "branch": "feat/FEAT-006-benchmarks-docs",
++    "last_commit_sha": "470a7a2",
++    "last_commit_message": "feat(FEAT-006): plan Phase 5 — Benchmarks, Docs, Community (4 tasks, 3 waves)",
+     "uncommitted_changes": true
+   },
+   "branch": {
+-    "feature": "feat/FEAT-004-roslyn-source-generator",
++    "feature": "feat/FEAT-006-benchmarks-docs",
+     "base": "master",
+     "active_worktrees": 0
+   },
+@@ -58,5 +47,5 @@
+     "iterations_since_last_compaction": 4,
+     "consecutive_failures": 4
+   },
+-  "recovery_instructions": "Read hydra/plan.md Recovery Pointer, then hydra/tasks/TASK-021.md for current state."
++  "recovery_instructions": "Read hydra/plan.md Recovery Pointer, then hydra/tasks/TASK-035.md for current state."
+ }
+diff --git a/hydra/checkpoints/iteration-005.json b/hydra/checkpoints/iteration-005.json
+index e09a410..41f1d16 100644
+--- a/hydra/checkpoints/iteration-005.json
++++ b/hydra/checkpoints/iteration-005.json
+@@ -1,34 +1,34 @@
+ {
+   "iteration": 5,
+-  "timestamp": "2026-03-17T11:42:28Z",
++  "timestamp": "2026-03-17T18:49:28Z",
+   "mode": "afk",
+   "active_task": {
+-    "id": "TASK-021",
+-    "status": "IMPLEMENTED",
++    "id": "TASK-035",
++    "status": "READY",
+     "retry_count": 0,
+     "last_action": null,
+-    "next_action": "Read hydra/tasks/TASK-021.md and continue work",
++    "next_action": "Read hydra/tasks/TASK-035.md and continue work",
+     "files_modified_this_iteration": []
+   },
+   "plan_snapshot": {
+-    "total_tasks": 9,
++    "total_tasks": 4,
+     "done": 0,
+     "approved": 0,
+-    "ready": 4,
++    "ready": 1,
+     "in_progress": 0,
+-    "in_review": 5,
++    "in_review": 0,
+     "changes_requested": 0,
+     "blocked": 0,
+-    "planned": 0
++    "planned": 3
+   },
+   "git": {
+-    "branch": "feat/FEAT-004-roslyn-source-generator",
+-    "last_commit_sha": "1a150cf",
+-    "last_commit_message": "feat(FEAT-004): Wave 2 — GenerateMapAttribute + IIncrementalGenerator core",
++    "branch": "feat/FEAT-006-benchmarks-docs",
++    "last_commit_sha": "470a7a2",
++    "last_commit_message": "feat(FEAT-006): plan Phase 5 — Benchmarks, Docs, Community (4 tasks, 3 waves)",
+     "uncommitted_changes": true
+   },
+   "branch": {
+-    "feature": "feat/FEAT-004-roslyn-source-generator",
++    "feature": "feat/FEAT-006-benchmarks-docs",
+     "base": "master",
+     "active_worktrees": 0
+   },
+@@ -47,5 +47,5 @@
+     "iterations_since_last_compaction": 5,
+     "consecutive_failures": 5
+   },
+-  "recovery_instructions": "Read hydra/plan.md Recovery Pointer, then hydra/tasks/TASK-021.md for current state."
++  "recovery_instructions": "Read hydra/plan.md Recovery Pointer, then hydra/tasks/TASK-035.md for current state."
+ }
+diff --git a/hydra/checkpoints/iteration-006.json b/hydra/checkpoints/iteration-006.json
+index 3579368..46fdd19 100644
+--- a/hydra/checkpoints/iteration-006.json
++++ b/hydra/checkpoints/iteration-006.json
+@@ -1,34 +1,40 @@
+ {
+   "iteration": 6,
+-  "timestamp": "2026-03-17T11:42:43Z",
++  "timestamp": "2026-03-17T18:52:03Z",
+   "mode": "afk",
+   "active_task": {
+-    "id": "TASK-021",
+-    "status": "IMPLEMENTED",
++    "id": "TASK-035",
++    "status": "READY",
+     "retry_count": 0,
+     "last_action": null,
+-    "next_action": "Read hydra/tasks/TASK-021.md and continue work",
+-    "files_modified_this_iteration": []
++    "next_action": "Read hydra/tasks/TASK-035.md and continue work",
++    "files_modified_this_iteration": [
++      "DeltaMapper.slnx",
++      "hydra/plan.md",
++      "tests/DeltaMapper.Benchmarks/DeltaMapper.Benchmarks.csproj",
++      "tests/DeltaMapper.Benchmarks/Models/BenchmarkModels.cs",
++      "tests/DeltaMapper.Benchmarks/Program.cs"
++    ]
+   },
+   "plan_snapshot": {
+-    "total_tasks": 9,
++    "total_tasks": 4,
+     "done": 0,
+     "approved": 0,
+-    "ready": 3,
+-    "in_progress": 1,
+-    "in_review": 5,
++    "ready": 1,
++    "in_progress": 0,
++    "in_review": 0,
+     "changes_requested": 0,
+     "blocked": 0,
+-    "planned": 0
++    "planned": 3
+   },
+   "git": {
+-    "branch": "feat/FEAT-004-roslyn-source-generator",
+-    "last_commit_sha": "1a150cf",
+-    "last_commit_message": "feat(FEAT-004): Wave 2 — GenerateMapAttribute + IIncrementalGenerator core",
++    "branch": "feat/FEAT-006-benchmarks-docs",
++    "last_commit_sha": "3fff27c",
++    "last_commit_message": "feat(FEAT-006): TASK-035 benchmark project scaffold + shared models",
+     "uncommitted_changes": true
+   },
+   "branch": {
+-    "feature": "feat/FEAT-004-roslyn-source-generator",
++    "feature": "feat/FEAT-006-benchmarks-docs",
+     "base": "master",
+     "active_worktrees": 0
+   },
+@@ -47,5 +53,5 @@
+     "iterations_since_last_compaction": 6,
+     "consecutive_failures": 6
+   },
+-  "recovery_instructions": "Read hydra/plan.md Recovery Pointer, then hydra/tasks/TASK-021.md for current state."
++  "recovery_instructions": "Read hydra/plan.md Recovery Pointer, then hydra/tasks/TASK-035.md for current state."
+ }
+diff --git a/hydra/config.json b/hydra/config.json
+index 5241471..11c1a23 100644
+--- a/hydra/config.json
++++ b/hydra/config.json
+@@ -1,12 +1,12 @@
+ {
+   "schema_version": 5,
+   "mode": "afk",
+-  "objective": "Implement Phase 5 \u2014 Benchmarks, Docs, Community: BenchmarkDotNet suite comparing DeltaMapper (runtime), DeltaMapper (source-gen), Mapperly, AutoMapper, and hand-written code across flat/nested/collection/patch scenarios, publish BENCHMARKS.md, AutoMapper migration guide, and final README polish",
++  "objective": "Implement Phase 5 — Benchmarks, Docs, Community: BenchmarkDotNet suite comparing DeltaMapper (runtime), DeltaMapper (source-gen), Mapperly, AutoMapper, and hand-written code across flat/nested/collection/patch scenarios, publish BENCHMARKS.md, AutoMapper migration guide, and final README polish",
+   "feat_id": "FEAT-006",
+   "feat_display_id": "FEAT-006",
+   "objectives_history": [
+     {
+-      "objective": "Implement DeltaMapper Phase 1 \u2014 Runtime Core",
++      "objective": "Implement DeltaMapper Phase 1 — Runtime Core",
+       "started_at": "2026-03-16T21:45:00Z",
+       "feat_id": "FEAT-001",
+       "completed_at": "2026-03-17T00:00:00Z"
+@@ -19,34 +19,34 @@
+       "plan_archived_to": "hydra/archive/2026-03-17-100000"
+     },
+     {
+-      "objective": "Implement MappingDiff<T> and Patch \u2014 Phase 2",
++      "objective": "Implement MappingDiff<T> and Patch — Phase 2",
+       "started_at": "2026-03-17T10:30:00Z",
+       "feat_id": "FEAT-003",
+       "completed_at": "2026-03-17T12:00:00Z",
+       "plan_archived_to": "hydra/archive/2026-03-17-120000"
+     },
+     {
+-      "objective": "Implement Phase 3 \u2014 Roslyn Source Generator",
++      "objective": "Implement Phase 3 — Roslyn Source Generator",
+       "started_at": "2026-03-17T12:00:00Z",
+       "completed_at": "2026-03-17T18:00:00Z",
+       "feat_id": "FEAT-004",
+       "plan_archived_to": "hydra/archive/2026-03-17-180000"
+     },
+     {
+-      "objective": "Implement Phase 4 \u2014 Ecosystem Integrations: EF Core proxy awareness + OpenTelemetry spans",
++      "objective": "Implement Phase 4 — Ecosystem Integrations: EF Core proxy awareness + OpenTelemetry spans",
+       "started_at": "2026-03-17T18:00:00Z",
+       "feat_id": "FEAT-005",
+       "completed_at": "2026-03-17T20:00:00Z",
+       "plan_archived_to": "hydra/archive/2026-03-17-200000"
+     },
+     {
+-      "objective": "Implement Phase 5 \u2014 Benchmarks, Docs, Community",
++      "objective": "Implement Phase 5 — Benchmarks, Docs, Community",
+       "started_at": "2026-03-17T20:30:00Z",
+       "feat_id": "FEAT-006"
+     }
+   ],
+   "max_iterations": 40,
+-  "current_iteration": 0,
++  "current_iteration": 6,
+   "paused": false,
+   "completion_promise": "HYDRA_COMPLETE",
+   "task_file": "hydra/plan.md",
+@@ -145,7 +145,7 @@
+     "block_destructive_commands": true,
+     "require_tests_pass_before_review": true,
+     "max_consecutive_failures": 5,
+-    "consecutive_failures": 0,
++    "consecutive_failures": 6,
+     "_prev_done_count": 0
+   },
+   "branch": {
+diff --git a/hydra/logs/iterations.jsonl b/hydra/logs/iterations.jsonl
+index 09fda83..dbfc1e5 100644
+--- a/hydra/logs/iterations.jsonl
++++ b/hydra/logs/iterations.jsonl
+@@ -198,3 +198,63 @@
+   "git_sha": "524f2b4",
+   "blocked_reason": ""
+ }
++{
++  "iteration": 1,
++  "timestamp": "2026-03-17T18:48:43Z",
++  "active_task": "none",
++  "status": "none",
++  "done": 0,
++  "total": 4,
++  "git_sha": "470a7a2",
++  "blocked_reason": ""
++}
++{
++  "iteration": 2,
++  "timestamp": "2026-03-17T18:48:51Z",
++  "active_task": "TASK-035",
++  "status": "READY",
++  "done": 0,
++  "total": 4,
++  "git_sha": "470a7a2",
++  "blocked_reason": ""
++}
++{
++  "iteration": 3,
++  "timestamp": "2026-03-17T18:48:58Z",
++  "active_task": "TASK-035",
++  "status": "READY",
++  "done": 0,
++  "total": 4,
++  "git_sha": "470a7a2",
++  "blocked_reason": ""
++}
++{
++  "iteration": 4,
++  "timestamp": "2026-03-17T18:49:15Z",
++  "active_task": "TASK-035",
++  "status": "READY",
++  "done": 0,
++  "total": 4,
++  "git_sha": "470a7a2",
++  "blocked_reason": ""
++}
++{
++  "iteration": 5,
++  "timestamp": "2026-03-17T18:49:28Z",
++  "active_task": "TASK-035",
++  "status": "READY",
++  "done": 0,
++  "total": 4,
++  "git_sha": "470a7a2",
++  "blocked_reason": ""
++}
++{
++  "iteration": 6,
++  "timestamp": "2026-03-17T18:52:03Z",
++  "active_task": "TASK-035",
++  "status": "READY",
++  "done": 0,
++  "total": 4,
++  "git_sha": "3fff27c",
++  "blocked_reason": ""
++}
+diff --git a/hydra/plan.md b/hydra/plan.md
+index 95eb326..7486deb 100644
+--- a/hydra/plan.md
++++ b/hydra/plan.md
+@@ -10,18 +10,18 @@ Implement BenchmarkDotNet suite comparing DeltaMapper (runtime), DeltaMapper (so
+ 
+ | Status | Count |
+ |--------|-------|
+-| PLANNED | 3 |
++| PLANNED | 2 |
+ | IN_PROGRESS | 0 |
+-| IMPLEMENTED | 1 |
++| IMPLEMENTED | 2 |
+ | DONE | 0 |
+ | BLOCKED | 0 |
+ | TOTAL | 4 |
+ 
+ ## Recovery Pointer
+ 
+-**Next**: TASK-036 / TASK-037 — Benchmark scenarios + BENCHMARKS.md (Wave 2, parallel)
+-**State**: TASK-035 IMPLEMENTED — benchmark project scaffold + shared models complete
+-**Last updated**: 2026-03-17T21:00:00Z
++**Next**: TASK-036 — Benchmark scenarios (Wave 2, remaining) or TASK-038 after TASK-037 review
++**State**: TASK-037 IMPLEMENTED — BENCHMARKS.md placeholder document complete
++**Last updated**: 2026-03-17T21:10:00Z
+ 
+ ## Tasks
+ 
+@@ -29,7 +29,7 @@ Implement BenchmarkDotNet suite comparing DeltaMapper (runtime), DeltaMapper (so
+ |----|-------|--------|------|------------|
+ | TASK-035 | Benchmark project scaffold + shared models | IMPLEMENTED | 1 | -- |
+ | TASK-036 | Benchmark scenarios (flat/nested/collection/patch) | PLANNED | 2 | TASK-035 |
+-| TASK-037 | BENCHMARKS.md placeholder document | PLANNED | 2 | TASK-035 |
++| TASK-037 | BENCHMARKS.md placeholder document | IMPLEMENTED | 2 | TASK-035 |
+ | TASK-038 | README final polish + migration guide update | PLANNED | 3 | TASK-037 |
+ 
+ ## Wave Groups
+diff --git a/hydra/tasks/TASK-035.md b/hydra/tasks/TASK-035.md
+index dc9e3e9..58a93a4 100644
+--- a/hydra/tasks/TASK-035.md
++++ b/hydra/tasks/TASK-035.md
+@@ -1,7 +1,7 @@
+ # TASK-035: Benchmark project scaffold + shared models
+ 
+ ## Metadata
+-- **Status**: PLANNED
++- **Status**: READY
+ - **Wave**: 1
+ - **Depends on**: --
+ - **Delegates to**: implementer
+diff --git a/hydra/tasks/TASK-037.md b/hydra/tasks/TASK-037.md
+index 84afa2d..8aa0a6a 100644
+--- a/hydra/tasks/TASK-037.md
++++ b/hydra/tasks/TASK-037.md
+@@ -1,7 +1,9 @@
+ # TASK-037: BENCHMARKS.md placeholder document
+ 
+ ## Metadata
+-- **Status**: PLANNED
++- **Status**: IMPLEMENTED
++- **Claimed at**: 2026-03-17T21:05:00Z
++- **Implemented at**: 2026-03-17T21:10:00Z
+ - **Wave**: 2
+ - **Depends on**: TASK-035
+ - **Delegates to**: implementer
+@@ -10,6 +12,17 @@
+ - **Retry count**: 0/3
+ - **Review evidence**: hydra/reviews/TASK-037-review.md
+ 
++## Implementation Log
++
++- Created `BENCHMARKS.md` at repo root
++- Four benchmark tables: Flat Object, Nested Object, Collection, Patch
++- All five competitors per table: DeltaMapper_Runtime, DeltaMapper_SourceGen, Mapperly, AutoMapper, HandWritten
++- All numeric cells contain `<pending>` placeholders (Mean, Error, StdDev, Gen0, Allocated)
++- Environment template section (OS, CPU, .NET SDK, BenchmarkDotNet version)
++- "Run Locally" section with `dotnet run -c Release` and `--filter` examples for each scenario
++- Methodology section covering MemoryDiagnoser, warmup, Release config requirement, GlobalSetup isolation
++- Link back to README.md
++
+ ## Description
+ 
+ Create `BENCHMARKS.md` in the repo root with a structured placeholder benchmark results document. Include four tables (one per scenario: flat, nested, collection, patch) with columns for Method, Mean, Error, StdDev, Allocated. All numeric cells contain `<pending>` placeholders. Add instructions for running benchmarks locally, environment info template, and methodology notes.

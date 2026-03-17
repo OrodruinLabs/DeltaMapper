@@ -1,0 +1,90 @@
+{
+  "iteration": 10,
+  "timestamp": "2026-03-17T12:00:28Z",
+  "mode": "afk",
+  "active_task": {
+    "id": "TASK-021",
+    "status": "IMPLEMENTED",
+    "retry_count": 0,
+    "last_action": null,
+    "next_action": "Read hydra/tasks/TASK-021.md and continue work",
+    "files_modified_this_iteration": [
+      "hydra/reviews/TASK-021/architect-reviewer.md",
+      "hydra/reviews/TASK-021/code-reviewer.md",
+      "hydra/reviews/TASK-021/security-reviewer.md",
+      "hydra/reviews/TASK-021/type-reviewer.md",
+      "hydra/reviews/TASK-022/architect-reviewer.md",
+      "hydra/reviews/TASK-022/code-reviewer.md",
+      "hydra/reviews/TASK-022/security-reviewer.md",
+      "hydra/reviews/TASK-022/type-reviewer.md",
+      "hydra/reviews/TASK-023/architect-reviewer.md",
+      "hydra/reviews/TASK-023/code-reviewer.md",
+      "hydra/reviews/TASK-023/security-reviewer.md",
+      "hydra/reviews/TASK-023/type-reviewer.md",
+      "hydra/reviews/TASK-024/architect-reviewer.md",
+      "hydra/reviews/TASK-024/code-reviewer.md",
+      "hydra/reviews/TASK-024/security-reviewer.md",
+      "hydra/reviews/TASK-024/type-reviewer.md",
+      "hydra/reviews/TASK-025/architect-reviewer.md",
+      "hydra/reviews/TASK-025/code-reviewer.md",
+      "hydra/reviews/TASK-025/diff.patch",
+      "hydra/reviews/TASK-025/security-reviewer.md",
+      "hydra/reviews/TASK-025/type-reviewer.md",
+      "hydra/reviews/TASK-026/architect-reviewer.md",
+      "hydra/reviews/TASK-026/code-reviewer.md",
+      "hydra/reviews/TASK-026/security-reviewer.md",
+      "hydra/reviews/TASK-026/type-reviewer.md",
+      "hydra/reviews/TASK-027/architect-reviewer.md",
+      "hydra/reviews/TASK-027/code-reviewer.md",
+      "hydra/reviews/TASK-027/diff.patch",
+      "hydra/reviews/TASK-027/security-reviewer.md",
+      "hydra/reviews/TASK-027/type-reviewer.md",
+      "hydra/reviews/TASK-028/architect-reviewer.md",
+      "hydra/reviews/TASK-028/code-reviewer.md",
+      "hydra/reviews/TASK-028/security-reviewer.md",
+      "hydra/reviews/TASK-028/type-reviewer.md",
+      "hydra/reviews/TASK-029/architect-reviewer.md",
+      "hydra/reviews/TASK-029/code-reviewer.md",
+      "hydra/reviews/TASK-029/security-reviewer.md",
+      "hydra/reviews/TASK-029/type-reviewer.md"
+    ]
+  },
+  "plan_snapshot": {
+    "total_tasks": 9,
+    "done": 0,
+    "approved": 0,
+    "ready": 0,
+    "in_progress": 0,
+    "in_review": 9,
+    "changes_requested": 0,
+    "blocked": 0,
+    "planned": 0
+  },
+  "git": {
+    "branch": "feat/FEAT-004-roslyn-source-generator",
+    "last_commit_sha": "524f2b4",
+    "last_commit_message": "feat(FEAT-004): review evidence — all 9 tasks APPROVED by 4 reviewers",
+    "uncommitted_changes": true
+  },
+  "branch": {
+    "feature": "feat/FEAT-004-roslyn-source-generator",
+    "base": "master",
+    "active_worktrees": 0
+  },
+  "reviewers": {
+    "active": [
+      "architect-reviewer",
+      "code-reviewer",
+      "security-reviewer",
+      "type-reviewer"
+    ],
+    "last_review_task": null,
+    "last_review_verdict": null
+  },
+  "context_health": {
+    "compactions_this_session": 0,
+    "iterations_since_last_compaction": 10,
+    "consecutive_failures": 10
+  },
+  "recovery_instructions": "Read hydra/plan.md Recovery Pointer, then hydra/tasks/TASK-021.md for current state."
+}

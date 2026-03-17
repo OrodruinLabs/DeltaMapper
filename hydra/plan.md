@@ -1,55 +1,54 @@
-# Plan — Phase 4: Ecosystem Integrations (FEAT-005)
+# Plan — Phase 5: Benchmarks, Docs, Community (FEAT-006)
 
 ─── ◈ HYDRA ▸ PLANNING ─────────────────────────────
 
 ## Objective
 
-Implement Phase 4 — Ecosystem Integrations: DeltaMapper.EFCore package with EFCoreProxyMiddleware that detects EF Core proxy types and skips unloaded navigation properties, DeltaMapper.OpenTelemetry package with TracingMiddleware that emits Activity spans for every mapping call, DI extension methods (AddEFCoreSupport, AddMapperTracing), and full test coverage for both packages.
+Implement BenchmarkDotNet suite comparing DeltaMapper (runtime), DeltaMapper (source-gen), Mapperly, AutoMapper, and hand-written code across flat/nested/collection/patch scenarios. Publish BENCHMARKS.md with placeholder table structure. Polish AutoMapper migration guide and finalize README.
 
 ## Status Summary
 
 | Status | Count |
 |--------|-------|
-| READY  | 0     |
+| PLANNED | 0 |
 | IN_PROGRESS | 0 |
-| DONE | 5     |
-| DONE   | 0     |
-| BLOCKED | 0    |
-| TOTAL  | 5     |
+| IMPLEMENTED | 4 |
+| DONE | 0 |
+| BLOCKED | 0 |
+| TOTAL | 4 |
 
 ## Recovery Pointer
 
-**Next**: All tasks IMPLEMENTED — awaiting review / post-loop
-**State**: TASK-034 IMPLEMENTED
-**Last updated**: 2026-03-17T19:05:00Z
+**Next**: All tasks IMPLEMENTED — FEAT-006 complete
+**State**: TASK-038 IMPLEMENTED — README benchmarks table + roadmap Phase 5 Done + migration guide v0.4 polish
+**Last updated**: 2026-03-17T21:30:00Z
 
 ## Tasks
 
 | ID | Title | Status | Wave | Depends On |
 |----|-------|--------|------|------------|
-| TASK-030 | DeltaMapper.EFCore project scaffolding + EFCoreProxyMiddleware | DONE | 1 | -- |
-| TASK-031 | DeltaMapper.OpenTelemetry project scaffolding + TracingMiddleware | DONE | 1 | -- |
-| TASK-032 | DI extension methods (AddEFCoreSupport, AddMapperTracing) | DONE | 2 | TASK-030, TASK-031 |
-| TASK-033 | Integration test project + EF Core proxy tests | DONE | 3 | TASK-032 |
-| TASK-034 | OpenTelemetry tracing tests + solution wiring | DONE | 3 | TASK-032 |
+| TASK-035 | Benchmark project scaffold + shared models | IMPLEMENTED | 1 | -- |
+| TASK-036 | Benchmark scenarios (flat/nested/collection/patch) | IMPLEMENTED | 2 | TASK-035 |
+| TASK-037 | BENCHMARKS.md placeholder document | IMPLEMENTED | 2 | TASK-035 |
+| TASK-038 | README final polish + migration guide update | IMPLEMENTED | 3 | TASK-037 |
 
 ## Wave Groups
 
 ### Wave 1
-- TASK-030, TASK-031 (independent packages, no file overlap)
+- TASK-035 (benchmark project foundation — no dependencies)
 
 ### Wave 2
-- TASK-032 (depends on TASK-030 and TASK-031, adds DI extensions to both packages)
+- TASK-036, TASK-037 (independent: TASK-036 writes benchmark .cs files, TASK-037 writes BENCHMARKS.md — no file overlap)
 
 ### Wave 3
-- TASK-033, TASK-034 (independent test suites, share only the new integration test project file creation — but TASK-033 creates the project, TASK-034 only adds to it; sequenced within wave if needed)
+- TASK-038 (depends on TASK-037 for benchmark table content to reference in README)
 
 ## Design Notes
 
-- EFCoreProxyMiddleware detects Castle.Core proxy types via `type.Assembly.GetName().Name` containing "DynamicProxyGenAssembly" or type name containing "Proxy" and base type matching the entity type. Navigation properties are identified via EF Core's `INavigation` metadata when available, or by convention (reference/collection types with known entity base).
-- TracingMiddleware uses `System.Diagnostics.ActivitySource` — no external OpenTelemetry SDK dependency needed. The BCL ActivitySource/Activity API is the .NET native observability primitive.
-- Both middleware classes are thread-safe (stateless or use static readonly fields).
-- DeltaMapper.EFCore targets net10.0 with Microsoft.EntityFrameworkCore 10.* dependency.
-- DeltaMapper.OpenTelemetry targets net10.0 (System.Diagnostics.DiagnosticSource is in-box for net10.0).
-- Integration tests use Microsoft.EntityFrameworkCore.InMemory for EF Core proxy testing.
-- OpenTelemetry tests use ActivityListener from System.Diagnostics for span assertions.
+- Benchmark project is a console app (`<OutputType>Exe</OutputType>`) not a test project
+- Uses `[MemoryDiagnoser]` on all benchmark classes — allocations are a primary metric
+- Competitors (AutoMapper, Mapperly) are PackageReferences in the benchmark project only
+- Source-gen benchmarks use `[GenerateMap]` attribute from DeltaMapper.SourceGen
+- BENCHMARKS.md contains placeholder `<pending>` values — actual numbers require CI/local run
+- Migration guide at `docs/migration-from-automapper.md` already exists and is comprehensive — TASK-038 does light polish only
+- README already has good structure — TASK-038 adds benchmark result table inline and updates roadmap status
