@@ -10,6 +10,9 @@ obj/
 *.user
 *.suo
 
+## Test Results
+**/TestResults/
+
 ## OS
 .DS_Store
 Thumbs.db

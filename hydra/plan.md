@@ -48,8 +48,8 @@ Implement Phase 3 — Roslyn Source Generator: [GenerateMap] attribute, IIncreme
 (none)
 
 ## Recovery Pointer
-- **Current Task:** TASK-028
-- **Last Action:** TASK-028 set to IMPLEMENTED — DM001/DM002 diagnostics + 9 tests, all 136 tests pass
-- **Next Action:** TASK-029 is now READY (depends on TASK-026, TASK-027, TASK-028 — all IMPLEMENTED)
-- **Last Checkpoint:** hydra/checkpoints/iteration-008.json
-- **Last Commit:** f46d093 feat(FEAT-004): Wave 3 — nested/collection generation + ModuleInitializer
+- **Current Task:** TASK-021
+- **Last Action:** Iteration 10 completed
+- **Next Action:** Read hydra/tasks/TASK-021.md and continue based on status IMPLEMENTED
+- **Last Checkpoint:** hydra/checkpoints/iteration-010.json
+- **Last Commit:** 524f2b4 feat(FEAT-004): review evidence — all 9 tasks APPROVED by 4 reviewers
