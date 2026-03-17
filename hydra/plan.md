@@ -5,17 +5,17 @@ Implement MappingDiff<T> and Patch — Phase 2: PropertyChange record, MappingDi
 
 ## Status Summary
 - Total tasks: 6
-- DONE: 2 | READY: 1 | PLANNED: 3
-- Current iteration: 1/40
-- Active task: TASK-017
+- DONE: 3 | READY: 2 | PLANNED: 1
+- Current iteration: 2/40
+- Active task: TASK-018, TASK-019
 
 ## Wave Groups
 
 ### Wave 1 — Core Types and Test Models — COMPLETE
 - [x] TASK-015, TASK-016
 
-### Wave 2 — Diff Engine, IMapper.Patch, and Basic Tests
-- [ ] TASK-017
+### Wave 2 — Diff Engine, IMapper.Patch, and Basic Tests — COMPLETE
+- [x] TASK-017
 
 ### Wave 3 — Nested Objects and Collection Diff
 - [ ] TASK-018, TASK-019
@@ -24,23 +24,23 @@ Implement MappingDiff<T> and Patch — Phase 2: PropertyChange record, MappingDi
 - [ ] TASK-020
 
 ## Ready
-- [ ] TASK-017: DiffEngine, IMapper.Patch method, and basic Patch tests -> READY
+- [ ] TASK-018: Nested object diff with dot-notation paths -> READY
+- [ ] TASK-019: Collection diff (add/remove/modify by index) -> READY
 
 ## Planned
-- [ ] TASK-018: Nested object diff with dot-notation paths -> PLANNED
-- [ ] TASK-019: Collection diff (add/remove/modify by index) -> PLANNED
 - [ ] TASK-020: NullSubstitute Patch integration, JSON serialization, edge cases -> PLANNED
 
 ## Completed
 - [x] TASK-015: ChangeKind enum, PropertyChange record, MappingDiff<T> -> DONE
 - [x] TASK-016: Phase 2 test models for diff scenarios -> DONE
+- [x] TASK-017: DiffEngine, IMapper.Patch method, and basic Patch tests -> DONE (82 tests)
 
 ## Blocked
 (none)
 
 ## Recovery Pointer
-- **Current Task:** TASK-017
-- **Last Action:** Wave 1 complete (TASK-015, TASK-016 DONE)
-- **Next Action:** Implement TASK-017 — DiffEngine + IMapper.Patch
+- **Current Task:** TASK-018 + TASK-019
+- **Last Action:** Wave 2 complete (TASK-017 DONE, 82 tests passing)
+- **Next Action:** Implement Wave 3 — nested diff + collection diff
 - **Last Checkpoint:** none
-- **Last Commit:** (pending Wave 1 commit)
+- **Last Commit:** (pending Wave 2 commit)

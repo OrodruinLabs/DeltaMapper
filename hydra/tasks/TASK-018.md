@@ -1,7 +1,7 @@
 ---
 id: TASK-018
 title: Nested object diff with dot-notation paths
-status: PLANNED
+status: READY
 depends_on: [TASK-017]
 wave: 3
 delegates_to: implementer

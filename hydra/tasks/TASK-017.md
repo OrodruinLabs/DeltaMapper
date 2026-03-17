@@ -1,7 +1,7 @@
 ---
 id: TASK-017
 title: DiffEngine, IMapper.Patch method, and basic Patch tests
-status: PLANNED
+status: DONE
 depends_on: [TASK-015, TASK-016]
 wave: 2
 delegates_to: implementer
@@ -19,6 +19,16 @@ acceptance_criteria:
 ---
 
 **Retry count**: 0/3
+
+## Implementation Log
+- Added `using DeltaMapper.Diff;` and `Patch<TSource, TDestination>` method to `IMapper.cs`
+- Created `src/DeltaMapper.Core/Diff/DiffEngine.cs` — internal static class, `Compare(before, after)` flat diff
+- Added `using System.Reflection;`, `using DeltaMapper.Diff;`, and `Patch<TSource, TDestination>` to `Mapper.cs`
+  - Snapshots destination properties via `PropertyInfo.GetValue()` before and after calling `Map(source, destination)`
+  - Delegates to `DiffEngine.Compare` for change detection
+- Created `tests/DeltaMapper.UnitTests/PatchBasicTests.cs` with PB-01, PB-02, PB-03 tests
+- Build: 0 warnings, 0 errors
+- Tests: 82 passed (3 new PatchBasicTests)
 
 ## Description
 Implement the core diff algorithm and wire it into the mapper. The `Patch` method snapshots destination properties before mapping, runs the existing `Map(source, destination)`, then compares before/after to produce `PropertyChange` entries.
