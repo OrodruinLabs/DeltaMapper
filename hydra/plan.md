@@ -36,7 +36,7 @@ Implement MappingDiff<T> and Patch — Phase 2: PropertyChange record, MappingDi
 
 ## Recovery Pointer
 - **Current Task:** none
-- **Last Action:** Iteration 2 completed
+- **Last Action:** Iteration 3 completed
 - **Next Action:** Continue work on next READY task
-- **Last Checkpoint:** hydra/checkpoints/iteration-002.json
-- **Last Commit:** db7c881 feat(FEAT-003): Wave 4 — NullSubstitute, JSON serialization, edge cases
+- **Last Checkpoint:** hydra/checkpoints/iteration-003.json
+- **Last Commit:** cc4782b feat(FEAT-003): fix checkpoint and config to reflect 6/6 tasks DONE
