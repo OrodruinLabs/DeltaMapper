@@ -17,6 +17,7 @@ public static class ServiceCollectionExtensions
         /// </summary>
         public IServiceCollection AddDeltaMapper(Action<MapperConfigurationBuilder> configure)
         {
+            ArgumentNullException.ThrowIfNull(services);
             ArgumentNullException.ThrowIfNull(configure);
             var builder = new MapperConfigurationBuilder();
             configure(builder);

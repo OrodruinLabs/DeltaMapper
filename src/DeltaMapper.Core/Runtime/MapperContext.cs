@@ -6,10 +6,12 @@ namespace DeltaMapper.Runtime;
 /// Tracks per-call mapping state including circular reference detection.
 /// Created fresh for each top-level Map() call.
 /// </summary>
-public sealed class MapperContext(MapperConfiguration config)
+public sealed class MapperContext
 {
-    internal MapperConfiguration Config { get; } = config;
+    internal MapperConfiguration Config { get; }
     private readonly Dictionary<object, object> _visited = new(ReferenceEqualityComparer.Instance);
+
+    internal MapperContext(MapperConfiguration config) => Config = config;
 
     /// <summary>
     /// Attempts to retrieve a previously mapped destination for the given source object.

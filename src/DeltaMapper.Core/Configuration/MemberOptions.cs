@@ -12,6 +12,7 @@ internal sealed class MemberOptions<TSrc> : IMemberOptions<TSrc>
 
     public void MapFrom<TResult>(Expression<Func<TSrc, TResult>> resolver)
     {
+        ArgumentNullException.ThrowIfNull(resolver);
         var compiled = resolver.Compile();
         Resolver = src => compiled((TSrc)src);
     }
