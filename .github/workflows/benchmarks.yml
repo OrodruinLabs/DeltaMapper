@@ -1,0 +1,39 @@
+name: Benchmarks
+
+on:
+  workflow_dispatch:
+    inputs:
+      filter:
+        description: 'BenchmarkDotNet filter (e.g. "*FlatObject*" or "*")'
+        required: false
+        default: '*'
+
+permissions:
+  contents: read
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+          dotnet-quality: 'preview'
+
+      - name: Run benchmarks
+        working-directory: tests/DeltaMapper.Benchmarks
+        env:
+          FILTER: ${{ inputs.filter }}
+        run: dotnet run -c Release -- --filter "$FILTER" --exporters GitHub
+
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: benchmark-results
+          path: tests/DeltaMapper.Benchmarks/BenchmarkDotNet.Artifacts/
