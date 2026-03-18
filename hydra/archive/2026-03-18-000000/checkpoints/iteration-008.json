@@ -1,0 +1,51 @@
+{
+  "iteration": 8,
+  "timestamp": "2026-03-17T11:48:17Z",
+  "mode": "afk",
+  "active_task": {
+    "id": "TASK-021",
+    "status": "IMPLEMENTED",
+    "retry_count": 0,
+    "last_action": null,
+    "next_action": "Read hydra/tasks/TASK-021.md and continue work",
+    "files_modified_this_iteration": []
+  },
+  "plan_snapshot": {
+    "total_tasks": 9,
+    "done": 0,
+    "approved": 0,
+    "ready": 2,
+    "in_progress": 0,
+    "in_review": 7,
+    "changes_requested": 0,
+    "blocked": 0,
+    "planned": 0
+  },
+  "git": {
+    "branch": "feat/FEAT-004-roslyn-source-generator",
+    "last_commit_sha": "f46d093",
+    "last_commit_message": "feat(FEAT-004): Wave 3 — nested/collection generation + ModuleInitializer",
+    "uncommitted_changes": true
+  },
+  "branch": {
+    "feature": "feat/FEAT-004-roslyn-source-generator",
+    "base": "master",
+    "active_worktrees": 0
+  },
+  "reviewers": {
+    "active": [
+      "architect-reviewer",
+      "code-reviewer",
+      "security-reviewer",
+      "type-reviewer"
+    ],
+    "last_review_task": null,
+    "last_review_verdict": null
+  },
+  "context_health": {
+    "compactions_this_session": 0,
+    "iterations_since_last_compaction": 8,
+    "consecutive_failures": 8
+  },
+  "recovery_instructions": "Read hydra/plan.md Recovery Pointer, then hydra/tasks/TASK-021.md for current state."
+}

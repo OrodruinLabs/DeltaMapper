@@ -1,9 +1,9 @@
 {
   "schema_version": 5,
   "mode": "afk",
-  "objective": "Performance optimization: source-gen fast path, lazy MapperContext, skip pipeline closure, compiled expression delegates",
-  "feat_id": "FEAT-008",
-  "feat_display_id": "FEAT-008",
+  "objective": "Performance parity with Mapperly: object initializer emit, cached routing, public static Map methods \u2014 target SourceGen ~7ns flat",
+  "feat_id": "FEAT-009",
+  "feat_display_id": "FEAT-009",
   "objectives_history": [
     {
       "objective": "Implement DeltaMapper Phase 1 \u2014 Runtime Core",
@@ -55,7 +55,14 @@
     {
       "objective": "Performance optimization: source-gen fast path, lazy MapperContext, compiled expressions",
       "started_at": "2026-03-17T22:00:00Z",
-      "feat_id": "FEAT-008"
+      "feat_id": "FEAT-008",
+      "completed_at": "2026-03-18T00:00:00Z",
+      "plan_archived_to": "hydra/archive/2026-03-18-000000"
+    },
+    {
+      "objective": "Performance parity with Mapperly: object initializer, cached routing, public static Map",
+      "started_at": "2026-03-18T00:00:00Z",
+      "feat_id": "FEAT-009"
     }
   ],
   "max_iterations": 40,
@@ -162,12 +169,12 @@
     "_prev_done_count": 0
   },
   "branch": {
-    "feature": "feat/FEAT-008-perf-optimization",
+    "feature": "feat/FEAT-009-perf-parity",
     "base": "master",
     "main_worktree_path": "/Users/josemejia/Documents/Software Development/DeltaMapper",
     "worktree_dir": null,
     "last_task_branch": null,
-    "created_at": "2026-03-17T22:00:00Z",
+    "created_at": "2026-03-18T00:00:00Z",
     "auto_pr_on_complete": true,
     "sparse_paths": null
   },
@@ -178,7 +185,7 @@
     "timeout_minutes": 90,
     "checkpoint_every_n_iterations": 5,
     "auto_commit": true,
-    "commit_prefix": "perf(FEAT-008):"
+    "commit_prefix": "perf(FEAT-009):"
   },
   "context": {
     "budget_strategy": "aggressive",
@@ -229,5 +236,5 @@
   "notifications": {
     "on_complete": "say 'hydra loop complete'"
   },
-  "objective_set_at": "2026-03-17T22:00:00Z"
+  "objective_set_at": "2026-03-18T00:00:00Z"
 }

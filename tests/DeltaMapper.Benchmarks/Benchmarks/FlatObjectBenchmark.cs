@@ -56,6 +56,9 @@ public class FlatObjectBenchmark
 
     [Benchmark]
     public FlatDest DeltaMapper_SourceGen() => _deltaMapperSourceGen.Map<FlatSource, FlatDest>(_source);
+
+    [Benchmark]
+    public FlatDest DeltaMapper_DirectCall() => FlatGenProfile.MapFlatSourceToFlatDest(_source);
 }
 
 /// <summary>Runtime-only profile for the flat benchmark (no source-gen attribute needed).</summary>

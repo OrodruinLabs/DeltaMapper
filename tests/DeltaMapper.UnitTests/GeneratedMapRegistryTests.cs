@@ -97,4 +97,80 @@ public class GeneratedMapRegistryTests : IDisposable
         GeneratedMapRegistry.TryGet<User, UserDto>(out var retrieved);
         retrieved.Should().BeSameAs(second, "the second registration should overwrite the first");
     }
+
+    // ── GR-06 ─────────────────────────────────────────────────────────────────
+
+    [Fact]
+    public void GR06_RegisterFactory_ThenTryGetFactory_ReturnsRegisteredDelegate()
+    {
+        Func<User, UserDto> factory = src => new UserDto { Id = src.Id, FirstName = src.FirstName };
+
+        GeneratedMapRegistry.RegisterFactory(factory);
+
+        var found = GeneratedMapRegistry.TryGetFactory<User, UserDto>(out var retrieved);
+
+        found.Should().BeTrue();
+        retrieved.Should().BeSameAs(factory);
+    }
+
+    // ── GR-07 ─────────────────────────────────────────────────────────────────
+
+    [Fact]
+    public void GR07_TryGetFactory_WhenNotRegistered_ReturnsFalse()
+    {
+        var found = GeneratedMapRegistry.TryGetFactory<User, UserSummaryDto>(out var retrieved);
+
+        found.Should().BeFalse();
+        retrieved.Should().BeNull();
+    }
+
+    // ── GR-08 ─────────────────────────────────────────────────────────────────
+
+    [Fact]
+    public void GR08_FastPath_UsesFactory_WhenNoMiddlewareOrProfile()
+    {
+        // Register a factory — simulating what [ModuleInitializer] does
+        Func<User, UserDto> factory = src => new UserDto { Id = src.Id, FirstName = src.FirstName };
+        GeneratedMapRegistry.RegisterFactory(factory);
+
+        // Create config with no profiles (empty) and no middleware
+        var config = DeltaMapper.Configuration.MapperConfiguration.Create(_ => { });
+        var mapper = config.CreateMapper();
+
+        // Map should use the fast path (factory)
+        var user = new User { Id = 99, FirstName = "FastPath" };
+        var result = mapper.Map<User, UserDto>(user);
+
+        result.Id.Should().Be(99);
+        result.FirstName.Should().Be("FastPath");
+    }
+
+    // ── GR-09 ─────────────────────────────────────────────────────────────────
+
+    [Fact]
+    public void GR09_FastPath_NotUsed_WhenCompiledMapExists()
+    {
+        // Register a factory that returns wrong data
+        Func<User, UserDto> factory = src => new UserDto { Id = -1, FirstName = "WRONG" };
+        GeneratedMapRegistry.RegisterFactory(factory);
+
+        // Create config WITH a profile — compiled map should take precedence
+        var config = DeltaMapper.Configuration.MapperConfiguration.Create(cfg =>
+        {
+            cfg.AddProfile(new TestUserProfile());
+        });
+        var mapper = config.CreateMapper();
+
+        var user = new User { Id = 42, FirstName = "Correct" };
+        var result = mapper.Map<User, UserDto>(user);
+
+        // Should use compiled map (profile), NOT the factory
+        result.Id.Should().Be(42);
+        result.FirstName.Should().Be("Correct");
+    }
+}
+
+file class TestUserProfile : DeltaMapper.Configuration.MappingProfile
+{
+    public TestUserProfile() => CreateMap<User, UserDto>();
 }
