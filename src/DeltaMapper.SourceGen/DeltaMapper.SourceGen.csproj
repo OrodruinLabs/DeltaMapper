@@ -17,6 +17,7 @@
     <PackageProjectUrl>https://github.com/OrodruinLabs/DeltaMapper</PackageProjectUrl>
     <RepositoryUrl>https://github.com/OrodruinLabs/DeltaMapper</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
+    <PackageIcon>icon.png</PackageIcon>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
 v0.3.0-alpha.1 — initial source generator release (Phase 3, FEAT-004).
@@ -41,6 +42,9 @@ v0.3.0-alpha.1 — initial source generator release (Phase 3, FEAT-004).
           Pack="true"
           PackagePath="analyzers/dotnet/cs"
           Visible="false" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="../../icon.png" Pack="true" PackagePath="/" />
   </ItemGroup>
   <ItemGroup>
     <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">

@@ -18,6 +18,7 @@
     <RepositoryUrl>https://github.com/OrodruinLabs/DeltaMapper</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>icon.png</PackageIcon>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
 v0.4.0-alpha.1
@@ -35,5 +36,6 @@ Phase 4 — Ecosystem Integrations (FEAT-005):
   </ItemGroup>
   <ItemGroup>
     <None Include="../../README.md" Pack="true" PackagePath="/" />
+    <None Include="../../icon.png" Pack="true" PackagePath="/" />
   </ItemGroup>
 </Project>

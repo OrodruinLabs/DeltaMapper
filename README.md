@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="icon.png" alt="DeltaMapper" width="128" />
+</p>
+
 # DeltaMapper
 
 > Fast, diff-aware .NET object mapper. MIT licensed. Minimal dependencies.
