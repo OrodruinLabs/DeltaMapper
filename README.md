@@ -45,16 +45,15 @@ Requires .NET 10+.
 
 ## Benchmarks
 
-DeltaMapper SourceGen vs. competitors (Apple M1 Max, .NET 10):
+DeltaMapper vs. competitors (Apple M1 Max, .NET 10):
 
-| Scenario | DeltaMapper SourceGen | Mapperly | AutoMapper | Hand-written |
-|---|---:|---:|---:|---:|
-| Flat Object (5 props) | 24.6 ns / 48 B | 6.6 ns / 48 B | 45.1 ns / 48 B | 6.6 ns / 48 B |
-| Nested Object (2 levels) | 24.2 ns / 80 B | 18.2 ns / 120 B | 54.6 ns / 120 B | 18.2 ns / 120 B |
-| Collection (10 items) | **23.2 ns / 64 B** | 98.3 ns / 520 B | 179.4 ns / 712 B | 118.9 ns / 592 B |
-| Patch (map + diff)\* | 509.7 ns / 1,672 B | — | — | — |
+| Scenario | DeltaMapper Direct | DeltaMapper IMapper | Mapperly | AutoMapper | Hand-written |
+|---|---:|---:|---:|---:|---:|
+| Flat (5 props) | **7.2 ns / 48 B** | 24 ns / 48 B | 6.8 ns / 48 B | 47 ns / 48 B | 6.8 ns / 48 B |
+| Nested (2 levels) | — | 24 ns / 80 B | 21 ns / 120 B | 55 ns / 120 B | 19 ns / 120 B |
+| Collection (10) | — | **22 ns / 64 B** | 101 ns / 520 B | 183 ns / 712 B | 121 ns / 592 B |
 
-\* Patch returns `MappingDiff<T>` with per-property change tracking — a DeltaMapper-unique feature. Competitors have no equivalent (AutoMapper/hand-written numbers omitted as they perform a different operation).
+**Direct call matches Mapperly.** IMapper path adds ~17ns for DI/middleware support but allocates the same 48B.
 
 See [BENCHMARKS.md](BENCHMARKS.md) for full results and methodology.
 

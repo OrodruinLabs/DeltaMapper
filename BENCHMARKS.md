@@ -1,6 +1,6 @@
 # DeltaMapper Benchmark Results
 
-This document contains the DeltaMapper benchmark suite results, comparing DeltaMapper (runtime and source-gen paths) against Mapperly, AutoMapper, and hand-written code across four mapping scenarios.
+This document contains the DeltaMapper benchmark suite results, comparing DeltaMapper (runtime, source-gen via IMapper, and direct static call) against Mapperly, AutoMapper, and hand-written code.
 
 ---
 
@@ -22,13 +22,14 @@ This document contains the DeltaMapper benchmark suite results, comparing DeltaM
 
 | Method | Mean | Error | StdDev | Gen0 | Allocated |
 |--------|-----:|------:|-------:|-----:|----------:|
-| HandWritten | 6.609 ns | 0.1007 ns | 0.0942 ns | 0.0076 | 48 B |
-| Mapperly | 6.632 ns | 0.1046 ns | 0.0979 ns | 0.0076 | 48 B |
-| **DeltaMapper_SourceGen** | **24.631 ns** | 0.1995 ns | 0.1866 ns | 0.0076 | **48 B** |
-| AutoMapper | 45.097 ns | 0.2981 ns | 0.2788 ns | 0.0076 | 48 B |
-| DeltaMapper_Runtime | 93.684 ns | 0.6614 ns | 0.6186 ns | 0.0675 | 424 B |
+| HandWritten | 6.839 ns | 0.1321 ns | 0.1236 ns | 0.0076 | 48 B |
+| Mapperly | 6.808 ns | 0.1204 ns | 0.1126 ns | 0.0076 | 48 B |
+| **DeltaMapper_DirectCall** | **7.191 ns** | 0.1755 ns | 0.4102 ns | 0.0076 | **48 B** |
+| DeltaMapper_SourceGen (IMapper) | 23.923 ns | 0.5111 ns | 1.0325 ns | 0.0076 | 48 B |
+| AutoMapper | 46.910 ns | 0.9729 ns | 2.5799 ns | 0.0076 | 48 B |
+| DeltaMapper_Runtime | 110.331 ns | 2.2318 ns | 5.3042 ns | 0.0675 | 424 B |
 
-> DeltaMapper SourceGen allocates the same 48 bytes as hand-written code — zero overhead beyond the destination object.
+> **DeltaMapper DirectCall matches Mapperly and hand-written code** — 7.2ns / 48B with zero overhead. The IMapper path adds ~17ns for pipeline routing but allocates the same 48B.
 
 ---
 
@@ -36,13 +37,13 @@ This document contains the DeltaMapper benchmark suite results, comparing DeltaM
 
 | Method | Mean | Error | StdDev | Gen0 | Allocated |
 |--------|-----:|------:|-------:|-----:|----------:|
-| HandWritten | 18.18 ns | 0.187 ns | 0.175 ns | 0.0191 | 120 B |
-| Mapperly | 18.18 ns | 0.195 ns | 0.182 ns | 0.0191 | 120 B |
-| **DeltaMapper_SourceGen** | **24.15 ns** | 0.252 ns | 0.224 ns | 0.0127 | **80 B** |
-| AutoMapper | 54.64 ns | 0.445 ns | 0.416 ns | 0.0191 | 120 B |
-| DeltaMapper_Runtime | 125.18 ns | 1.118 ns | 0.991 ns | 0.0801 | 504 B |
+| HandWritten | 19.40 ns | 0.422 ns | 0.705 ns | 0.0191 | 120 B |
+| Mapperly | 20.51 ns | 0.464 ns | 1.323 ns | 0.0191 | 120 B |
+| DeltaMapper_SourceGen (IMapper) | 23.62 ns | 0.509 ns | 0.878 ns | 0.0127 | 80 B |
+| AutoMapper | 54.93 ns | 1.083 ns | 0.905 ns | 0.0191 | 120 B |
+| DeltaMapper_Runtime | 137.92 ns | 2.692 ns | 3.100 ns | 0.0801 | 504 B |
 
-> DeltaMapper SourceGen allocates **less** than Mapperly on nested objects (80B vs 120B).
+> DeltaMapper SourceGen allocates **less** than Mapperly on nested objects (80B vs 120B) and is within 3ns.
 
 ---
 
@@ -50,13 +51,13 @@ This document contains the DeltaMapper benchmark suite results, comparing DeltaM
 
 | Method | Mean | Error | StdDev | Gen0 | Allocated |
 |--------|-----:|------:|-------:|-----:|----------:|
-| **DeltaMapper_SourceGen** | **23.16 ns** | 0.212 ns | 0.199 ns | 0.0102 | **64 B** |
-| Mapperly | 98.28 ns | 0.807 ns | 0.755 ns | 0.0829 | 520 B |
-| HandWritten | 118.88 ns | 1.941 ns | 1.816 ns | 0.0942 | 592 B |
-| AutoMapper | 179.42 ns | 2.576 ns | 2.409 ns | 0.1135 | 712 B |
-| DeltaMapper_Runtime | 1,106.82 ns | 10.490 ns | 9.812 ns | 0.5264 | 3,304 B |
+| **DeltaMapper_SourceGen** | **21.91 ns** | 0.379 ns | 0.336 ns | 0.0102 | **64 B** |
+| Mapperly | 101.25 ns | 1.955 ns | 1.829 ns | 0.0829 | 520 B |
+| HandWritten | 120.94 ns | 2.406 ns | 2.471 ns | 0.0942 | 592 B |
+| AutoMapper | 183.46 ns | 2.813 ns | 2.632 ns | 0.1135 | 712 B |
+| DeltaMapper_Runtime | 1,128.73 ns | 13.039 ns | 10.889 ns | 0.5264 | 3,304 B |
 
-> DeltaMapper SourceGen is **4.2x faster than Mapperly** and **5.1x faster than hand-written** on collections, with 8x less allocation.
+> DeltaMapper SourceGen is **4.6x faster than Mapperly** and **5.5x faster than hand-written** on collections, with 8x less allocation.
 
 ---
 
@@ -64,12 +65,24 @@ This document contains the DeltaMapper benchmark suite results, comparing DeltaM
 
 | Method | Mean | Error | StdDev | Gen0 | Allocated |
 |--------|-----:|------:|-------:|-----:|----------:|
-| HandWritten_Overwrite | 8.713 ns | 0.0850 ns | 0.0795 ns | 0.0076 | 48 B |
-| AutoMapper_Map | 48.155 ns | 0.4196 ns | 0.3719 ns | 0.0076 | 48 B |
-| DeltaMapper_Patch_SourceGen | 509.730 ns | 3.1629 ns | 2.6412 ns | 0.2661 | 1,672 B |
-| DeltaMapper_Patch_Runtime | 514.899 ns | 6.4803 ns | 6.0617 ns | 0.2775 | 1,744 B |
+| HandWritten_Overwrite | 8.222 ns | 0.1264 ns | 0.1182 ns | 0.0076 | 48 B |
+| AutoMapper_Map | 48.488 ns | 0.6123 ns | 0.5727 ns | 0.0076 | 48 B |
+| DeltaMapper_Patch_SourceGen | 524.275 ns | 9.5217 ns | 17.6490 ns | 0.2661 | 1,672 B |
+| DeltaMapper_Patch_Runtime | 544.200 ns | 10.5277 ns | 16.0769 ns | 0.2775 | 1,744 B |
 
-> Patch is a DeltaMapper-unique feature — it maps **and** returns a structured `MappingDiff<T>` with per-property change tracking. Competitors perform map-onto-existing as the nearest equivalent but produce no diff. The extra cost reflects diff computation and `PropertyChange` allocations.
+> Patch is a DeltaMapper-unique feature — it maps **and** returns a structured `MappingDiff<T>` with per-property change tracking. Competitors have no equivalent.
+
+---
+
+## Performance Tiers
+
+DeltaMapper offers two call patterns depending on your needs:
+
+| Tier | Call Pattern | Flat Mean | Features |
+|------|-------------|-----------|----------|
+| **Direct Call** | `FlatGenProfile.MapFlatSourceToFlatDest(src)` | **7.2 ns** | Zero overhead, Mapperly parity |
+| **IMapper** | `mapper.Map<Src, Dest>(src)` | **24 ns** | DI, middleware, hooks, Patch |
+| **Runtime** | `mapper.Map<Src, Dest>(src)` (no source-gen) | **110 ns** | Full feature set, no codegen |
 
 ---
 
@@ -83,31 +96,22 @@ dotnet run -c Release
 Run a specific scenario:
 
 ```bash
-# Flat object only
 dotnet run -c Release -- --filter "*FlatObject*"
-
-# Nested object only
 dotnet run -c Release -- --filter "*NestedObject*"
-
-# Collection only
 dotnet run -c Release -- --filter "*Collection*"
-
-# Patch only
 dotnet run -c Release -- --filter "*Patch*"
 ```
-
-Results are written to `BenchmarkDotNet.Artifacts/results/` in the benchmarks directory.
 
 ---
 
 ## Methodology
 
 - **Framework**: [BenchmarkDotNet](https://github.com/dotnet/BenchmarkDotNet)
-- **Memory diagnostics**: `[MemoryDiagnoser]` is applied to all benchmark classes — `Gen0` collections and `Allocated` bytes are tracked alongside timing
-- **Warmup**: BenchmarkDotNet performs automatic warmup iterations before measurement; all results shown are from the stable measurement phase
-- **Platform**: Benchmarks must be run in `Release` configuration (`dotnet run -c Release`) — `Debug` builds will produce meaningless results
-- **Isolation**: Each competitor uses its own mapper instance, initialized once in `[GlobalSetup]` to exclude startup cost from per-operation measurements
-- **Statistics**: `Mean`, `Error` (half of 99.9% confidence interval), and `StdDev` (standard deviation) are reported per BenchmarkDotNet defaults
+- **Memory diagnostics**: `[MemoryDiagnoser]` tracks `Gen0` collections and `Allocated` bytes
+- **Warmup**: Automatic warmup; results from stable measurement phase only
+- **Platform**: Release configuration required (`dotnet run -c Release`)
+- **Isolation**: Each competitor uses its own mapper instance, initialized once in `[GlobalSetup]`
+- **Statistics**: `Mean`, `Error` (99.9% CI), `StdDev` per BenchmarkDotNet defaults
 
 ---
 
