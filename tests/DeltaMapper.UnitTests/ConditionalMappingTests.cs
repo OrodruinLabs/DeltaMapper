@@ -159,7 +159,65 @@ public class ConditionalMappingTests
 
         dest.Email.Should().Be("default@test.com"); // condition false → keeps destination default
     }
+
+    [Fact]
+    public void Cond08_ConditionFalse_CtorParam_UsesDefault()
+    {
+        var mapper = MapperConfiguration.Create(cfg =>
+        {
+            cfg.AddProfile(new InlineProfile<CondSource, CondRecordDest>(map =>
+                map.ForMember(d => d.Age, o => o.Condition(s => s.Age > 0))));
+        }).CreateMapper();
+
+        var src = new CondSource { Id = 1, Name = "Bob", Age = 0 };
+        var dest = mapper.Map<CondSource, CondRecordDest>(src);
+
+        dest.Age.Should().Be(0); // condition false → ctor gets default(int)
+        dest.Name.Should().Be("Bob"); // no condition → mapped
+    }
+
+    [Fact]
+    public void Cond09_ConditionTrue_CtorParam_Mapped()
+    {
+        var mapper = MapperConfiguration.Create(cfg =>
+        {
+            cfg.AddProfile(new InlineProfile<CondSource, CondRecordDest>(map =>
+                map.ForMember(d => d.Age, o => o.Condition(s => s.Age > 0))));
+        }).CreateMapper();
+
+        var src = new CondSource { Id = 1, Name = "Alice", Age = 30 };
+        var dest = mapper.Map<CondSource, CondRecordDest>(src);
+
+        dest.Age.Should().Be(30); // condition true → ctor gets source value
+    }
+
+    [Fact]
+    public void Cond10_ConditionWithCustomResolver_CtorParam()
+    {
+        var mapper = MapperConfiguration.Create(cfg =>
+        {
+            cfg.AddProfile(new InlineProfile<CondSource, CondRecordDest>(map =>
+                map.ForMember(d => d.Name, o =>
+                {
+                    o.MapFrom(s => s.Name.ToUpperInvariant());
+                    o.Condition(s => s.Name.Length > 3);
+                })));
+        }).CreateMapper();
+
+        var shortSrc = new CondSource { Id = 1, Name = "Bo", Age = 1 };
+        var longSrc = new CondSource { Id = 2, Name = "Alice", Age = 1 };
+
+        var dest1 = mapper.Map<CondSource, CondRecordDest>(shortSrc);
+        var dest2 = mapper.Map<CondSource, CondRecordDest>(longSrc);
+
+        dest1.Name.Should().BeNull(); // condition false → ctor gets null default
+        dest2.Name.Should().Be("ALICE"); // condition true → resolver applied
+    }
 }
+
+// ── Record model for ctor-bound tests ─────────────────────────────
+
+public record CondRecordDest(int Id, string Name, int Age, string? Email);
 
 /// <summary>
 /// Helper to create inline profiles without a separate class per test.
