@@ -17,7 +17,7 @@
 - **Mapperly-speed direct calls** — 7.2 ns flat mapping, same as hand-written code
 - **`MappingDiff<T>`** — map _and_ get a structured change set in one call (no other mapper does this)
 - **Source generator** — `[GenerateMap]` emits assignment code at build time, zero reflection
-- **Full IMapper pipeline** — DI, middleware, hooks, EF Core proxy safety, OpenTelemetry tracing
+- **Full IMapper pipeline** — DI, middleware, hooks, EF Core proxy detection, OpenTelemetry tracing
 - **MIT licensed, no paid tiers, forever**
 
 ## Install
@@ -65,11 +65,11 @@ if (diff.HasChanges)
 
 ## Benchmarks
 
-| Scenario | DeltaMapper Direct | Mapperly | AutoMapper | Hand-written |
+| Scenario | DeltaMapper | Mapperly | AutoMapper | Hand-written |
 |---|---:|---:|---:|---:|
-| Flat (5 props) | **7.2 ns / 48 B** | 6.8 ns / 48 B | 47 ns / 48 B | 6.8 ns / 48 B |
-| Nested (2 levels) | — | 21 ns / 120 B | 55 ns / 120 B | 19 ns / 120 B |
-| Collection (10) | **22 ns / 64 B** | 101 ns / 520 B | 183 ns / 712 B | 121 ns / 592 B |
+| Flat (5 props, direct call) | **7.2 ns / 48 B** | 6.8 ns / 48 B | 47 ns / 48 B | 6.8 ns / 48 B |
+| Nested (2 levels, IMapper) | 24 ns / 80 B | 21 ns / 120 B | 55 ns / 120 B | 19 ns / 120 B |
+| Collection (10, IMapper) | **22 ns / 64 B** | 101 ns / 520 B | 183 ns / 712 B | 121 ns / 592 B |
 
 [Full benchmark results and methodology](BENCHMARKS.md)
 

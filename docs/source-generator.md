@@ -21,7 +21,7 @@ public partial class UserProfile { }
 
 The generator emits:
 - A private `Map_User_To_UserDto(src, dst)` method with direct assignments
-- A private `Create_User_To_UserDto(src)` factory using object initializer
+- A private `Create_User_To_UserDto(src)` factory (object initializer for flat types, two-step for nested/collections)
 - A public `MapUserToUserDto(src)` method for zero-overhead direct calls
 - A `[ModuleInitializer]` that registers delegates in `GeneratedMapRegistry`
 
