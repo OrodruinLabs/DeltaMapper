@@ -25,7 +25,7 @@ This document contains the DeltaMapper benchmark suite results, comparing DeltaM
 | HandWritten | 6.839 ns | 0.1321 ns | 0.1236 ns | 0.0076 | 48 B |
 | Mapperly | 6.808 ns | 0.1204 ns | 0.1126 ns | 0.0076 | 48 B |
 | **DeltaMapper_DirectCall** | **7.191 ns** | 0.1755 ns | 0.4102 ns | 0.0076 | **48 B** |
-| DeltaMapper_SourceGen (IMapper) | 23.923 ns | 0.5111 ns | 1.0325 ns | 0.0076 | 48 B |
+| DeltaMapper_SourceGen | 23.923 ns | 0.5111 ns | 1.0325 ns | 0.0076 | 48 B |
 | AutoMapper | 46.910 ns | 0.9729 ns | 2.5799 ns | 0.0076 | 48 B |
 | DeltaMapper_Runtime | 110.331 ns | 2.2318 ns | 5.3042 ns | 0.0675 | 424 B |
 
@@ -39,7 +39,7 @@ This document contains the DeltaMapper benchmark suite results, comparing DeltaM
 |--------|-----:|------:|-------:|-----:|----------:|
 | HandWritten | 19.40 ns | 0.422 ns | 0.705 ns | 0.0191 | 120 B |
 | Mapperly | 20.51 ns | 0.464 ns | 1.323 ns | 0.0191 | 120 B |
-| DeltaMapper_SourceGen (IMapper) | 23.62 ns | 0.509 ns | 0.878 ns | 0.0127 | 80 B |
+| DeltaMapper_SourceGen | 23.62 ns | 0.509 ns | 0.878 ns | 0.0127 | 80 B |
 | AutoMapper | 54.93 ns | 1.083 ns | 0.905 ns | 0.0191 | 120 B |
 | DeltaMapper_Runtime | 137.92 ns | 2.692 ns | 3.100 ns | 0.0801 | 504 B |
 

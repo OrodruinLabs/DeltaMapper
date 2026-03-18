@@ -12,9 +12,10 @@ namespace DeltaMapper.Runtime;
 /// </summary>
 public sealed class Mapper : IMapper
 {
+    private static readonly object NoFactory = new();
     private readonly MapperConfiguration _config;
     private readonly bool _fastPathEnabled;
-    private readonly ConcurrentDictionary<(Type, Type), object?> _factoryCache = new();
+    private readonly ConcurrentDictionary<(Type, Type), object> _factoryCache = new();
 
     internal Mapper(MapperConfiguration config)
     {
@@ -43,7 +44,7 @@ public sealed class Mapper : IMapper
             {
                 cached = !_config.HasMap(key.Item1, key.Item2)
                     && GeneratedMapRegistry.TryGetFactory<TSource, TDestination>(out var f)
-                    ? (object)f : null;
+                    ? (object)f! : NoFactory;
                 _factoryCache[key] = cached;
             }
 
