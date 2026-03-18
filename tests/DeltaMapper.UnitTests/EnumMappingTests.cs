@@ -172,7 +172,21 @@ public class EnumMappingTests
     }
 
     [Fact]
-    public void Enum10_MapsEnumViaConstructorPath()
+    public void Enum10_MapsFlagsEnumAliasToConstituents()
+    {
+        // Source has ReadWrite alias (Read|Write), dest does not — should decompose to constituents
+        var mapper = MapperConfiguration.Create(cfg =>
+            cfg.AddProfile(new FlagsEnumProfile()))
+            .CreateMapper();
+
+        var source = new FlagsEnumSource { Permissions = SourcePermissions.ReadWrite };
+        var dest = mapper.Map<FlagsEnumSource, FlagsEnumDest>(source);
+
+        dest.Permissions.Should().Be(DestPermissions.Read | DestPermissions.Write);
+    }
+
+    [Fact]
+    public void Enum11_MapsEnumViaConstructorPath()
     {
         var mapper = MapperConfiguration.Create(cfg =>
             cfg.AddProfile(new RecordEnumProfile()))
@@ -186,7 +200,7 @@ public class EnumMappingTests
     }
 
     [Fact]
-    public void Enum11_MapsNullableEnumViaConstructorPath()
+    public void Enum12_MapsNullableEnumViaConstructorPath()
     {
         var mapper = MapperConfiguration.Create(cfg =>
             cfg.AddProfile(new NullableRecordEnumProfile()))
@@ -199,7 +213,7 @@ public class EnumMappingTests
     }
 
     [Fact]
-    public void Enum12_ThrowsNullToNonNullableEnumViaConstructorPath()
+    public void Enum13_ThrowsNullToNonNullableEnumViaConstructorPath()
     {
         var mapper = MapperConfiguration.Create(cfg =>
             cfg.AddProfile(new NullableToNonNullRecordEnumProfile()))
@@ -214,7 +228,7 @@ public class EnumMappingTests
     }
 
     [Fact]
-    public void Enum13_MapsNonNullableToNullableSameEnum()
+    public void Enum14_MapsNonNullableToNullableSameEnum()
     {
         var mapper = MapperConfiguration.Create(cfg =>
             cfg.AddProfile(new SameEnumNonNullToNullableProfile()))
@@ -227,7 +241,7 @@ public class EnumMappingTests
     }
 
     [Fact]
-    public void Enum14_MapsNullableToNonNullableSameEnumWithValue()
+    public void Enum15_MapsNullableToNonNullableSameEnumWithValue()
     {
         var mapper = MapperConfiguration.Create(cfg =>
             cfg.AddProfile(new SameEnumNullableToNonNullProfile()))
@@ -240,7 +254,7 @@ public class EnumMappingTests
     }
 
     [Fact]
-    public void Enum15_ThrowsNullableToNonNullableSameEnumNull()
+    public void Enum16_ThrowsNullableToNonNullableSameEnumNull()
     {
         var mapper = MapperConfiguration.Create(cfg =>
             cfg.AddProfile(new SameEnumNullableToNonNullProfile()))
@@ -279,7 +293,7 @@ file class NullableToNonNullableEnumProfile : MappingProfile
 
 // ── [Flags] enum models ───────────────────────────────────────────
 
-[Flags] public enum SourcePermissions { None = 0, Read = 1, Write = 2, Execute = 4 }
+[Flags] public enum SourcePermissions { None = 0, Read = 1, Write = 2, Execute = 4, ReadWrite = Read | Write }
 [Flags] public enum DestPermissions { None = 0, Read = 1, Write = 2, Execute = 4 }
 
 public class FlagsEnumSource { public SourcePermissions Permissions { get; set; } }
