@@ -16,6 +16,10 @@ obj/
 ## Benchmarks
 BenchmarkDotNet.Artifacts/
 
+# Hydra Framework (local mode)
+hydra/
+.claude/agents/generated/
+
 ## OS
 .DS_Store
 Thumbs.db
