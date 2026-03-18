@@ -654,9 +654,10 @@ public sealed class MapperConfigurationBuilder
 
     private static ulong ToUInt64(object enumValue)
     {
-        // Type-aware conversion that handles all enum underlying types
-        // including ulong values above Int64.MaxValue (e.g. 1UL << 63)
-        return Type.GetTypeCode(enumValue.GetType()) switch
+        // GetTypeCode on an enum type returns TypeCode.Object,
+        // so resolve the underlying integral type first
+        var underlyingType = Enum.GetUnderlyingType(enumValue.GetType());
+        return Type.GetTypeCode(underlyingType) switch
         {
             TypeCode.SByte => unchecked((ulong)Convert.ToSByte(enumValue)),
             TypeCode.Int16 => unchecked((ulong)Convert.ToInt16(enumValue)),
