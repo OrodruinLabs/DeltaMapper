@@ -130,6 +130,26 @@ public class EnumMappingTests
         act.Should().Throw<InvalidOperationException>()
             .WithMessage("*No matching name found*");
     }
+
+    [Fact]
+    public void Enum07_ThrowsOnNullToNonNullableEnum()
+    {
+        var mapper = MapperConfiguration.Create(cfg =>
+            cfg.AddProfile(new NullableToNonNullableEnumProfile()))
+            .CreateMapper();
+
+        var source = new NullableEnumSource { Id = 1, Status = null };
+
+        var act = () => mapper.Map<NullableEnumSource, EnumDest>(source);
+
+        act.Should().Throw<InvalidOperationException>()
+            .WithMessage("*non-nullable*");
+    }
+}
+
+file class NullableToNonNullableEnumProfile : MappingProfile
+{
+    public NullableToNonNullableEnumProfile() => CreateMap<NullableEnumSource, EnumDest>();
 }
 
 public enum MismatchedStatus { Active, Unknown }

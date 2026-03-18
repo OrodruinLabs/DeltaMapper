@@ -189,18 +189,14 @@ public sealed class MapperConfigurationBuilder
                 var dstIsNullable = Nullable.GetUnderlyingType(dstPropCaptured.PropertyType) != null;
                 assignments.Add((src, dst, ctx) =>
                 {
-                    var value = getter(src);
-                    if (value == null)
+                    var resolved = ResolveEnumValue(getter(src), dstEnumType, dstIsNullable, dstPropCaptured.Name);
+                    if (resolved == null)
                     {
-                        if (dstIsNullable)
-                            setter(dst, null);
+                        // Use reflection for null on nullable enum (compiled setter uses Unbox which can't handle null)
+                        dstPropCaptured.SetValue(dst, null);
                         return;
                     }
-                    var name = Enum.GetName(value.GetType(), value);
-                    if (name == null || !Enum.IsDefined(dstEnumType, name))
-                        throw new InvalidOperationException(
-                            $"Cannot map enum value '{value}' from '{value.GetType().Name}' to '{dstEnumType.Name}'. No matching name found.");
-                    setter(dst, Enum.Parse(dstEnumType, name));
+                    setter(dst, resolved);
                 });
             }
             else if (IsCollectionMapping(srcPropCaptured.PropertyType, dstPropCaptured.PropertyType,
@@ -378,7 +374,17 @@ public sealed class MapperConfigurationBuilder
                 if (srcProp != null)
                 {
                     var capturedSrcProp = srcProp;
-                    paramResolvers.Add((src, ctx) => capturedSrcProp.GetValue(src));
+                    if (IsEnumMapping(capturedSrcProp.PropertyType, param.ParameterType))
+                    {
+                        var dstEnumType = Nullable.GetUnderlyingType(param.ParameterType) ?? param.ParameterType;
+                        var dstIsNullable = Nullable.GetUnderlyingType(param.ParameterType) != null;
+                        paramResolvers.Add((src, ctx) => ResolveEnumValue(
+                            capturedSrcProp.GetValue(src), dstEnumType, dstIsNullable, param.Name!));
+                    }
+                    else
+                    {
+                        paramResolvers.Add((src, ctx) => capturedSrcProp.GetValue(src));
+                    }
                 }
                 else
                 {
@@ -429,11 +435,24 @@ public sealed class MapperConfigurationBuilder
             }
 
             var srcProp = FindSourceProperty(srcProps, dstProp.Name);
-            if (srcProp != null && IsDirectlyAssignable(srcProp.PropertyType, dstProp.PropertyType))
+            if (srcProp != null)
             {
                 var capturedSrc = srcProp;
                 var capturedDst = dstProp;
-                initOnlyAssignments.Add((src, dst, ctx) => capturedDst.SetValue(dst, capturedSrc.GetValue(src)));
+                if (IsEnumMapping(capturedSrc.PropertyType, capturedDst.PropertyType))
+                {
+                    var dstEnumType = Nullable.GetUnderlyingType(capturedDst.PropertyType) ?? capturedDst.PropertyType;
+                    var dstIsNullable = Nullable.GetUnderlyingType(capturedDst.PropertyType) != null;
+                    initOnlyAssignments.Add((src, dst, ctx) =>
+                    {
+                        var resolved = ResolveEnumValue(capturedSrc.GetValue(src), dstEnumType, dstIsNullable, capturedDst.Name);
+                        capturedDst.SetValue(dst, resolved);
+                    });
+                }
+                else if (IsDirectlyAssignable(capturedSrc.PropertyType, capturedDst.PropertyType))
+                {
+                    initOnlyAssignments.Add((src, dst, ctx) => capturedDst.SetValue(dst, capturedSrc.GetValue(src)));
+                }
             }
         }
 
@@ -510,6 +529,24 @@ public sealed class MapperConfigurationBuilder
     private static bool IsDirectlyAssignable(Type srcType, Type dstType)
     {
         return dstType.IsAssignableFrom(srcType);
+    }
+
+    private static object? ResolveEnumValue(object? value, Type dstEnumType, bool dstIsNullable, string propertyName)
+    {
+        if (value == null)
+        {
+            if (!dstIsNullable)
+                throw new InvalidOperationException(
+                    $"Cannot map null enum value to non-nullable property '{propertyName}' of type '{dstEnumType.Name}'.");
+            return null;
+        }
+
+        var name = Enum.GetName(value.GetType(), value);
+        if (name == null || !Enum.IsDefined(dstEnumType, name))
+            throw new InvalidOperationException(
+                $"Cannot map enum value '{value}' from '{value.GetType().Name}' to '{dstEnumType.Name}'. No matching name found.");
+
+        return Enum.Parse(dstEnumType, name);
     }
 
     private static bool IsEnumMapping(Type srcType, Type dstType)
