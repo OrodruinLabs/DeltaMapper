@@ -37,6 +37,30 @@ public sealed class MapperConfigurationBuilder
     }
 
     /// <summary>
+    /// Scans the specified assembly for all concrete MappingProfile subclasses
+    /// with parameterless constructors and adds them to the configuration.
+    /// </summary>
+    public MapperConfigurationBuilder AddProfilesFromAssembly(Assembly assembly)
+    {
+        ArgumentNullException.ThrowIfNull(assembly);
+        var profileTypes = assembly.GetTypes()
+            .Where(t => t.IsSubclassOf(typeof(MappingProfile))
+                      && !t.IsAbstract
+                      && t.GetConstructor(Type.EmptyTypes) != null);
+        foreach (var type in profileTypes)
+            _profiles.Add((MappingProfile)Activator.CreateInstance(type)!);
+        return this;
+    }
+
+    /// <summary>
+    /// Scans the assembly containing <typeparamref name="T"/> for all concrete MappingProfile subclasses.
+    /// </summary>
+    public MapperConfigurationBuilder AddProfilesFromAssemblyContaining<T>()
+    {
+        return AddProfilesFromAssembly(typeof(T).Assembly);
+    }
+
+    /// <summary>
     /// Registers a middleware component in the mapping pipeline.
     /// </summary>
     public MapperConfigurationBuilder Use<TMiddleware>() where TMiddleware : IMappingMiddleware, new()
@@ -825,15 +849,15 @@ public sealed class MapperConfigurationBuilder
     /// </summary>
     private static readonly Dictionary<Type, HashSet<Type>> _wideningMap = new()
     {
-        [typeof(byte)]   = new() { typeof(short), typeof(ushort), typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(float), typeof(double), typeof(decimal) },
-        [typeof(sbyte)]  = new() { typeof(short), typeof(int), typeof(long), typeof(float), typeof(double), typeof(decimal) },
-        [typeof(short)]  = new() { typeof(int), typeof(long), typeof(float), typeof(double), typeof(decimal) },
+        [typeof(byte)] = new() { typeof(short), typeof(ushort), typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(float), typeof(double), typeof(decimal) },
+        [typeof(sbyte)] = new() { typeof(short), typeof(int), typeof(long), typeof(float), typeof(double), typeof(decimal) },
+        [typeof(short)] = new() { typeof(int), typeof(long), typeof(float), typeof(double), typeof(decimal) },
         [typeof(ushort)] = new() { typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(float), typeof(double), typeof(decimal) },
-        [typeof(int)]    = new() { typeof(long), typeof(double), typeof(decimal) },
-        [typeof(uint)]   = new() { typeof(long), typeof(ulong), typeof(double), typeof(decimal) },
-        [typeof(long)]   = new() { typeof(decimal) },
-        [typeof(ulong)]  = new() { typeof(decimal) },
-        [typeof(float)]  = new() { typeof(double) },
+        [typeof(int)] = new() { typeof(long), typeof(double), typeof(decimal) },
+        [typeof(uint)] = new() { typeof(long), typeof(ulong), typeof(double), typeof(decimal) },
+        [typeof(long)] = new() { typeof(decimal) },
+        [typeof(ulong)] = new() { typeof(decimal) },
+        [typeof(float)] = new() { typeof(double) },
     };
 
     /// <summary>
