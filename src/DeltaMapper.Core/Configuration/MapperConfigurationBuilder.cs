@@ -190,6 +190,24 @@ public sealed class MapperConfigurationBuilder
                     var setter = CompileSetter(dstProp);
                     assignments.Add((src, dst, ctx) => setter(dst, flattenedGetter(src)));
                 }
+                else if (IsComplexType(dstProp.PropertyType))
+                {
+                    // Try unflattening: source has CustomerName, CustomerEmail → dst.Customer = { Name, Email }
+                    var unflattenAssignments = TryBuildUnflattenAssignments(srcProps, dstProp);
+                    if (unflattenAssignments != null)
+                    {
+                        var dstPropSetter = CompileSetter(dstProp);
+                        var nestedFactory = CompileFactory(dstProp.PropertyType);
+                        var capturedUnflatten = unflattenAssignments;
+                        assignments.Add((src, dst, ctx) =>
+                        {
+                            var nested = nestedFactory();
+                            foreach (var assign in capturedUnflatten)
+                                assign(src, nested);
+                            dstPropSetter(dst, nested);
+                        });
+                    }
+                }
                 continue;
             }
 
@@ -695,6 +713,39 @@ public sealed class MapperConfigurationBuilder
     private static PropertyInfo? FindSourceProperty(PropertyInfo[] srcProps, string dstName)
     {
         return srcProps.FirstOrDefault(p => p.Name.Equals(dstName, StringComparison.OrdinalIgnoreCase));
+    }
+
+    /// <summary>
+    /// Attempts to build a list of sub-property assignments for unflattening.
+    /// For example, given source properties <c>CustomerName</c>, <c>CustomerEmail</c> and destination
+    /// property <c>Customer</c> (of type with <c>Name</c> and <c>Email</c>), this method builds
+    /// assignments that populate a new <c>Customer</c> instance from the flat source properties.
+    /// Returns <c>null</c> if no matching source properties are found.
+    /// </summary>
+    private static List<Action<object, object>>? TryBuildUnflattenAssignments(
+        PropertyInfo[] srcProps, PropertyInfo dstProp)
+    {
+        var prefix = dstProp.Name;
+        var nestedType = dstProp.PropertyType;
+        var nestedProps = nestedType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+
+        List<Action<object, object>>? assignments = null;
+
+        foreach (var nestedProp in nestedProps)
+        {
+            if (!nestedProp.CanWrite) continue;
+            var srcName = prefix + nestedProp.Name; // e.g., "Customer" + "Name" = "CustomerName"
+            var srcProp = FindSourceProperty(srcProps, srcName);
+            if (srcProp == null) continue;
+            if (!IsDirectlyAssignable(srcProp.PropertyType, nestedProp.PropertyType)) continue;
+
+            assignments ??= [];
+            var getter = CompileGetter(srcProp);
+            var setter = CompileSetter(nestedProp);
+            assignments.Add((src, nested) => setter(nested, getter(src)));
+        }
+
+        return assignments;
     }
 
     /// <summary>
