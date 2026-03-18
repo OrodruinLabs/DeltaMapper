@@ -1,3 +1,4 @@
+using DeltaMapper.Abstractions;
 using DeltaMapper.Configuration;
 using FluentAssertions;
 using Xunit;
@@ -56,7 +57,7 @@ public class EnumMappingProfile : MappingProfile
 
 public class EnumMappingTests
 {
-    private readonly Abstractions.IMapper _mapper;
+    private readonly IMapper _mapper;
 
     public EnumMappingTests()
     {

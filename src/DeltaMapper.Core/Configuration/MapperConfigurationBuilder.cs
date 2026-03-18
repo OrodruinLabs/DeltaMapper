@@ -182,7 +182,7 @@ public sealed class MapperConfigurationBuilder
             }
             else if (IsEnumMapping(srcPropCaptured.PropertyType, dstPropCaptured.PropertyType))
             {
-                // Enum-to-enum mapping by name
+                // Enum-to-enum mapping by name (strict — rejects numeric strings)
                 var getter = CompileGetter(srcPropCaptured);
                 var setter = CompileSetter(dstPropCaptured);
                 var dstEnumType = Nullable.GetUnderlyingType(dstPropCaptured.PropertyType) ?? dstPropCaptured.PropertyType;
@@ -194,8 +194,11 @@ public sealed class MapperConfigurationBuilder
                         setter(dst, null);
                         return;
                     }
-                    var parsed = Enum.Parse(dstEnumType, value.ToString()!);
-                    setter(dst, parsed);
+                    var name = Enum.GetName(value.GetType(), value);
+                    if (name == null || !Enum.IsDefined(dstEnumType, name))
+                        throw new InvalidOperationException(
+                            $"Cannot map enum value '{value}' from '{value.GetType().Name}' to '{dstEnumType.Name}'. No matching name found.");
+                    setter(dst, Enum.Parse(dstEnumType, name));
                 });
             }
             else if (IsCollectionMapping(srcPropCaptured.PropertyType, dstPropCaptured.PropertyType,
