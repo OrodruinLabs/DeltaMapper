@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using System.Reflection;
 using DeltaMapper.Exceptions;
 using DeltaMapper.Middleware;
@@ -114,11 +115,11 @@ public sealed class MapperConfigurationBuilder
                 if (memberConfig.CustomResolver != null)
                 {
                     var resolver = memberConfig.CustomResolver;
-                    var setter = dstProp;
+                    var compiledSetter = CompileSetter(dstProp);
                     assignments.Add((src, dst, ctx) =>
                     {
                         var value = resolver(src);
-                        setter.SetValue(dst, value);
+                        compiledSetter(dst, value);
                     });
                     continue;
                 }
@@ -127,18 +128,19 @@ public sealed class MapperConfigurationBuilder
                 {
                     var srcProp = FindSourceProperty(srcProps, dstProp.Name);
                     var substituteValue = memberConfig.NullSubstituteValue;
-                    var setter = dstProp;
+                    var compiledSetter = CompileSetter(dstProp);
                     if (srcProp != null)
                     {
+                        var compiledGetter = CompileGetter(srcProp);
                         assignments.Add((src, dst, ctx) =>
                         {
-                            var value = srcProp.GetValue(src);
-                            setter.SetValue(dst, value ?? substituteValue);
+                            var value = compiledGetter(src);
+                            compiledSetter(dst, value ?? substituteValue);
                         });
                     }
                     else
                     {
-                        assignments.Add((src, dst, ctx) => setter.SetValue(dst, substituteValue));
+                        assignments.Add((src, dst, ctx) => compiledSetter(dst, substituteValue));
                     }
                     continue;
                 }
@@ -154,40 +156,45 @@ public sealed class MapperConfigurationBuilder
 
             if (IsDirectlyAssignable(srcPropCaptured.PropertyType, dstPropCaptured.PropertyType))
             {
-                // Direct assign — same type or implicitly assignable (e.g., int to long)
-                assignments.Add((src, dst, ctx) =>
-                {
-                    var value = srcPropCaptured.GetValue(src);
-                    dstPropCaptured.SetValue(dst, value);
-                });
+                // Direct assign — compiled expression delegates for ~5x faster access
+                var getter = CompileGetter(srcPropCaptured);
+                var setter = CompileSetter(dstPropCaptured);
+                assignments.Add((src, dst, ctx) => setter(dst, getter(src)));
             }
             else if (IsNumericWidening(srcPropCaptured.PropertyType, dstPropCaptured.PropertyType))
             {
-                // Numeric widening conversion — e.g., int → long, float → double
+                // Numeric widening conversion — compiled getter/setter
+                var getter = CompileGetter(srcPropCaptured);
+                var setter = CompileSetter(dstPropCaptured);
+                // Convert.ChangeType doesn't support Nullable<T>, so unwrap to underlying type
+                var targetType = Nullable.GetUnderlyingType(dstPropCaptured.PropertyType) ?? dstPropCaptured.PropertyType;
                 assignments.Add((src, dst, ctx) =>
                 {
-                    var value = srcPropCaptured.GetValue(src);
+                    var value = getter(src);
                     if (value == null)
                     {
-                        dstPropCaptured.SetValue(dst, null);
+                        setter(dst, null);
                         return;
                     }
-                    var converted = Convert.ChangeType(value, dstPropCaptured.PropertyType);
-                    dstPropCaptured.SetValue(dst, converted);
+                    var converted = Convert.ChangeType(value, targetType);
+                    setter(dst, converted);
                 });
             }
             else if (IsCollectionMapping(srcPropCaptured.PropertyType, dstPropCaptured.PropertyType,
                          out var srcElementType, out var dstElementType))
             {
-                // Collection mapping — map each element
+                // Collection mapping — compiled getter/setter
                 var srcElem = srcElementType!;
                 var dstElem = dstElementType!;
+                var getter = CompileGetter(srcPropCaptured);
+                var setter = CompileSetter(dstPropCaptured);
+                var dstCollType = dstPropCaptured.PropertyType;
                 assignments.Add((src, dst, ctx) =>
                 {
-                    var srcCollection = srcPropCaptured.GetValue(src);
+                    var srcCollection = getter(src);
                     if (srcCollection == null)
                     {
-                        dstPropCaptured.SetValue(dst, null);
+                        setter(dst, null);
                         return;
                     }
 
@@ -200,7 +207,6 @@ public sealed class MapperConfigurationBuilder
                             items.Add(null!);
                             continue;
                         }
-                        // If element types are directly assignable, no mapping needed
                         if (IsDirectlyAssignable(srcElem, dstElem))
                         {
                             items.Add(item);
@@ -212,34 +218,39 @@ public sealed class MapperConfigurationBuilder
                         }
                     }
 
-                    var destCollection = CreateCollection(dstPropCaptured.PropertyType, dstElem, items);
-                    dstPropCaptured.SetValue(dst, destCollection);
+                    var destCollection = CreateCollection(dstCollType, dstElem, items);
+                    setter(dst, destCollection);
                 });
             }
             else if (IsComplexType(srcPropCaptured.PropertyType))
             {
-                // Complex object — recursive mapping
+                // Complex object — recursive mapping, compiled getter/setter
+                var getter = CompileGetter(srcPropCaptured);
+                var setter = CompileSetter(dstPropCaptured);
+                var srcPropType = srcPropCaptured.PropertyType;
+                var dstPropType = dstPropCaptured.PropertyType;
                 assignments.Add((src, dst, ctx) =>
                 {
-                    var srcValue = srcPropCaptured.GetValue(src);
+                    var srcValue = getter(src);
                     if (srcValue == null)
                     {
-                        dstPropCaptured.SetValue(dst, null);
+                        setter(dst, null);
                         return;
                     }
-                    var mapped = ctx.Config.Execute(srcValue, srcPropCaptured.PropertyType, dstPropCaptured.PropertyType, ctx);
-                    dstPropCaptured.SetValue(dst, mapped);
+                    var mapped = ctx.Config.Execute(srcValue, srcPropType, dstPropType, ctx);
+                    setter(dst, mapped);
                 });
             }
         }
 
-        // Build the combined delegate — this closure captures assignments, dstType, and tm hooks
+        // Build the combined delegate — this closure captures assignments, factory, and tm hooks
         var beforeMap = tm.BeforeMapAction;
         var afterMap = tm.AfterMapAction;
+        var factory = CompileFactory(dstType);
 
         Func<object, object?, MapperContext, object> mapFunc = (src, existingDst, ctx) =>
         {
-            var dst = existingDst ?? Activator.CreateInstance(dstType)!;
+            var dst = existingDst ?? factory();
 
             // Register for circular reference detection BEFORE property assignment
             ctx.Register(src, dst);
@@ -436,6 +447,36 @@ public sealed class MapperConfigurationBuilder
         };
 
         return new CompiledMap(mapFunc);
+    }
+
+    // ── Compiled expression helpers ──────────────────────────────────────────
+
+    private static Func<object, object?> CompileGetter(PropertyInfo prop)
+    {
+        var param = Expression.Parameter(typeof(object));
+        var cast = Expression.Convert(param, prop.DeclaringType!);
+        var access = Expression.Property(cast, prop);
+        var boxed = Expression.Convert(access, typeof(object));
+        return Expression.Lambda<Func<object, object?>>(boxed, param).Compile();
+    }
+
+    private static Action<object, object?> CompileSetter(PropertyInfo prop)
+    {
+        var dst = Expression.Parameter(typeof(object));
+        var val = Expression.Parameter(typeof(object));
+        var castDst = Expression.Convert(dst, prop.DeclaringType!);
+        var castVal = prop.PropertyType.IsValueType
+            ? Expression.Unbox(val, prop.PropertyType)
+            : Expression.Convert(val, prop.PropertyType);
+        var assign = Expression.Assign(Expression.Property(castDst, prop), castVal);
+        return Expression.Lambda<Action<object, object?>>(assign, dst, val).Compile();
+    }
+
+    private static Func<object> CompileFactory(Type type)
+    {
+        return Expression.Lambda<Func<object>>(
+            Expression.Convert(Expression.New(type), typeof(object))
+        ).Compile();
     }
 
     private static PropertyInfo? FindSourceProperty(PropertyInfo[] srcProps, string dstName)

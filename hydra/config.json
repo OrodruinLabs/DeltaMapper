@@ -1,9 +1,9 @@
 {
   "schema_version": 5,
   "mode": "afk",
-  "objective": "Run BenchmarkDotNet suite, populate BENCHMARKS.md with real performance data, add on-demand benchmark CI workflow",
-  "feat_id": "FEAT-007",
-  "feat_display_id": "FEAT-007",
+  "objective": "Performance optimization: source-gen fast path, lazy MapperContext, skip pipeline closure, compiled expression delegates",
+  "feat_id": "FEAT-008",
+  "feat_display_id": "FEAT-008",
   "objectives_history": [
     {
       "objective": "Implement DeltaMapper Phase 1 \u2014 Runtime Core",
@@ -49,7 +49,13 @@
     {
       "objective": "Run BenchmarkDotNet suite, populate BENCHMARKS.md with real performance data",
       "started_at": "2026-03-17T21:30:00Z",
-      "feat_id": "FEAT-007"
+      "feat_id": "FEAT-007",
+      "completed_at": "2026-03-17T22:00:00Z"
+    },
+    {
+      "objective": "Performance optimization: source-gen fast path, lazy MapperContext, compiled expressions",
+      "started_at": "2026-03-17T22:00:00Z",
+      "feat_id": "FEAT-008"
     }
   ],
   "max_iterations": 40,
@@ -156,12 +162,12 @@
     "_prev_done_count": 0
   },
   "branch": {
-    "feature": "feat/FEAT-007-benchmark-results",
+    "feature": "feat/FEAT-008-perf-optimization",
     "base": "master",
     "main_worktree_path": "/Users/josemejia/Documents/Software Development/DeltaMapper",
     "worktree_dir": null,
     "last_task_branch": null,
-    "created_at": "2026-03-17T21:30:00Z",
+    "created_at": "2026-03-17T22:00:00Z",
     "auto_pr_on_complete": true,
     "sparse_paths": null
   },
@@ -172,7 +178,7 @@
     "timeout_minutes": 90,
     "checkpoint_every_n_iterations": 5,
     "auto_commit": true,
-    "commit_prefix": "feat(FEAT-007):"
+    "commit_prefix": "perf(FEAT-008):"
   },
   "context": {
     "budget_strategy": "aggressive",
@@ -223,5 +229,5 @@
   "notifications": {
     "on_complete": "say 'hydra loop complete'"
   },
-  "objective_set_at": "2026-03-17T21:30:00Z"
+  "objective_set_at": "2026-03-17T22:00:00Z"
 }

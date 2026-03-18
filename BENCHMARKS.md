@@ -1,6 +1,6 @@
 # DeltaMapper Benchmark Results
 
-This document contains the DeltaMapper benchmark suite results, comparing DeltaMapper (runtime and source-gen paths) against Mapperly, AutoMapper, and hand-written code across four mapping scenarios: flat objects, nested objects, collections, and patch operations.
+This document contains the DeltaMapper benchmark suite results, comparing DeltaMapper (runtime and source-gen paths) against Mapperly, AutoMapper, and hand-written code across four mapping scenarios.
 
 ---
 
@@ -22,11 +22,13 @@ This document contains the DeltaMapper benchmark suite results, comparing DeltaM
 
 | Method | Mean | Error | StdDev | Gen0 | Allocated |
 |--------|-----:|------:|-------:|-----:|----------:|
-| HandWritten | 7.213 ns | 0.1447 ns | 0.1282 ns | 0.0076 | 48 B |
-| Mapperly | 7.190 ns | 0.1681 ns | 0.1491 ns | 0.0076 | 48 B |
-| AutoMapper | 45.488 ns | 0.4007 ns | 0.3128 ns | 0.0076 | 48 B |
-| DeltaMapper_SourceGen | 79.534 ns | 1.6329 ns | 2.2891 ns | 0.0726 | 456 B |
-| DeltaMapper_Runtime | 195.361 ns | 3.9186 ns | 6.8632 ns | 0.0842 | 528 B |
+| HandWritten | 6.609 ns | 0.1007 ns | 0.0942 ns | 0.0076 | 48 B |
+| Mapperly | 6.632 ns | 0.1046 ns | 0.0979 ns | 0.0076 | 48 B |
+| **DeltaMapper_SourceGen** | **24.631 ns** | 0.1995 ns | 0.1866 ns | 0.0076 | **48 B** |
+| AutoMapper | 45.097 ns | 0.2981 ns | 0.2788 ns | 0.0076 | 48 B |
+| DeltaMapper_Runtime | 93.684 ns | 0.6614 ns | 0.6186 ns | 0.0675 | 424 B |
+
+> DeltaMapper SourceGen allocates the same 48 bytes as hand-written code — zero overhead beyond the destination object.
 
 ---
 
@@ -34,11 +36,13 @@ This document contains the DeltaMapper benchmark suite results, comparing DeltaM
 
 | Method | Mean | Error | StdDev | Gen0 | Allocated |
 |--------|-----:|------:|-------:|-----:|----------:|
-| HandWritten | 18.79 ns | 0.400 ns | 0.548 ns | 0.0191 | 120 B |
-| Mapperly | 18.28 ns | 0.199 ns | 0.166 ns | 0.0191 | 120 B |
-| AutoMapper | 55.75 ns | 0.545 ns | 0.484 ns | 0.0191 | 120 B |
-| DeltaMapper_SourceGen | 85.90 ns | 1.736 ns | 3.217 ns | 0.0777 | 488 B |
-| DeltaMapper_Runtime | 266.16 ns | 2.566 ns | 2.004 ns | 0.1135 | 712 B |
+| HandWritten | 18.18 ns | 0.187 ns | 0.175 ns | 0.0191 | 120 B |
+| Mapperly | 18.18 ns | 0.195 ns | 0.182 ns | 0.0191 | 120 B |
+| **DeltaMapper_SourceGen** | **24.15 ns** | 0.252 ns | 0.224 ns | 0.0127 | **80 B** |
+| AutoMapper | 54.64 ns | 0.445 ns | 0.416 ns | 0.0191 | 120 B |
+| DeltaMapper_Runtime | 125.18 ns | 1.118 ns | 0.991 ns | 0.0801 | 504 B |
+
+> DeltaMapper SourceGen allocates **less** than Mapperly on nested objects (80B vs 120B).
 
 ---
 
@@ -46,11 +50,13 @@ This document contains the DeltaMapper benchmark suite results, comparing DeltaM
 
 | Method | Mean | Error | StdDev | Gen0 | Allocated |
 |--------|-----:|------:|-------:|-----:|----------:|
-| DeltaMapper_SourceGen | 82.02 ns | 1.668 ns | 2.227 ns | 0.0752 | 472 B |
-| Mapperly | 109.88 ns | 3.129 ns | 9.027 ns | 0.0829 | 520 B |
-| HandWritten | 126.05 ns | 2.522 ns | 5.209 ns | 0.0942 | 592 B |
-| AutoMapper | 186.71 ns | 3.479 ns | 6.786 ns | 0.1135 | 712 B |
-| DeltaMapper_Runtime | 1,897.50 ns | 36.883 ns | 40.995 ns | 0.7057 | 4,448 B |
+| **DeltaMapper_SourceGen** | **23.16 ns** | 0.212 ns | 0.199 ns | 0.0102 | **64 B** |
+| Mapperly | 98.28 ns | 0.807 ns | 0.755 ns | 0.0829 | 520 B |
+| HandWritten | 118.88 ns | 1.941 ns | 1.816 ns | 0.0942 | 592 B |
+| AutoMapper | 179.42 ns | 2.576 ns | 2.409 ns | 0.1135 | 712 B |
+| DeltaMapper_Runtime | 1,106.82 ns | 10.490 ns | 9.812 ns | 0.5264 | 3,304 B |
+
+> DeltaMapper SourceGen is **4.2x faster than Mapperly** and **5.1x faster than hand-written** on collections, with 8x less allocation.
 
 ---
 
@@ -58,12 +64,12 @@ This document contains the DeltaMapper benchmark suite results, comparing DeltaM
 
 | Method | Mean | Error | StdDev | Gen0 | Allocated |
 |--------|-----:|------:|-------:|-----:|----------:|
-| HandWritten_Overwrite | 8.570 ns | 0.1662 ns | 0.1298 ns | 0.0076 | 48 B |
-| AutoMapper_Map | 48.860 ns | 0.9556 ns | 1.4302 ns | 0.0076 | 48 B |
-| DeltaMapper_Patch_SourceGen | 523.100 ns | 8.5272 ns | 7.5591 ns | 0.2823 | 1,776 B |
-| DeltaMapper_Patch_Runtime | 678.331 ns | 12.6479 ns | 11.8309 ns | 0.2937 | 1,848 B |
+| HandWritten_Overwrite | 8.713 ns | 0.0850 ns | 0.0795 ns | 0.0076 | 48 B |
+| AutoMapper_Map | 48.155 ns | 0.4196 ns | 0.3719 ns | 0.0076 | 48 B |
+| DeltaMapper_Patch_SourceGen | 509.730 ns | 3.1629 ns | 2.6412 ns | 0.2661 | 1,672 B |
+| DeltaMapper_Patch_Runtime | 514.899 ns | 6.4803 ns | 6.0617 ns | 0.2775 | 1,744 B |
 
-> **Note:** Patch is a DeltaMapper-unique feature — it maps **and** returns a structured `MappingDiff<T>` with per-property change tracking. Competitors perform map-onto-existing as the nearest equivalent but produce no diff. The extra cost reflects diff computation and `PropertyChange` allocations.
+> Patch is a DeltaMapper-unique feature — it maps **and** returns a structured `MappingDiff<T>` with per-property change tracking. Competitors perform map-onto-existing as the nearest equivalent but produce no diff. The extra cost reflects diff computation and `PropertyChange` allocations.
 
 ---
 

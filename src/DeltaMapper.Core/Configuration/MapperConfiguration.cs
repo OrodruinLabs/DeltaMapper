@@ -13,13 +13,16 @@ public sealed class MapperConfiguration
 {
     private readonly FrozenDictionary<(Type, Type), CompiledMap> _registry;
     private readonly MappingPipeline _pipeline;
+    private readonly bool _hasMiddleware;
 
     private MapperConfiguration(
         FrozenDictionary<(Type, Type), CompiledMap> registry,
-        MappingPipeline pipeline)
+        MappingPipeline pipeline,
+        bool hasMiddleware)
     {
         _registry = registry;
         _pipeline = pipeline;
+        _hasMiddleware = hasMiddleware;
     }
 
     /// <summary>
@@ -30,6 +33,7 @@ public sealed class MapperConfiguration
     {
         _registry = new Dictionary<(Type, Type), CompiledMap>().ToFrozenDictionary();
         _pipeline = new MappingPipeline([]);
+        _hasMiddleware = false;
     }
 
     /// <summary>
@@ -47,13 +51,19 @@ public sealed class MapperConfiguration
     /// </summary>
     public IMapper CreateMapper() => new Mapper(this);
 
+    internal bool HasMiddleware => _hasMiddleware;
+
     internal object Execute(object source, Type srcType, Type dstType, MapperContext ctx)
     {
+        if (!_hasMiddleware)
+            return ExecuteCore(source, srcType, dstType, ctx, null);
         return _pipeline.Execute(source, dstType, ctx, () => ExecuteCore(source, srcType, dstType, ctx, null));
     }
 
     internal object Execute(object source, Type srcType, Type dstType, MapperContext ctx, object? existingDest)
     {
+        if (!_hasMiddleware)
+            return ExecuteCore(source, srcType, dstType, ctx, existingDest);
         return _pipeline.Execute(source, dstType, ctx, () => ExecuteCore(source, srcType, dstType, ctx, existingDest));
     }
 
@@ -91,6 +101,6 @@ public sealed class MapperConfiguration
         IReadOnlyList<IMappingMiddleware> middlewares)
     {
         var frozen = maps.ToFrozenDictionary();
-        return new MapperConfiguration(frozen, new MappingPipeline(middlewares));
+        return new MapperConfiguration(frozen, new MappingPipeline(middlewares), middlewares.Count > 0);
     }
 }
