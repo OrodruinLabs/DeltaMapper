@@ -146,7 +146,75 @@ public class EnumMappingTests
             .WithMessage("*non-nullable*");
     }
     [Fact]
-    public void Enum08_MapsNonNullableToNullableSameEnum()
+    public void Enum08_MapsFlagsEnumCompositeByName()
+    {
+        var mapper = MapperConfiguration.Create(cfg =>
+            cfg.AddProfile(new FlagsEnumProfile()))
+            .CreateMapper();
+
+        var source = new FlagsEnumSource { Permissions = SourcePermissions.Read | SourcePermissions.Write };
+        var dest = mapper.Map<FlagsEnumSource, FlagsEnumDest>(source);
+
+        dest.Permissions.Should().Be(DestPermissions.Read | DestPermissions.Write);
+    }
+
+    [Fact]
+    public void Enum09_MapsFlagsEnumSingleValue()
+    {
+        var mapper = MapperConfiguration.Create(cfg =>
+            cfg.AddProfile(new FlagsEnumProfile()))
+            .CreateMapper();
+
+        var source = new FlagsEnumSource { Permissions = SourcePermissions.Execute };
+        var dest = mapper.Map<FlagsEnumSource, FlagsEnumDest>(source);
+
+        dest.Permissions.Should().Be(DestPermissions.Execute);
+    }
+
+    [Fact]
+    public void Enum10_MapsEnumViaConstructorPath()
+    {
+        var mapper = MapperConfiguration.Create(cfg =>
+            cfg.AddProfile(new RecordEnumProfile()))
+            .CreateMapper();
+
+        var source = new EnumSource { Id = 1, Status = SourceStatus.Pending };
+        var dest = mapper.Map<EnumSource, EnumRecordDest>(source);
+
+        dest.Id.Should().Be(1);
+        dest.Status.Should().Be(DestStatus.Pending);
+    }
+
+    [Fact]
+    public void Enum11_MapsNullableEnumViaConstructorPath()
+    {
+        var mapper = MapperConfiguration.Create(cfg =>
+            cfg.AddProfile(new NullableRecordEnumProfile()))
+            .CreateMapper();
+
+        var source = new NullableEnumSource { Id = 1, Status = SourceStatus.Active };
+        var dest = mapper.Map<NullableEnumSource, NullableEnumRecordDest>(source);
+
+        dest.Status.Should().Be(DestStatus.Active);
+    }
+
+    [Fact]
+    public void Enum12_ThrowsNullToNonNullableEnumViaConstructorPath()
+    {
+        var mapper = MapperConfiguration.Create(cfg =>
+            cfg.AddProfile(new NullableToNonNullRecordEnumProfile()))
+            .CreateMapper();
+
+        var source = new NullableEnumSource { Id = 1, Status = null };
+
+        var act = () => mapper.Map<NullableEnumSource, EnumRecordDest>(source);
+
+        act.Should().Throw<InvalidOperationException>()
+            .WithMessage("*non-nullable*");
+    }
+
+    [Fact]
+    public void Enum13_MapsNonNullableToNullableSameEnum()
     {
         var mapper = MapperConfiguration.Create(cfg =>
             cfg.AddProfile(new SameEnumNonNullToNullableProfile()))
@@ -159,7 +227,7 @@ public class EnumMappingTests
     }
 
     [Fact]
-    public void Enum09_MapsNullableToNonNullableSameEnumWithValue()
+    public void Enum14_MapsNullableToNonNullableSameEnumWithValue()
     {
         var mapper = MapperConfiguration.Create(cfg =>
             cfg.AddProfile(new SameEnumNullableToNonNullProfile()))
@@ -172,7 +240,7 @@ public class EnumMappingTests
     }
 
     [Fact]
-    public void Enum10_ThrowsNullableToNonNullableSameEnumNull()
+    public void Enum15_ThrowsNullableToNonNullableSameEnumNull()
     {
         var mapper = MapperConfiguration.Create(cfg =>
             cfg.AddProfile(new SameEnumNullableToNonNullProfile()))
@@ -208,6 +276,41 @@ file class NullableToNonNullableEnumProfile : MappingProfile
 {
     public NullableToNonNullableEnumProfile() => CreateMap<NullableEnumSource, EnumDest>();
 }
+
+// ── [Flags] enum models ───────────────────────────────────────────
+
+[Flags] public enum SourcePermissions { None = 0, Read = 1, Write = 2, Execute = 4 }
+[Flags] public enum DestPermissions { None = 0, Read = 1, Write = 2, Execute = 4 }
+
+public class FlagsEnumSource { public SourcePermissions Permissions { get; set; } }
+public class FlagsEnumDest { public DestPermissions Permissions { get; set; } }
+
+file class FlagsEnumProfile : MappingProfile
+{
+    public FlagsEnumProfile() => CreateMap<FlagsEnumSource, FlagsEnumDest>();
+}
+
+// ── Record/init-only enum models ──────────────────────────────────
+
+public record EnumRecordDest(int Id, DestStatus Status);
+public record NullableEnumRecordDest(int Id, DestStatus? Status);
+
+file class RecordEnumProfile : MappingProfile
+{
+    public RecordEnumProfile() => CreateMap<EnumSource, EnumRecordDest>();
+}
+
+file class NullableRecordEnumProfile : MappingProfile
+{
+    public NullableRecordEnumProfile() => CreateMap<NullableEnumSource, NullableEnumRecordDest>();
+}
+
+file class NullableToNonNullRecordEnumProfile : MappingProfile
+{
+    public NullableToNonNullRecordEnumProfile() => CreateMap<NullableEnumSource, EnumRecordDest>();
+}
+
+// ── Mismatch models ──────────────────────────────────────────────
 
 public enum MismatchedStatus { Active, Unknown }
 public class MismatchedEnumSource { public int Id { get; set; } public MismatchedStatus Status { get; set; } }

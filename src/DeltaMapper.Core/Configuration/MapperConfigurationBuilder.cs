@@ -541,12 +541,30 @@ public sealed class MapperConfigurationBuilder
             return null;
         }
 
-        var name = Enum.GetName(value.GetType(), value);
-        if (name == null || !Enum.IsDefined(dstEnumType, name))
-            throw new InvalidOperationException(
-                $"Cannot map enum value '{value}' from '{value.GetType().Name}' to '{dstEnumType.Name}'. No matching name found.");
+        var srcEnumType = value.GetType();
+        var name = Enum.GetName(srcEnumType, value);
+        if (name != null)
+        {
+            if (!Enum.IsDefined(dstEnumType, name))
+                throw new InvalidOperationException(
+                    $"Cannot map enum value '{value}' from '{srcEnumType.Name}' to '{dstEnumType.Name}'. No matching name found.");
+            return Enum.Parse(dstEnumType, name);
+        }
 
-        return Enum.Parse(dstEnumType, name);
+        // [Flags] composite: Enum.GetName returns null, but ToString() yields "A, B"
+        var composite = value.ToString();
+        if (string.IsNullOrWhiteSpace(composite) || long.TryParse(composite, out _))
+            throw new InvalidOperationException(
+                $"Cannot map enum value '{value}' from '{srcEnumType.Name}' to '{dstEnumType.Name}'. No matching name found.");
+
+        foreach (var part in composite.Split(',', StringSplitOptions.TrimEntries))
+        {
+            if (!Enum.IsDefined(dstEnumType, part))
+                throw new InvalidOperationException(
+                    $"Cannot map enum value '{value}' from '{srcEnumType.Name}' to '{dstEnumType.Name}'. No matching name found.");
+        }
+
+        return Enum.Parse(dstEnumType, composite);
     }
 
     private static bool IsEnumMapping(Type srcType, Type dstType)
