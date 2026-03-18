@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Reflection;
 using DeltaMapper.Abstractions;
 using DeltaMapper.Configuration;
@@ -13,6 +14,7 @@ public sealed class Mapper : IMapper
 {
     private readonly MapperConfiguration _config;
     private readonly bool _fastPathEnabled;
+    private readonly ConcurrentDictionary<(Type, Type), object?> _factoryCache = new();
 
     internal Mapper(MapperConfiguration config)
     {
@@ -33,12 +35,21 @@ public sealed class Mapper : IMapper
     {
         ArgumentNullException.ThrowIfNull(source);
 
-        // Fast path: source-gen factory, no middleware, no compiled profile override.
-        // Bypasses MapperContext creation, pipeline, and Activator entirely.
-        if (_fastPathEnabled
-            && !_config.HasMap(typeof(TSource), typeof(TDestination))
-            && GeneratedMapRegistry.TryGetFactory<TSource, TDestination>(out var factory))
-            return factory!(source);
+        // Fast path: cached routing decision — ONE dictionary lookup after first call.
+        if (_fastPathEnabled)
+        {
+            var key = (typeof(TSource), typeof(TDestination));
+            if (!_factoryCache.TryGetValue(key, out var cached))
+            {
+                cached = !_config.HasMap(key.Item1, key.Item2)
+                    && GeneratedMapRegistry.TryGetFactory<TSource, TDestination>(out var f)
+                    ? (object)f : null;
+                _factoryCache[key] = cached;
+            }
+
+            if (cached is Func<TSource, TDestination> factory)
+                return factory(source);
+        }
 
         var ctx = new MapperContext(_config);
         return (TDestination)_config.Execute(source, typeof(TSource), typeof(TDestination), ctx);
