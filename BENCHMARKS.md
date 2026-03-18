@@ -43,7 +43,7 @@ This document contains the DeltaMapper benchmark suite results, comparing DeltaM
 | AutoMapper | 54.93 ns | 1.083 ns | 0.905 ns | 0.0191 | 120 B |
 | DeltaMapper_Runtime | 137.92 ns | 2.692 ns | 3.100 ns | 0.0801 | 504 B |
 
-> DeltaMapper SourceGen allocates **less** than Mapperly on nested objects (80B vs 120B) and is within 3ns.
+> DeltaMapper SourceGen allocates **less** than Mapperly on nested objects (80B vs 120B) and is within 3 ns.
 
 ---
 

@@ -101,7 +101,11 @@ using System.Linq;
 {indent}    /// Maps <see cref=""{srcFullName}""/> to <see cref=""{dstFullName}""/> with zero overhead.
 {indent}    /// Call directly for maximum performance (bypasses IMapper pipeline).
 {indent}    /// </summary>
-{indent}    public static {dstFullName} {publicName}({srcFullName} src) => {methodName}(src);
+{indent}    public static {dstFullName} {publicName}({srcFullName} src)
+{indent}    {{
+{indent}        System.ArgumentNullException.ThrowIfNull(src);
+{indent}        return {methodName}(src);
+{indent}    }}
 {indent}}}{nsClose}
 ";
             }
@@ -124,7 +128,11 @@ using System.Linq;
 {indent}    /// Maps <see cref=""{srcFullName}""/> to <see cref=""{dstFullName}""/> with zero overhead.
 {indent}    /// Call directly for maximum performance (bypasses IMapper pipeline).
 {indent}    /// </summary>
-{indent}    public static {dstFullName} {publicName}({srcFullName} src) => {methodName}(src);
+{indent}    public static {dstFullName} {publicName}({srcFullName} src)
+{indent}    {{
+{indent}        System.ArgumentNullException.ThrowIfNull(src);
+{indent}        return {methodName}(src);
+{indent}    }}
 {indent}}}{nsClose}
 ";
         }
@@ -136,7 +144,7 @@ using System.Linq;
         private static string? TryBuildInitializerLines(
             INamedTypeSymbol src,
             INamedTypeSymbol dst,
-            IReadOnlyList<(INamedTypeSymbol Src, INamedTypeSymbol Dst)> knownPairs)
+            IReadOnlyList<(INamedTypeSymbol Src, INamedTypeSymbol Dst)> _)
         {
             var srcProps = GetReadablePropertiesWithSymbol(src);
             var dstProps = GetWritablePropertiesWithSymbol(dst);
