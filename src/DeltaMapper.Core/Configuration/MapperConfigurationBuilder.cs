@@ -37,6 +37,30 @@ public sealed class MapperConfigurationBuilder
     }
 
     /// <summary>
+    /// Scans the specified assembly for all concrete MappingProfile subclasses
+    /// with parameterless constructors and adds them to the configuration.
+    /// </summary>
+    public MapperConfigurationBuilder AddProfilesFromAssembly(Assembly assembly)
+    {
+        ArgumentNullException.ThrowIfNull(assembly);
+        var profileTypes = assembly.GetTypes()
+            .Where(t => t.IsSubclassOf(typeof(MappingProfile))
+                      && !t.IsAbstract
+                      && t.GetConstructor(Type.EmptyTypes) != null);
+        foreach (var type in profileTypes)
+            _profiles.Add((MappingProfile)Activator.CreateInstance(type)!);
+        return this;
+    }
+
+    /// <summary>
+    /// Scans the assembly containing <typeparamref name="T"/> for all concrete MappingProfile subclasses.
+    /// </summary>
+    public MapperConfigurationBuilder AddProfilesFromAssemblyContaining<T>()
+    {
+        return AddProfilesFromAssembly(typeof(T).Assembly);
+    }
+
+    /// <summary>
     /// Registers a middleware component in the mapping pipeline.
     /// </summary>
     public MapperConfigurationBuilder Use<TMiddleware>() where TMiddleware : IMappingMiddleware, new()
