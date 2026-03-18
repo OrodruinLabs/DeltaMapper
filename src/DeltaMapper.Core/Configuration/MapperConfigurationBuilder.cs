@@ -211,6 +211,51 @@ public sealed class MapperConfigurationBuilder
                     setter(dst, resolved);
                 });
             }
+            else if (IsDictionaryMapping(srcPropCaptured.PropertyType, dstPropCaptured.PropertyType,
+                         out var srcKeyType, out var srcValType, out var dstKeyType, out var dstValType))
+            {
+                // Dictionary mapping — clone with value mapping if needed
+                var getter = CompileGetter(srcPropCaptured);
+                var setter = CompileSetter(dstPropCaptured);
+                var sKey = srcKeyType!; var sVal = srcValType!;
+                var dKey = dstKeyType!; var dVal = dstValType!;
+                // Use concrete destination type if it's a constructible dictionary, else default to Dictionary<,>
+                var dstPropType = dstPropCaptured.PropertyType;
+                var dstDictType = dstPropType.IsClass && !dstPropType.IsAbstract && dstPropType.GetConstructor(Type.EmptyTypes) != null
+                    ? dstPropType
+                    : typeof(Dictionary<,>).MakeGenericType(dKey, dVal);
+                // Compiled KVP accessors for hot-path performance
+                var kvpType = typeof(KeyValuePair<,>).MakeGenericType(sKey, sVal);
+                var kvpKeyGetter = CompileKvpAccessor(kvpType, "Key");
+                var kvpValGetter = CompileKvpAccessor(kvpType, "Value");
+                var keyAssignable = IsDirectlyAssignable(sKey, dKey);
+                var valAssignable = IsDirectlyAssignable(sVal, dVal);
+                var dValIsNullable = !dVal.IsValueType || Nullable.GetUnderlyingType(dVal) != null;
+                assignments.Add((src, dst, ctx) =>
+                {
+                    var srcDict = getter(src);
+                    if (srcDict == null) { setter(dst, null); return; }
+
+                    var newDict = (System.Collections.IDictionary)Activator.CreateInstance(dstDictType)!;
+                    foreach (var kvp in (System.Collections.IEnumerable)srcDict)
+                    {
+                        var entryKey = kvpKeyGetter(kvp)!;
+                        var entryVal = kvpValGetter(kvp);
+                        var key = keyAssignable ? entryKey : ctx.Config.Execute(entryKey, sKey, dKey, ctx);
+                        if (entryVal == null)
+                        {
+                            if (!dValIsNullable)
+                                throw new DeltaMapperException(
+                                    $"Cannot map null dictionary value to non-nullable type '{dVal.Name}' for key '{entryKey}'.");
+                            newDict[key] = null;
+                            continue;
+                        }
+                        var val = valAssignable ? entryVal : ctx.Config.Execute(entryVal, sVal, dVal, ctx);
+                        newDict[key] = val;
+                    }
+                    setter(dst, newDict);
+                });
+            }
             else if (IsCollectionMapping(srcPropCaptured.PropertyType, dstPropCaptured.PropertyType,
                          out var srcElementType, out var dstElementType))
             {
@@ -543,6 +588,15 @@ public sealed class MapperConfigurationBuilder
         return Expression.Lambda<Func<object, object?>>(boxed, param).Compile();
     }
 
+    private static Func<object, object?> CompileKvpAccessor(Type kvpType, string propertyName)
+    {
+        var param = Expression.Parameter(typeof(object));
+        var cast = Expression.Convert(param, kvpType);
+        var access = Expression.Property(cast, propertyName);
+        var boxed = Expression.Convert(access, typeof(object));
+        return Expression.Lambda<Func<object, object?>>(boxed, param).Compile();
+    }
+
     private static Action<object, object?> CompileSetter(PropertyInfo prop)
     {
         var dst = Expression.Parameter(typeof(object));
@@ -606,8 +660,6 @@ public sealed class MapperConfigurationBuilder
         var name = Enum.GetName(srcEnumType, value);
         if (name != null)
         {
-            // Check if the single name exists on dest; if not and source is [Flags],
-            // it may be an alias (e.g. ReadWrite = Read|Write) — fall through to composite path
             if (dstNames.Contains(name))
                 return Enum.Parse(dstEnumType, name);
 
@@ -615,11 +667,9 @@ public sealed class MapperConfigurationBuilder
                 throw new DeltaMapperException(
                     $"Cannot map enum value '{value}' from '{srcEnumType.Name}' to '{dstEnumType.Name}'. No matching name found.");
 
-            // Alias name (e.g. ReadWrite = Read|Write) — decompose to individual flags
             return DecomposeFlagsAndMap(value, srcEnumType, dstNames, dstEnumType);
         }
 
-        // [Flags] composite: ToString() yields "A, B"
         var composite = value.ToString();
         if (string.IsNullOrWhiteSpace(composite) || long.TryParse(composite, out _))
             throw new DeltaMapperException(
@@ -641,7 +691,6 @@ public sealed class MapperConfigurationBuilder
         var remaining = ToUInt64(value);
         List<string> parts = [];
 
-        // Cached (name, value) pairs sorted descending by value for greedy matching
         var members = GetOrCreateEnumMembers(srcEnumType);
 
         foreach (var (name, memberValue) in members)
@@ -661,8 +710,6 @@ public sealed class MapperConfigurationBuilder
 
     private static ulong ToUInt64(object enumValue)
     {
-        // GetTypeCode on an enum type returns TypeCode.Object,
-        // so resolve the underlying integral type first
         var underlyingType = Enum.GetUnderlyingType(enumValue.GetType());
         return Type.GetTypeCode(underlyingType) switch
         {
@@ -690,6 +737,46 @@ public sealed class MapperConfigurationBuilder
         var srcUnderlying = Nullable.GetUnderlyingType(srcType) ?? srcType;
         var dstUnderlying = Nullable.GetUnderlyingType(dstType) ?? dstType;
         return srcUnderlying.IsEnum && dstUnderlying.IsEnum && srcUnderlying != dstUnderlying;
+    }
+
+    private static bool IsDictionaryMapping(Type srcType, Type dstType,
+        out Type? srcKey, out Type? srcVal, out Type? dstKey, out Type? dstVal)
+    {
+        srcKey = srcVal = dstKey = dstVal = null;
+        var srcDict = GetDictionaryTypes(srcType);
+        var dstDict = GetDictionaryTypes(dstType);
+        if (srcDict == null || dstDict == null) return false;
+        srcKey = srcDict.Value.Key; srcVal = srcDict.Value.Value;
+        dstKey = dstDict.Value.Key; dstVal = dstDict.Value.Value;
+        return true;
+    }
+
+    private static (Type Key, Type Value)? GetDictionaryTypes(Type type)
+    {
+        // Check the type itself
+        if (type.IsGenericType)
+        {
+            var genDef = type.GetGenericTypeDefinition();
+            if (genDef == typeof(Dictionary<,>) || genDef == typeof(IDictionary<,>) || genDef == typeof(IReadOnlyDictionary<,>))
+            {
+                var args = type.GetGenericArguments();
+                return (args[0], args[1]);
+            }
+        }
+
+        // Scan implemented interfaces for IDictionary<,> or IReadOnlyDictionary<,>
+        foreach (var iface in type.GetInterfaces())
+        {
+            if (!iface.IsGenericType) continue;
+            var ifaceDef = iface.GetGenericTypeDefinition();
+            if (ifaceDef == typeof(IDictionary<,>) || ifaceDef == typeof(IReadOnlyDictionary<,>))
+            {
+                var args = iface.GetGenericArguments();
+                return (args[0], args[1]);
+            }
+        }
+
+        return null;
     }
 
     /// <summary>
