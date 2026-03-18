@@ -1,5 +1,6 @@
 using DeltaMapper.Abstractions;
 using DeltaMapper.Configuration;
+using DeltaMapper.Exceptions;
 using FluentAssertions;
 using Xunit;
 
@@ -179,6 +180,48 @@ public class DictionaryMappingTests
         dest.Tags.Should().BeEquivalentTo(source.Tags);
         dest.Tags.Should().NotBeSameAs(source.Tags); // cloned, not reference-shared
     }
+
+    [Fact]
+    public void Dict09_MapsDictionaryWithMappedKeyTypes()
+    {
+        var mapper = MapperConfiguration.Create(cfg =>
+        {
+            cfg.AddProfile(new DictKeyMappingProfile());
+        }).CreateMapper();
+
+        var source = new DictKeyMappingSource
+        {
+            Items = new Dictionary<DictChildSource, int>
+            {
+                [new() { Name = "k1" }] = 10
+            }
+        };
+
+        var dest = mapper.Map<DictKeyMappingSource, DictKeyMappingDest>(source);
+
+        dest.Items.Should().HaveCount(1);
+        dest.Items.Keys.First().Name.Should().Be("k1");
+        dest.Items.Values.First().Should().Be(10);
+    }
+
+    [Fact]
+    public void Dict10_ThrowsOnNullValueToNonNullableValueType()
+    {
+        var mapper = MapperConfiguration.Create(cfg =>
+        {
+            cfg.AddProfile(new DictNullableToNonNullProfile());
+        }).CreateMapper();
+
+        var source = new DictNullableValSource
+        {
+            Data = new Dictionary<string, int?> { ["a"] = null }
+        };
+
+        var act = () => mapper.Map<DictNullableValSource, DictNonNullValDest>(source);
+
+        act.Should().Throw<DeltaMapperException>()
+            .WithMessage("*non-nullable*");
+    }
 }
 
 // ── Complex value type models ─────────────────────────────────────
@@ -216,4 +259,28 @@ public class DictCloneDest { public Dictionary<string, int> Tags { get; set; } =
 file class DictCloneProfile : MappingProfile
 {
     public DictCloneProfile() => CreateMap<DictCloneSource, DictCloneDest>();
+}
+
+// ── Key mapping models ────────────────────────────────────────────
+
+public class DictKeyMappingSource { public Dictionary<DictChildSource, int> Items { get; set; } = new(); }
+public class DictKeyMappingDest { public Dictionary<DictChildDest, int> Items { get; set; } = new(); }
+
+file class DictKeyMappingProfile : MappingProfile
+{
+    public DictKeyMappingProfile()
+    {
+        CreateMap<DictChildSource, DictChildDest>();
+        CreateMap<DictKeyMappingSource, DictKeyMappingDest>();
+    }
+}
+
+// ── Null value to non-nullable models ─────────────────────────────
+
+public class DictNullableValSource { public Dictionary<string, int?> Data { get; set; } = new(); }
+public class DictNonNullValDest { public Dictionary<string, int> Data { get; set; } = new(); }
+
+file class DictNullableToNonNullProfile : MappingProfile
+{
+    public DictNullableToNonNullProfile() => CreateMap<DictNullableValSource, DictNonNullValDest>();
 }

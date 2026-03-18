@@ -219,13 +219,18 @@ public sealed class MapperConfigurationBuilder
                 var setter = CompileSetter(dstPropCaptured);
                 var sKey = srcKeyType!; var sVal = srcValType!;
                 var dKey = dstKeyType!; var dVal = dstValType!;
-                var dstDictType = typeof(Dictionary<,>).MakeGenericType(dKey, dVal);
-                // Build typed enumeration via KeyValuePair<,> to support IReadOnlyDictionary and others
+                // Use concrete destination type if it's a constructible dictionary, else default to Dictionary<,>
+                var dstPropType = dstPropCaptured.PropertyType;
+                var dstDictType = dstPropType.IsClass && !dstPropType.IsAbstract && dstPropType.GetConstructor(Type.EmptyTypes) != null
+                    ? dstPropType
+                    : typeof(Dictionary<,>).MakeGenericType(dKey, dVal);
+                // Compiled KVP accessors for hot-path performance
                 var kvpType = typeof(KeyValuePair<,>).MakeGenericType(sKey, sVal);
-                var keyProp = kvpType.GetProperty("Key")!;
-                var valueProp = kvpType.GetProperty("Value")!;
+                var kvpKeyGetter = CompileKvpAccessor(kvpType, "Key");
+                var kvpValGetter = CompileKvpAccessor(kvpType, "Value");
                 var keyAssignable = IsDirectlyAssignable(sKey, dKey);
                 var valAssignable = IsDirectlyAssignable(sVal, dVal);
+                var dValIsNullable = !dVal.IsValueType || Nullable.GetUnderlyingType(dVal) != null;
                 assignments.Add((src, dst, ctx) =>
                 {
                     var srcDict = getter(src);
@@ -234,12 +239,18 @@ public sealed class MapperConfigurationBuilder
                     var newDict = (System.Collections.IDictionary)Activator.CreateInstance(dstDictType)!;
                     foreach (var kvp in (System.Collections.IEnumerable)srcDict)
                     {
-                        var entryKey = keyProp.GetValue(kvp)!;
-                        var entryVal = valueProp.GetValue(kvp);
+                        var entryKey = kvpKeyGetter(kvp)!;
+                        var entryVal = kvpValGetter(kvp);
                         var key = keyAssignable ? entryKey : ctx.Config.Execute(entryKey, sKey, dKey, ctx);
-                        var val = entryVal == null ? null
-                            : valAssignable ? entryVal
-                            : ctx.Config.Execute(entryVal, sVal, dVal, ctx);
+                        if (entryVal == null)
+                        {
+                            if (!dValIsNullable)
+                                throw new DeltaMapperException(
+                                    $"Cannot map null dictionary value to non-nullable type '{dVal.Name}' for key '{entryKey}'.");
+                            newDict[key] = null;
+                            continue;
+                        }
+                        var val = valAssignable ? entryVal : ctx.Config.Execute(entryVal, sVal, dVal, ctx);
                         newDict[key] = val;
                     }
                     setter(dst, newDict);
@@ -573,6 +584,15 @@ public sealed class MapperConfigurationBuilder
         var param = Expression.Parameter(typeof(object));
         var cast = Expression.Convert(param, prop.DeclaringType!);
         var access = Expression.Property(cast, prop);
+        var boxed = Expression.Convert(access, typeof(object));
+        return Expression.Lambda<Func<object, object?>>(boxed, param).Compile();
+    }
+
+    private static Func<object, object?> CompileKvpAccessor(Type kvpType, string propertyName)
+    {
+        var param = Expression.Parameter(typeof(object));
+        var cast = Expression.Convert(param, kvpType);
+        var access = Expression.Property(cast, propertyName);
         var boxed = Expression.Convert(access, typeof(object));
         return Expression.Lambda<Func<object, object?>>(boxed, param).Compile();
     }
