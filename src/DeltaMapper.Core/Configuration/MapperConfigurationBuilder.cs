@@ -46,6 +46,8 @@ public sealed class MapperConfigurationBuilder
         var profileTypes = assembly.GetTypes()
             .Where(t => t.IsSubclassOf(typeof(MappingProfile))
                       && !t.IsAbstract
+                      && !t.IsGenericTypeDefinition
+                      && !t.ContainsGenericParameters
                       && t.GetConstructor(Type.EmptyTypes) != null);
         foreach (var type in profileTypes)
             _profiles.Add((MappingProfile)Activator.CreateInstance(type)!);
