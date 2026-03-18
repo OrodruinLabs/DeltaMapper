@@ -12,8 +12,13 @@ namespace DeltaMapper.Runtime;
 public sealed class Mapper : IMapper
 {
     private readonly MapperConfiguration _config;
+    private readonly bool _fastPathEnabled;
 
-    internal Mapper(MapperConfiguration config) => _config = config;
+    internal Mapper(MapperConfiguration config)
+    {
+        _config = config;
+        _fastPathEnabled = !config.HasMiddleware;
+    }
 
     /// <inheritdoc />
     public TDestination Map<TDestination>(object source)
@@ -27,6 +32,14 @@ public sealed class Mapper : IMapper
     public TDestination Map<TSource, TDestination>(TSource source)
     {
         ArgumentNullException.ThrowIfNull(source);
+
+        // Fast path: source-gen factory, no middleware, no compiled profile override.
+        // Bypasses MapperContext creation, pipeline, and Activator entirely.
+        if (_fastPathEnabled
+            && !_config.HasMap(typeof(TSource), typeof(TDestination))
+            && GeneratedMapRegistry.TryGetFactory<TSource, TDestination>(out var factory))
+            return factory!(source);
+
         var ctx = new MapperContext(_config);
         return (TDestination)_config.Execute(source, typeof(TSource), typeof(TDestination), ctx);
     }

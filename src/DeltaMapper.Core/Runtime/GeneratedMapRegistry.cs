@@ -14,6 +14,9 @@ public static class GeneratedMapRegistry
     // Boxed Action<object,object> wrappers keyed the same way — avoids DynamicInvoke at call time.
     private static readonly ConcurrentDictionary<(Type, Type), Action<object, object>> _boxedRegistry = new();
 
+    // Factory delegates: create AND map in one call — used by the fast path in Mapper.Map<>.
+    private static readonly ConcurrentDictionary<(Type, Type), Delegate> _factoryRegistry = new();
+
     /// <summary>
     /// Registers a source-generated mapping delegate for the given type pair.
     /// Called by [ModuleInitializer] in generated assemblies.
@@ -42,6 +45,31 @@ public static class GeneratedMapRegistry
     }
 
     /// <summary>
+    /// Registers a source-generated factory delegate for the given type pair.
+    /// The factory creates a new destination instance AND maps all properties in one call.
+    /// Called by [ModuleInitializer] in generated assemblies.
+    /// </summary>
+    public static void RegisterFactory<TSource, TDestination>(Func<TSource, TDestination> factory)
+    {
+        ArgumentNullException.ThrowIfNull(factory);
+        _factoryRegistry[(typeof(TSource), typeof(TDestination))] = factory;
+    }
+
+    /// <summary>
+    /// Attempts to retrieve a registered factory delegate for the given type pair.
+    /// </summary>
+    public static bool TryGetFactory<TSource, TDestination>(out Func<TSource, TDestination>? factory)
+    {
+        if (_factoryRegistry.TryGetValue((typeof(TSource), typeof(TDestination)), out var del))
+        {
+            factory = (Func<TSource, TDestination>)del;
+            return true;
+        }
+        factory = null;
+        return false;
+    }
+
+    /// <summary>
     /// Non-generic overload for runtime type lookups.
     /// Returns a boxed <see cref="Action{Object,Object}"/> wrapper to avoid DynamicInvoke.
     /// </summary>
@@ -60,5 +88,6 @@ public static class GeneratedMapRegistry
     {
         _registry.Clear();
         _boxedRegistry.Clear();
+        _factoryRegistry.Clear();
     }
 }

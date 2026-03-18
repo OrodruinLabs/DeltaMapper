@@ -36,9 +36,9 @@ public class MapperGeneratorFlatTests
     {
         var result = GeneratorTestHelper.RunGenerator(FlatPocoSource);
 
-        // The generator adds 3 sources: the attribute file + the map method file + the ModuleInitializer file
-        result.GeneratedTrees.Should().HaveCount(3,
-            "one for GenerateMapAttribute.g.cs, one for the flat map method, and one for the ModuleInitializer");
+        // The generator adds 4 sources: the attribute file + the map method file + the factory method file + the ModuleInitializer file
+        result.GeneratedTrees.Should().HaveCount(4,
+            "one for GenerateMapAttribute.g.cs, one for the flat map method, one for the factory method, and one for the ModuleInitializer");
     }
 
     [Fact]
@@ -177,9 +177,9 @@ public class MapperGeneratorFlatTests
 
         var result = GeneratorTestHelper.RunGenerator(source);
 
-        // attribute file + 2 map files + 1 ModuleInitializer file (one per profile class)
-        result.GeneratedTrees.Should().HaveCount(4,
-            "one attribute file plus one map file per [GenerateMap] attribute plus one ModuleInitializer file per profile");
+        // attribute file + 2 map files + 2 factory files + 1 ModuleInitializer file (one per profile class)
+        result.GeneratedTrees.Should().HaveCount(6,
+            "one attribute file plus one map file per [GenerateMap] attribute plus one factory file per [GenerateMap] attribute plus one ModuleInitializer file per profile");
 
         result.GeneratedTrees
             .Select(t => System.IO.Path.GetFileName(t.FilePath))
