@@ -166,7 +166,8 @@ public sealed class MapperConfigurationBuilder
                 // Numeric widening conversion — compiled getter/setter
                 var getter = CompileGetter(srcPropCaptured);
                 var setter = CompileSetter(dstPropCaptured);
-                var targetType = dstPropCaptured.PropertyType;
+                // Convert.ChangeType doesn't support Nullable<T>, so unwrap to underlying type
+                var targetType = Nullable.GetUnderlyingType(dstPropCaptured.PropertyType) ?? dstPropCaptured.PropertyType;
                 assignments.Add((src, dst, ctx) =>
                 {
                     var value = getter(src);
