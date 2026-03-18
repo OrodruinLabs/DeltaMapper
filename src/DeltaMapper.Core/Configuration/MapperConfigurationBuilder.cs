@@ -109,6 +109,8 @@ public sealed class MapperConfigurationBuilder
             var memberConfig = tm.MemberConfigurations
                 .FirstOrDefault(mc => mc.DestinationMemberName.Equals(dstProp.Name, StringComparison.OrdinalIgnoreCase));
 
+            var assignmentCountBefore = assignments.Count;
+
             if (memberConfig != null)
             {
                 if (memberConfig.IsIgnored)
@@ -118,11 +120,12 @@ public sealed class MapperConfigurationBuilder
                 {
                     var resolver = memberConfig.CustomResolver;
                     var compiledSetter = CompileSetter(dstProp);
-                    assignments.Add((src, dst, ctx) =>
+                    Action<object, object, MapperContext> assign = (src, dst, ctx) =>
                     {
                         var value = resolver(src);
                         compiledSetter(dst, value);
-                    });
+                    };
+                    assignments.Add(WrapWithCondition(assign, memberConfig.ConditionPredicate));
                     continue;
                 }
 
@@ -131,19 +134,21 @@ public sealed class MapperConfigurationBuilder
                     var srcProp = FindSourceProperty(srcProps, dstProp.Name);
                     var substituteValue = memberConfig.NullSubstituteValue;
                     var compiledSetter = CompileSetter(dstProp);
+                    Action<object, object, MapperContext> assign;
                     if (srcProp != null)
                     {
                         var compiledGetter = CompileGetter(srcProp);
-                        assignments.Add((src, dst, ctx) =>
+                        assign = (src, dst, ctx) =>
                         {
                             var value = compiledGetter(src);
                             compiledSetter(dst, value ?? substituteValue);
-                        });
+                        };
                     }
                     else
                     {
-                        assignments.Add((src, dst, ctx) => compiledSetter(dst, substituteValue));
+                        assign = (src, dst, ctx) => compiledSetter(dst, substituteValue);
                     }
+                    assignments.Add(WrapWithCondition(assign, memberConfig.ConditionPredicate));
                     continue;
                 }
             }
@@ -316,6 +321,12 @@ public sealed class MapperConfigurationBuilder
                     var mapped = ctx.Config.Execute(srcValue, srcPropType, dstPropType, ctx);
                     setter(dst, mapped);
                 });
+            }
+
+            // Wrap convention-matched assignment with condition if present
+            if (memberConfig?.ConditionPredicate != null && assignments.Count > assignmentCountBefore)
+            {
+                assignments[^1] = WrapWithCondition(assignments[^1], memberConfig.ConditionPredicate);
             }
         }
 
@@ -615,6 +626,17 @@ public sealed class MapperConfigurationBuilder
         return Expression.Lambda<Func<object>>(
             Expression.Convert(Expression.New(type), typeof(object))
         ).Compile();
+    }
+
+    private static Action<object, object, MapperContext> WrapWithCondition(
+        Action<object, object, MapperContext> assign, Func<object, bool>? predicate)
+    {
+        if (predicate == null) return assign;
+        return (src, dst, ctx) =>
+        {
+            if (predicate(src))
+                assign(src, dst, ctx);
+        };
     }
 
     private static PropertyInfo? FindSourceProperty(PropertyInfo[] srcProps, string dstName)

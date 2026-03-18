@@ -9,6 +9,7 @@ internal sealed class MemberOptions<TSrc> : IMemberOptions<TSrc>
     public bool IsIgnored { get; private set; }
     public object? NullSubstituteValue { get; private set; }
     public bool HasNullSubstitute { get; private set; }
+    public Func<object, bool>? ConditionPredicate { get; private set; }
 
     public void MapFrom<TResult>(Expression<Func<TSrc, TResult>> resolver)
     {
@@ -23,5 +24,12 @@ internal sealed class MemberOptions<TSrc> : IMemberOptions<TSrc>
     {
         NullSubstituteValue = value;
         HasNullSubstitute = true;
+    }
+
+    public void Condition(Expression<Func<TSrc, bool>> predicate)
+    {
+        ArgumentNullException.ThrowIfNull(predicate);
+        var compiled = predicate.Compile();
+        ConditionPredicate = src => compiled((TSrc)src);
     }
 }

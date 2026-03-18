@@ -10,4 +10,5 @@ internal sealed class MemberConfiguration
     public bool IsIgnored { get; set; }
     public object? NullSubstituteValue { get; set; }
     public bool HasNullSubstitute { get; set; }
+    public Func<object, bool>? ConditionPredicate { get; set; }
 }
