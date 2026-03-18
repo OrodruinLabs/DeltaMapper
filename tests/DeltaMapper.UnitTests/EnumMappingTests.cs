@@ -1,5 +1,6 @@
 using DeltaMapper.Abstractions;
 using DeltaMapper.Configuration;
+using DeltaMapper.Exceptions;
 using FluentAssertions;
 using Xunit;
 
@@ -127,7 +128,7 @@ public class EnumMappingTests
 
         var act = () => mapper.Map<MismatchedEnumSource, EnumDest>(source);
 
-        act.Should().Throw<InvalidOperationException>()
+        act.Should().Throw<DeltaMapperException>()
             .WithMessage("*No matching name found*");
     }
 
@@ -142,7 +143,7 @@ public class EnumMappingTests
 
         var act = () => mapper.Map<NullableEnumSource, EnumDest>(source);
 
-        act.Should().Throw<InvalidOperationException>()
+        act.Should().Throw<DeltaMapperException>()
             .WithMessage("*non-nullable*");
     }
     [Fact]
@@ -223,7 +224,7 @@ public class EnumMappingTests
 
         var act = () => mapper.Map<NullableEnumSource, EnumRecordDest>(source);
 
-        act.Should().Throw<InvalidOperationException>()
+        act.Should().Throw<DeltaMapperException>()
             .WithMessage("*non-nullable*");
     }
 
@@ -264,7 +265,7 @@ public class EnumMappingTests
 
         var act = () => mapper.Map<SameEnumNullableSource, SameEnumNonNullableDest>(source);
 
-        act.Should().Throw<InvalidOperationException>()
+        act.Should().Throw<DeltaMapperException>()
             .WithMessage("*non-nullable*");
     }
 }

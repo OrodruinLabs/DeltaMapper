@@ -191,14 +191,9 @@ public sealed class MapperConfigurationBuilder
                 assignments.Add((src, dst, ctx) =>
                 {
                     var value = getter(src);
-                    if (value == null)
-                    {
-                        if (!dstIsNullable)
-                            throw new InvalidOperationException(
-                                $"Cannot map null enum value to non-nullable property '{dstPropCaptured.Name}'.");
-                        dstPropCaptured.SetValue(dst, null);
-                        return;
-                    }
+                    if (value == null && !dstIsNullable)
+                        throw new DeltaMapperException(
+                            $"Cannot map null enum value to non-nullable property '{dstPropCaptured.Name}'.");
                     setter(dst, value);
                 });
             }
@@ -213,11 +208,6 @@ public sealed class MapperConfigurationBuilder
                 assignments.Add((src, dst, ctx) =>
                 {
                     var resolved = ResolveEnumValue(getter(src), nameMap, dstEnumType, dstIsNullable, dstPropCaptured.Name);
-                    if (resolved == null)
-                    {
-                        dstPropCaptured.SetValue(dst, null);
-                        return;
-                    }
                     setter(dst, resolved);
                 });
             }
@@ -396,14 +386,15 @@ public sealed class MapperConfigurationBuilder
                 if (srcProp != null)
                 {
                     var capturedSrcProp = srcProp;
+                    var compiledGetter = CompileGetter(capturedSrcProp);
                     if (IsSameEnumNullabilityDiff(capturedSrcProp.PropertyType, param.ParameterType))
                     {
                         var dstIsNullable = Nullable.GetUnderlyingType(param.ParameterType) != null;
                         paramResolvers.Add((src, ctx) =>
                         {
-                            var value = capturedSrcProp.GetValue(src);
+                            var value = compiledGetter(src);
                             if (value == null && !dstIsNullable)
-                                throw new InvalidOperationException(
+                                throw new DeltaMapperException(
                                     $"Cannot map null enum value to non-nullable parameter '{param.Name}'.");
                             return value;
                         });
@@ -414,11 +405,11 @@ public sealed class MapperConfigurationBuilder
                         var dstIsNullable = Nullable.GetUnderlyingType(param.ParameterType) != null;
                         var nameMap = GetOrCreateEnumNameMap(dstEnumType);
                         paramResolvers.Add((src, ctx) => ResolveEnumValue(
-                            capturedSrcProp.GetValue(src), nameMap, dstEnumType, dstIsNullable, param.Name!));
+                            compiledGetter(src), nameMap, dstEnumType, dstIsNullable, param.Name!));
                     }
                     else
                     {
-                        paramResolvers.Add((src, ctx) => capturedSrcProp.GetValue(src));
+                        paramResolvers.Add((src, ctx) => compiledGetter(src));
                     }
                 }
                 else
@@ -474,14 +465,16 @@ public sealed class MapperConfigurationBuilder
             {
                 var capturedSrc = srcProp;
                 var capturedDst = dstProp;
+                // Init-only properties must use SetValue (compiled setters don't work with init-only)
+                var compiledGetter = CompileGetter(capturedSrc);
                 if (IsSameEnumNullabilityDiff(capturedSrc.PropertyType, capturedDst.PropertyType))
                 {
                     var dstIsNullable = Nullable.GetUnderlyingType(capturedDst.PropertyType) != null;
                     initOnlyAssignments.Add((src, dst, ctx) =>
                     {
-                        var value = capturedSrc.GetValue(src);
+                        var value = compiledGetter(src);
                         if (value == null && !dstIsNullable)
-                            throw new InvalidOperationException(
+                            throw new DeltaMapperException(
                                 $"Cannot map null enum value to non-nullable property '{capturedDst.Name}'.");
                         capturedDst.SetValue(dst, value);
                     });
@@ -493,13 +486,13 @@ public sealed class MapperConfigurationBuilder
                     var nameMap = GetOrCreateEnumNameMap(dstEnumType);
                     initOnlyAssignments.Add((src, dst, ctx) =>
                     {
-                        var resolved = ResolveEnumValue(capturedSrc.GetValue(src), nameMap, dstEnumType, dstIsNullable, capturedDst.Name);
+                        var resolved = ResolveEnumValue(compiledGetter(src), nameMap, dstEnumType, dstIsNullable, capturedDst.Name);
                         capturedDst.SetValue(dst, resolved);
                     });
                 }
                 else if (IsDirectlyAssignable(capturedSrc.PropertyType, capturedDst.PropertyType))
                 {
-                    initOnlyAssignments.Add((src, dst, ctx) => capturedDst.SetValue(dst, capturedSrc.GetValue(src)));
+                    initOnlyAssignments.Add((src, dst, ctx) => capturedDst.SetValue(dst, compiledGetter(src)));
                 }
             }
         }
@@ -555,7 +548,8 @@ public sealed class MapperConfigurationBuilder
         var dst = Expression.Parameter(typeof(object));
         var val = Expression.Parameter(typeof(object));
         var castDst = Expression.Convert(dst, prop.DeclaringType!);
-        var castVal = prop.PropertyType.IsValueType
+        // Use Convert (not Unbox) for nullable value types so null is handled correctly
+        var castVal = prop.PropertyType.IsValueType && Nullable.GetUnderlyingType(prop.PropertyType) == null
             ? Expression.Unbox(val, prop.PropertyType)
             : Expression.Convert(val, prop.PropertyType);
         var assign = Expression.Assign(Expression.Property(castDst, prop), castVal);
@@ -592,7 +586,7 @@ public sealed class MapperConfigurationBuilder
         if (value == null)
         {
             if (!dstIsNullable)
-                throw new InvalidOperationException(
+                throw new DeltaMapperException(
                     $"Cannot map null enum value to non-nullable property '{propertyName}' of type '{dstEnumType.Name}'.");
             return null;
         }
@@ -607,7 +601,7 @@ public sealed class MapperConfigurationBuilder
                 return Enum.Parse(dstEnumType, name);
 
             if (!srcEnumType.IsDefined(typeof(FlagsAttribute), false))
-                throw new InvalidOperationException(
+                throw new DeltaMapperException(
                     $"Cannot map enum value '{value}' from '{srcEnumType.Name}' to '{dstEnumType.Name}'. No matching name found.");
 
             // Alias name (e.g. ReadWrite = Read|Write) — decompose to individual flags
@@ -617,13 +611,13 @@ public sealed class MapperConfigurationBuilder
         // [Flags] composite: ToString() yields "A, B"
         var composite = value.ToString();
         if (string.IsNullOrWhiteSpace(composite) || long.TryParse(composite, out _))
-            throw new InvalidOperationException(
+            throw new DeltaMapperException(
                 $"Cannot map enum value '{value}' from '{srcEnumType.Name}' to '{dstEnumType.Name}'. No matching name found.");
 
         foreach (var part in composite.Split(',', StringSplitOptions.TrimEntries))
         {
             if (!dstNames.Contains(part))
-                throw new InvalidOperationException(
+                throw new DeltaMapperException(
                     $"Cannot map enum value '{value}' from '{srcEnumType.Name}' to '{dstEnumType.Name}'. No matching name found.");
         }
 
@@ -633,32 +627,35 @@ public sealed class MapperConfigurationBuilder
     private static object DecomposeFlagsAndMap(
         object value, Type srcEnumType, FrozenSet<string> dstNames, Type dstEnumType)
     {
-        // Decompose by iterating defined source names that are single-bit flags
-        var srcUnderlyingType = Enum.GetUnderlyingType(srcEnumType);
-        var srcValue = Convert.ToInt64(value);
-        var remaining = srcValue;
-        var parts = new List<string>();
+        var remaining = ToUInt64(value);
+        List<string> parts = [];
 
-        // Iterate source enum names in descending value order to greedily match larger flags
-        foreach (var srcName in Enum.GetNames(srcEnumType))
+        // Build (name, value) pairs sorted descending by value for greedy matching
+        var members = Enum.GetNames(srcEnumType)
+            .Select(n => (Name: n, Value: ToUInt64(Enum.Parse(srcEnumType, n))))
+            .Where(m => m.Value != 0) // Skip None/zero
+            .OrderByDescending(m => m.Value)
+            .ToArray();
+
+        foreach (var (name, memberValue) in members)
         {
-            var memberValue = Convert.ToInt64(Enum.Parse(srcEnumType, srcName));
-            if (memberValue == 0) continue; // Skip None/zero
-            if ((srcValue & memberValue) == memberValue)
-            {
-                if (dstNames.Contains(srcName))
-                {
-                    parts.Add(srcName);
-                    remaining &= ~memberValue;
-                }
-            }
+            if ((remaining & memberValue) != memberValue) continue;
+            if (!dstNames.Contains(name)) continue;
+            parts.Add(name);
+            remaining &= ~memberValue;
         }
 
         if (remaining != 0 || parts.Count == 0)
-            throw new InvalidOperationException(
+            throw new DeltaMapperException(
                 $"Cannot map enum value '{value}' from '{srcEnumType.Name}' to '{dstEnumType.Name}'. No matching name found.");
 
         return Enum.Parse(dstEnumType, string.Join(", ", parts));
+    }
+
+    private static ulong ToUInt64(object enumValue)
+    {
+        // Preserve bit pattern for both signed and unsigned underlying types
+        return unchecked((ulong)Convert.ToInt64(enumValue));
     }
 
     private static bool IsSameEnumNullabilityDiff(Type srcType, Type dstType)
