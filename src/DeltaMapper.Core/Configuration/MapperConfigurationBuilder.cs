@@ -574,10 +574,21 @@ public sealed class MapperConfigurationBuilder
     }
 
     private static readonly ConcurrentDictionary<Type, FrozenSet<string>> _enumNameCache = new();
+    private static readonly ConcurrentDictionary<Type, (string Name, ulong Value)[]> _enumMembersCache = new();
 
     private static FrozenSet<string> GetOrCreateEnumNameMap(Type enumType)
     {
         return _enumNameCache.GetOrAdd(enumType, t => Enum.GetNames(t).ToFrozenSet());
+    }
+
+    private static (string Name, ulong Value)[] GetOrCreateEnumMembers(Type enumType)
+    {
+        return _enumMembersCache.GetOrAdd(enumType, t =>
+            Enum.GetNames(t)
+                .Select(n => (Name: n, Value: ToUInt64(Enum.Parse(t, n))))
+                .Where(m => m.Value != 0)
+                .OrderByDescending(m => m.Value)
+                .ToArray());
     }
 
     private static object? ResolveEnumValue(
@@ -587,7 +598,7 @@ public sealed class MapperConfigurationBuilder
         {
             if (!dstIsNullable)
                 throw new DeltaMapperException(
-                    $"Cannot map null enum value to non-nullable property '{propertyName}' of type '{dstEnumType.Name}'.");
+                    $"Cannot map null enum value to non-nullable member '{propertyName}' of type '{dstEnumType.Name}'.");
             return null;
         }
 
@@ -630,12 +641,8 @@ public sealed class MapperConfigurationBuilder
         var remaining = ToUInt64(value);
         List<string> parts = [];
 
-        // Build (name, value) pairs sorted descending by value for greedy matching
-        var members = Enum.GetNames(srcEnumType)
-            .Select(n => (Name: n, Value: ToUInt64(Enum.Parse(srcEnumType, n))))
-            .Where(m => m.Value != 0) // Skip None/zero
-            .OrderByDescending(m => m.Value)
-            .ToArray();
+        // Cached (name, value) pairs sorted descending by value for greedy matching
+        var members = GetOrCreateEnumMembers(srcEnumType);
 
         foreach (var (name, memberValue) in members)
         {
