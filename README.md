@@ -10,163 +10,28 @@
   </p>
 </p>
 
-- **Expression-compiled delegates + `FrozenDictionary`** — all reflection happens once at startup, never at call time
-- **`MappingDiff<T>`** — maps an object _and_ returns a structured change set in a single call
-- **Roslyn source generator** — optional `[GenerateMap]` attribute emits assignment code at build time with zero reflection
-- **EF Core proxy awareness** — safely maps lazy-loaded proxy entities without triggering navigation loads
-- **OpenTelemetry tracing** — zero-overhead `Activity` spans when no listener is attached
-- **MIT licensed, no paid tiers, forever**
-
 ---
+
+## Why DeltaMapper?
+
+- **Mapperly-speed direct calls** — 7.2 ns flat mapping, same as hand-written code
+- **`MappingDiff<T>`** — map _and_ get a structured change set in one call (no other mapper does this)
+- **Source generator** — `[GenerateMap]` emits assignment code at build time, zero reflection
+- **Full IMapper pipeline** — DI, middleware, hooks, EF Core proxy safety, OpenTelemetry tracing
+- **MIT licensed, no paid tiers, forever**
 
 ## Install
 
-```
-dotnet add package DeltaMapper
-```
-
-For compile-time source generation (optional):
-
-```
-dotnet add package DeltaMapper.SourceGen
-```
-
-For EF Core proxy awareness (optional):
-
-```
-dotnet add package DeltaMapper.EFCore
-```
-
-For OpenTelemetry tracing (optional):
-
-```
-dotnet add package DeltaMapper.OpenTelemetry
+```bash
+dotnet add package DeltaMapper                    # core runtime
+dotnet add package DeltaMapper.SourceGen          # optional: compile-time codegen
+dotnet add package DeltaMapper.EFCore             # optional: EF Core proxy awareness
+dotnet add package DeltaMapper.OpenTelemetry      # optional: Activity spans
 ```
 
 Requires .NET 10+.
 
----
-
-## Benchmarks
-
-DeltaMapper vs. competitors (Apple M1 Max, .NET 10):
-
-| Scenario | DeltaMapper Direct | DeltaMapper IMapper | Mapperly | AutoMapper | Hand-written |
-|---|---:|---:|---:|---:|---:|
-| Flat (5 props) | **7.2 ns / 48 B** | 24 ns / 48 B | 6.8 ns / 48 B | 47 ns / 48 B | 6.8 ns / 48 B |
-| Nested (2 levels) | — | 24 ns / 80 B | 21 ns / 120 B | 55 ns / 120 B | 19 ns / 120 B |
-| Collection (10) | — | **22 ns / 64 B** | 101 ns / 520 B | 183 ns / 712 B | 121 ns / 592 B |
-
-**Direct call matches Mapperly.** IMapper path adds ~17ns for DI/middleware support but allocates the same 48B.
-
-See [BENCHMARKS.md](BENCHMARKS.md) for full results and methodology.
-
----
-
-## `MappingDiff<T>` — the hook
-
-```csharp
-// PATCH endpoint — map and audit in one call
-[HttpPatch("{id}")]
-public async Task<IActionResult> PatchUser(int id, UpdateUserDto dto)
-{
-    var user = await db.Users.FindAsync(id);
-    var diff = mapper.Patch(dto, user);   // MappingDiff<User>
-
-    if (!diff.HasChanges)
-        return NoContent();
-
-    await auditLog.RecordAsync(id, diff.Changes);  // IReadOnlyList<PropertyChange>
-    await db.SaveChangesAsync();
-    return Ok(diff.Result);
-}
-```
-
-`diff.Changes` is an `IReadOnlyList<PropertyChange>` where each entry carries `PropertyName`, `From`, `To`, and `ChangeKind` (`Modified` / `Added` / `Removed`). Nested changes use dot-notation paths (`"Address.City"`).
-
----
-
-## Source Generator
-
-Install `DeltaMapper.SourceGen`, add `[GenerateMap]` to a `partial` class, and the mapper emits direct assignment code at build time — no reflection at all:
-
-```csharp
-[GenerateMap(typeof(UserDto))]
-public partial class User
-{
-    public int Id { get; set; }
-    public string Email { get; set; }
-}
-```
-
-The generated map is registered automatically via `GeneratedMapRegistry` and picked up by the same `IMapper` interface. Analyzer diagnostics catch misuse at compile time:
-
-| Code | Diagnostic |
-|---|---|
-| DM001 | Class must be `partial` |
-| DM002 | Class must have a parameterless constructor |
-| DM003 | Ambiguous mapping detected |
-
----
-
-## EF Core Integration
-
-Install `DeltaMapper.EFCore` and call `AddEFCoreSupport()` when building the mapper. The middleware detects Castle.Core dynamic proxies emitted by EF Core and skips unloaded navigation properties so lazy loading is never triggered during a mapping call.
-
-```csharp
-var config = MapperConfiguration.Create(cfg =>
-{
-    cfg.AddProfile<UserProfile>();
-    cfg.AddEFCoreSupport();   // from DeltaMapper.EFCore
-});
-
-IMapper mapper = config.CreateMapper();
-
-// Proxy entities are mapped safely — no lazy load triggered
-var dto = mapper.Map<User, UserDto>(proxyUser);
-```
-
-`AddEFCoreSupport()` is an extension on `MapperConfigurationBuilder` and returns the builder for fluent chaining alongside other configuration calls.
-
----
-
-## OpenTelemetry Tracing
-
-Install `DeltaMapper.OpenTelemetry` and call `AddMapperTracing()` to emit an `Activity` span for every mapping operation. The `ActivitySource` name is `"DeltaMapper"`.
-
-```csharp
-var config = MapperConfiguration.Create(cfg =>
-{
-    cfg.AddProfile<UserProfile>();
-    cfg.AddMapperTracing();   // from DeltaMapper.OpenTelemetry
-});
-
-IMapper mapper = config.CreateMapper();
-```
-
-Each span is named `"Map {SourceType} -> {DestType}"` and carries two tags:
-
-| Tag | Value |
-|---|---|
-| `mapper.source_type` | Fully-qualified source type name |
-| `mapper.dest_type` | Fully-qualified destination type name |
-
-If a mapping throws, the span status is set to `Error` and an `"exception"` event is recorded with `exception.type` and `exception.message` tags.
-
-The middleware uses `ActivitySource.HasListeners()` as a fast path: when no OpenTelemetry listener is attached the entire tracing path is bypassed with zero allocation overhead.
-
-Wire up the `"DeltaMapper"` source in your OpenTelemetry SDK setup:
-
-```csharp
-builder.Services.AddOpenTelemetry()
-    .WithTracing(tracing => tracing
-        .AddSource("DeltaMapper")
-        .AddOtlpExporter());
-```
-
----
-
-## Quick start
+## Quick Start
 
 ```csharp
 // 1. Define a profile
@@ -176,178 +41,48 @@ public class UserProfile : MappingProfile
     {
         CreateMap<User, UserDto>()
             .ForMember(d => d.FullName, o => o.MapFrom(s => $"{s.First} {s.Last}"))
-            .ForMember(d => d.InternalId, o => o.Ignore())
             .ReverseMap();
     }
 }
 
-// 2. Build configuration (once at startup)
-var config = MapperConfiguration.Create(cfg =>
-{
-    cfg.AddProfile<UserProfile>();
-});
+// 2. Build & map
+var mapper = MapperConfiguration.Create(cfg => cfg.AddProfile<UserProfile>())
+    .CreateMapper();
 
-// 3. Create the mapper
-IMapper mapper = config.CreateMapper();
-
-// 4. Map
 var dto = mapper.Map<User, UserDto>(user);
 ```
 
----
-
-## API reference
-
-### `MapperConfiguration`
+## MappingDiff — the killer feature
 
 ```csharp
-// Static factory — scans profiles, compiles all maps, freezes the registry
-MapperConfiguration config = MapperConfiguration.Create(cfg =>
-{
-    cfg.AddProfile<UserProfile>();          // add by generic type (new TProfile())
-    cfg.AddProfile(new OrderProfile());     // add existing instance
-    cfg.Use<MyLoggingMiddleware>();         // add pipeline middleware
-});
+var diff = mapper.Patch(updateDto, existingUser);
 
-IMapper mapper = config.CreateMapper();
+if (diff.HasChanges)
+    await auditLog.RecordAsync(userId, diff.Changes);
 ```
 
-All compilation happens inside `Create()`. The internal registry is a `FrozenDictionary` — read access after construction has no locking overhead.
+`diff.Changes` is `IReadOnlyList<PropertyChange>` — each entry has `PropertyName`, `From`, `To`, `ChangeKind`. Nested paths use dot-notation (`"Address.City"`).
 
-### `MappingProfile`
+## Benchmarks
 
-Subclass `MappingProfile` and configure maps in the constructor.
+| Scenario | DeltaMapper Direct | Mapperly | AutoMapper | Hand-written |
+|---|---:|---:|---:|---:|
+| Flat (5 props) | **7.2 ns / 48 B** | 6.8 ns / 48 B | 47 ns / 48 B | 6.8 ns / 48 B |
+| Nested (2 levels) | — | 21 ns / 120 B | 55 ns / 120 B | 19 ns / 120 B |
+| Collection (10) | **22 ns / 64 B** | 101 ns / 520 B | 183 ns / 712 B | 121 ns / 592 B |
 
-```csharp
-public class OrderProfile : MappingProfile
-{
-    public OrderProfile()
-    {
-        CreateMap<Order, OrderDto>()
-            .ForMember(d => d.Total,    o => o.MapFrom(s => s.Lines.Sum(l => l.Amount)))
-            .ForMember(d => d.Secret,   o => o.Ignore())
-            .ForMember(d => d.Customer, o => o.NullSubstitute("Anonymous"))
-            .BeforeMap((src, dst) => dst.MappedAt = DateTimeOffset.UtcNow)
-            .AfterMap((src, dst)  => dst.Validate())
-            .ReverseMap();
-    }
-}
-```
+[Full benchmark results and methodology](BENCHMARKS.md)
 
-| Fluent method | Effect |
+## Documentation
+
+| Guide | Description |
 |---|---|
-| `ForMember(dst => dst.Prop, o => o.MapFrom(src => ...))` | Custom value resolver |
-| `ForMember(dst => dst.Prop, o => o.Ignore())` | Skip this destination member |
-| `ForMember(dst => dst.Prop, o => o.NullSubstitute(value))` | Use `value` when source is null |
-| `BeforeMap((src, dst) => ...)` | Hook runs before property assignment |
-| `AfterMap((src, dst) => ...)` | Hook runs after property assignment |
-| `ReverseMap()` | Registers convention-matched reverse map (`TDst -> TSrc`) |
-
-### `IMapper`
-
-```csharp
-// Map to a new instance — source type inferred from runtime type
-TDestination Map<TDestination>(object source);
-
-// Map to a new instance — source type resolved at compile time
-TDestination Map<TSource, TDestination>(TSource source);
-
-// Map onto an existing destination instance (updates in place)
-TDestination Map<TSource, TDestination>(TSource source, TDestination destination);
-
-// Map a sequence — returns IReadOnlyList<TDestination>
-IReadOnlyList<TDestination> MapList<TSource, TDestination>(IEnumerable<TSource> source);
-
-// Non-generic overload for dynamic / reflection scenarios
-object Map(object source, Type sourceType, Type destinationType);
-
-// Map and return a structured diff of what changed
-MappingDiff<TDestination> MapWithDiff<TSource, TDestination>(TSource source);
-
-// Update destination in place and return a diff of what changed
-MappingDiff<TDestination> Patch<TSource, TDestination>(TSource source, TDestination destination);
-```
-
-### Convention matching
-
-Properties are matched by name (case-insensitive) without any configuration. Convention rules applied in order:
-
-1. Same name + same type (or assignable) — direct assign
-2. Same name + safe numeric widening (e.g., `int` to `long`) — `Convert.ChangeType`
-3. Same name + `IEnumerable<T>` on both sides — map each element, produce `List<T>` or `T[]`
-4. Same name + complex object type — recursive map lookup
-
-### Records and init-only properties
-
-DeltaMapper detects `init`-only setters via `IsExternalInit` modreq and routes those types through constructor injection automatically. Primary constructor parameter names are matched to source properties by name (case-insensitive).
-
-```csharp
-public record UserDto(int Id, string Email, string FullName);
-
-// No special configuration required — constructor injection is automatic
-var dto = mapper.Map<User, UserDto>(user);
-```
-
-### Middleware pipeline
-
-Implement `IMappingMiddleware` to intercept every mapping call in the pipeline.
-
-```csharp
-public sealed class LoggingMiddleware : IMappingMiddleware
-{
-    public object Map(object source, Type destType, MapperContext ctx, Func<object> next)
-    {
-        Console.WriteLine($"Mapping {source.GetType().Name} -> {destType.Name}");
-        var result = next();
-        Console.WriteLine("Done");
-        return result;
-    }
-}
-
-// Register:
-var config = MapperConfiguration.Create(cfg =>
-{
-    cfg.AddProfile<UserProfile>();
-    cfg.Use<LoggingMiddleware>();
-});
-```
-
-When no middleware is registered the core delegate is invoked directly with zero overhead.
-
-### DI integration (ASP.NET Core / Generic Host)
-
-```csharp
-// Program.cs
-builder.Services.AddDeltaMapper(cfg =>
-{
-    cfg.AddProfile<UserProfile>();
-    cfg.AddProfile<OrderProfile>();
-});
-
-// Inject IMapper anywhere
-public class UserService(IMapper mapper)
-{
-    public UserDto GetUser(User user) => mapper.Map<User, UserDto>(user);
-}
-```
-
-`AddDeltaMapper` registers both `MapperConfiguration` and `IMapper` as singletons.
-
-### Error handling
-
-When no mapping is registered `DeltaMapperException` is thrown with a clear, actionable message:
-
-```
-No mapping registered from 'User' to 'UserDto'. Register a mapping in a MappingProfile using CreateMap<User, UserDto>().
-```
-
----
-
-## Migration from AutoMapper
-
-See [docs/migration-from-automapper.md](docs/migration-from-automapper.md) for a full mapping table and profile rename script.
-
----
+| [API Reference](docs/api-reference.md) | MapperConfiguration, MappingProfile, IMapper, conventions, records, middleware, DI |
+| [Source Generator](docs/source-generator.md) | `[GenerateMap]`, direct calls, analyzer diagnostics |
+| [EF Core Integration](docs/efcore-integration.md) | Proxy detection, lazy loading safety |
+| [OpenTelemetry Tracing](docs/opentelemetry.md) | Activity spans, zero-overhead fast path |
+| [Migration from AutoMapper](docs/migration-from-automapper.md) | Concept mapping table, rename scripts |
+| [Design Specification](docs/DELTAMAP_PLAN.md) | Full architecture and phased delivery plan |
 
 ## Roadmap
 
@@ -358,10 +93,6 @@ See [docs/migration-from-automapper.md](docs/migration-from-automapper.md) for a
 | 3 | Roslyn source generator — zero-overhead paths | Done |
 | 4 | EF Core proxy awareness + OpenTelemetry spans | Done |
 | 5 | Benchmarks + full docs site | Done |
-
-Full design specification: [docs/DELTAMAP_PLAN.md](docs/DELTAMAP_PLAN.md)
-
----
 
 ## License
 
