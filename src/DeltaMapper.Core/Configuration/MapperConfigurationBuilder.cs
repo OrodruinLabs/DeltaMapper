@@ -186,12 +186,14 @@ public sealed class MapperConfigurationBuilder
                 var getter = CompileGetter(srcPropCaptured);
                 var setter = CompileSetter(dstPropCaptured);
                 var dstEnumType = Nullable.GetUnderlyingType(dstPropCaptured.PropertyType) ?? dstPropCaptured.PropertyType;
+                var dstIsNullable = Nullable.GetUnderlyingType(dstPropCaptured.PropertyType) != null;
                 assignments.Add((src, dst, ctx) =>
                 {
                     var value = getter(src);
                     if (value == null)
                     {
-                        setter(dst, null);
+                        if (dstIsNullable)
+                            setter(dst, null);
                         return;
                     }
                     var name = Enum.GetName(value.GetType(), value);

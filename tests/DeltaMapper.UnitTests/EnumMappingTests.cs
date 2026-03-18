@@ -114,4 +114,28 @@ public class EnumMappingTests
 
         dest.Status.Should().BeNull();
     }
+
+    [Fact]
+    public void Enum06_ThrowsOnMismatchedEnumName()
+    {
+        // MismatchedEnum has a value "Unknown" that doesn't exist in DestStatus
+        var mapper = MapperConfiguration.Create(cfg =>
+            cfg.AddProfile(new MismatchedEnumProfile()))
+            .CreateMapper();
+
+        var source = new MismatchedEnumSource { Id = 1, Status = MismatchedStatus.Unknown };
+
+        var act = () => mapper.Map<MismatchedEnumSource, EnumDest>(source);
+
+        act.Should().Throw<InvalidOperationException>()
+            .WithMessage("*No matching name found*");
+    }
+}
+
+public enum MismatchedStatus { Active, Unknown }
+public class MismatchedEnumSource { public int Id { get; set; } public MismatchedStatus Status { get; set; } }
+
+file class MismatchedEnumProfile : MappingProfile
+{
+    public MismatchedEnumProfile() => CreateMap<MismatchedEnumSource, EnumDest>();
 }
