@@ -553,7 +553,9 @@ public sealed class MapperConfigurationBuilder
     {
         var srcUnderlying = Nullable.GetUnderlyingType(srcType) ?? srcType;
         var dstUnderlying = Nullable.GetUnderlyingType(dstType) ?? dstType;
-        return srcUnderlying.IsEnum && dstUnderlying.IsEnum && srcUnderlying != dstUnderlying;
+        return srcUnderlying.IsEnum
+            && dstUnderlying.IsEnum
+            && (srcUnderlying != dstUnderlying || srcType != dstType);
     }
 
     /// <summary>

@@ -145,6 +145,63 @@ public class EnumMappingTests
         act.Should().Throw<InvalidOperationException>()
             .WithMessage("*non-nullable*");
     }
+    [Fact]
+    public void Enum08_MapsNonNullableToNullableSameEnum()
+    {
+        var mapper = MapperConfiguration.Create(cfg =>
+            cfg.AddProfile(new SameEnumNonNullToNullableProfile()))
+            .CreateMapper();
+
+        var source = new SameEnumNonNullableSource { Status = SourceStatus.Active };
+        var dest = mapper.Map<SameEnumNonNullableSource, SameEnumNullableDest>(source);
+
+        dest.Status.Should().Be(SourceStatus.Active);
+    }
+
+    [Fact]
+    public void Enum09_MapsNullableToNonNullableSameEnumWithValue()
+    {
+        var mapper = MapperConfiguration.Create(cfg =>
+            cfg.AddProfile(new SameEnumNullableToNonNullProfile()))
+            .CreateMapper();
+
+        var source = new SameEnumNullableSource { Status = SourceStatus.Inactive };
+        var dest = mapper.Map<SameEnumNullableSource, SameEnumNonNullableDest>(source);
+
+        dest.Status.Should().Be(SourceStatus.Inactive);
+    }
+
+    [Fact]
+    public void Enum10_ThrowsNullableToNonNullableSameEnumNull()
+    {
+        var mapper = MapperConfiguration.Create(cfg =>
+            cfg.AddProfile(new SameEnumNullableToNonNullProfile()))
+            .CreateMapper();
+
+        var source = new SameEnumNullableSource { Status = null };
+
+        var act = () => mapper.Map<SameEnumNullableSource, SameEnumNonNullableDest>(source);
+
+        act.Should().Throw<InvalidOperationException>()
+            .WithMessage("*non-nullable*");
+    }
+}
+
+// ── Same-enum nullable pair models ────────────────────────────────
+
+public class SameEnumNonNullableSource { public SourceStatus Status { get; set; } }
+public class SameEnumNullableDest { public SourceStatus? Status { get; set; } }
+public class SameEnumNullableSource { public SourceStatus? Status { get; set; } }
+public class SameEnumNonNullableDest { public SourceStatus Status { get; set; } }
+
+file class SameEnumNonNullToNullableProfile : MappingProfile
+{
+    public SameEnumNonNullToNullableProfile() => CreateMap<SameEnumNonNullableSource, SameEnumNullableDest>();
+}
+
+file class SameEnumNullableToNonNullProfile : MappingProfile
+{
+    public SameEnumNullableToNonNullProfile() => CreateMap<SameEnumNullableSource, SameEnumNonNullableDest>();
 }
 
 file class NullableToNonNullableEnumProfile : MappingProfile
