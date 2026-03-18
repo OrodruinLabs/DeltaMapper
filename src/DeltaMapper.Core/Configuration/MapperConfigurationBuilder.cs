@@ -180,6 +180,24 @@ public sealed class MapperConfigurationBuilder
                     setter(dst, converted);
                 });
             }
+            else if (IsEnumMapping(srcPropCaptured.PropertyType, dstPropCaptured.PropertyType))
+            {
+                // Enum-to-enum mapping by name
+                var getter = CompileGetter(srcPropCaptured);
+                var setter = CompileSetter(dstPropCaptured);
+                var dstEnumType = Nullable.GetUnderlyingType(dstPropCaptured.PropertyType) ?? dstPropCaptured.PropertyType;
+                assignments.Add((src, dst, ctx) =>
+                {
+                    var value = getter(src);
+                    if (value == null)
+                    {
+                        setter(dst, null);
+                        return;
+                    }
+                    var parsed = Enum.Parse(dstEnumType, value.ToString()!);
+                    setter(dst, parsed);
+                });
+            }
             else if (IsCollectionMapping(srcPropCaptured.PropertyType, dstPropCaptured.PropertyType,
                          out var srcElementType, out var dstElementType))
             {
@@ -487,6 +505,13 @@ public sealed class MapperConfigurationBuilder
     private static bool IsDirectlyAssignable(Type srcType, Type dstType)
     {
         return dstType.IsAssignableFrom(srcType);
+    }
+
+    private static bool IsEnumMapping(Type srcType, Type dstType)
+    {
+        var srcUnderlying = Nullable.GetUnderlyingType(srcType) ?? srcType;
+        var dstUnderlying = Nullable.GetUnderlyingType(dstType) ?? dstType;
+        return srcUnderlying.IsEnum && dstUnderlying.IsEnum && srcUnderlying != dstUnderlying;
     }
 
     /// <summary>
