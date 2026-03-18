@@ -1,10 +1,14 @@
 <p align="center">
-  <img src="icon.png" alt="DeltaMapper" width="128" />
+  <img src="icon.png" alt="DeltaMapper" width="200" />
+  <br />
+  <h1 align="center">DeltaMapper</h1>
+  <p align="center"><em>Fast, diff-aware .NET object mapper. MIT licensed. Minimal dependencies.</em></p>
+  <p align="center">
+    <a href="https://www.nuget.org/packages/DeltaMapper"><img src="https://img.shields.io/nuget/v/DeltaMapper.svg" alt="NuGet" /></a>
+    <a href="https://github.com/OrodruinLabs/DeltaMapper/actions/workflows/ci.yml"><img src="https://github.com/OrodruinLabs/DeltaMapper/actions/workflows/ci.yml/badge.svg" alt="Build" /></a>
+    <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT" /></a>
+  </p>
 </p>
-
-# DeltaMapper
-
-> Fast, diff-aware .NET object mapper. MIT licensed. Minimal dependencies.
 
 - **Expression-compiled delegates + `FrozenDictionary`** — all reflection happens once at startup, never at call time
 - **`MappingDiff<T>`** — maps an object _and_ returns a structured change set in a single call
@@ -12,10 +16,6 @@
 - **EF Core proxy awareness** — safely maps lazy-loaded proxy entities without triggering navigation loads
 - **OpenTelemetry tracing** — zero-overhead `Activity` spans when no listener is attached
 - **MIT licensed, no paid tiers, forever**
-
-[![NuGet](https://img.shields.io/nuget/v/DeltaMapper.svg)](https://www.nuget.org/packages/DeltaMapper)
-[![Build](https://github.com/OrodruinLabs/DeltaMapper/actions/workflows/ci.yml/badge.svg)](https://github.com/OrodruinLabs/DeltaMapper/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 ---
 
