@@ -211,6 +211,32 @@ public sealed class MapperConfigurationBuilder
                     setter(dst, resolved);
                 });
             }
+            else if (IsDictionaryMapping(srcPropCaptured.PropertyType, dstPropCaptured.PropertyType,
+                         out var srcKeyType, out var srcValType, out var dstKeyType, out var dstValType))
+            {
+                // Dictionary mapping — clone with value mapping if needed
+                var getter = CompileGetter(srcPropCaptured);
+                var setter = CompileSetter(dstPropCaptured);
+                var sKey = srcKeyType!; var sVal = srcValType!;
+                var dKey = dstKeyType!; var dVal = dstValType!;
+                var dstDictType = typeof(Dictionary<,>).MakeGenericType(dKey, dVal);
+                assignments.Add((src, dst, ctx) =>
+                {
+                    var srcDict = getter(src);
+                    if (srcDict == null) { setter(dst, null); return; }
+
+                    var newDict = (System.Collections.IDictionary)Activator.CreateInstance(dstDictType)!;
+                    foreach (System.Collections.DictionaryEntry entry in (System.Collections.IDictionary)srcDict)
+                    {
+                        var key = IsDirectlyAssignable(sKey, dKey) ? entry.Key : ctx.Config.Execute(entry.Key, sKey, dKey, ctx);
+                        var val = entry.Value == null ? null
+                            : IsDirectlyAssignable(sVal, dVal) ? entry.Value
+                            : ctx.Config.Execute(entry.Value, sVal, dVal, ctx);
+                        newDict[key] = val;
+                    }
+                    setter(dst, newDict);
+                });
+            }
             else if (IsCollectionMapping(srcPropCaptured.PropertyType, dstPropCaptured.PropertyType,
                          out var srcElementType, out var dstElementType))
             {
@@ -606,8 +632,6 @@ public sealed class MapperConfigurationBuilder
         var name = Enum.GetName(srcEnumType, value);
         if (name != null)
         {
-            // Check if the single name exists on dest; if not and source is [Flags],
-            // it may be an alias (e.g. ReadWrite = Read|Write) — fall through to composite path
             if (dstNames.Contains(name))
                 return Enum.Parse(dstEnumType, name);
 
@@ -615,11 +639,9 @@ public sealed class MapperConfigurationBuilder
                 throw new DeltaMapperException(
                     $"Cannot map enum value '{value}' from '{srcEnumType.Name}' to '{dstEnumType.Name}'. No matching name found.");
 
-            // Alias name (e.g. ReadWrite = Read|Write) — decompose to individual flags
             return DecomposeFlagsAndMap(value, srcEnumType, dstNames, dstEnumType);
         }
 
-        // [Flags] composite: ToString() yields "A, B"
         var composite = value.ToString();
         if (string.IsNullOrWhiteSpace(composite) || long.TryParse(composite, out _))
             throw new DeltaMapperException(
@@ -641,7 +663,6 @@ public sealed class MapperConfigurationBuilder
         var remaining = ToUInt64(value);
         List<string> parts = [];
 
-        // Cached (name, value) pairs sorted descending by value for greedy matching
         var members = GetOrCreateEnumMembers(srcEnumType);
 
         foreach (var (name, memberValue) in members)
@@ -661,8 +682,6 @@ public sealed class MapperConfigurationBuilder
 
     private static ulong ToUInt64(object enumValue)
     {
-        // GetTypeCode on an enum type returns TypeCode.Object,
-        // so resolve the underlying integral type first
         var underlyingType = Enum.GetUnderlyingType(enumValue.GetType());
         return Type.GetTypeCode(underlyingType) switch
         {
@@ -690,6 +709,30 @@ public sealed class MapperConfigurationBuilder
         var srcUnderlying = Nullable.GetUnderlyingType(srcType) ?? srcType;
         var dstUnderlying = Nullable.GetUnderlyingType(dstType) ?? dstType;
         return srcUnderlying.IsEnum && dstUnderlying.IsEnum && srcUnderlying != dstUnderlying;
+    }
+
+    private static bool IsDictionaryMapping(Type srcType, Type dstType,
+        out Type? srcKey, out Type? srcVal, out Type? dstKey, out Type? dstVal)
+    {
+        srcKey = srcVal = dstKey = dstVal = null;
+        var srcDict = GetDictionaryTypes(srcType);
+        var dstDict = GetDictionaryTypes(dstType);
+        if (srcDict == null || dstDict == null) return false;
+        srcKey = srcDict.Value.Key; srcVal = srcDict.Value.Value;
+        dstKey = dstDict.Value.Key; dstVal = dstDict.Value.Value;
+        return true;
+    }
+
+    private static (Type Key, Type Value)? GetDictionaryTypes(Type type)
+    {
+        if (!type.IsGenericType) return null;
+        var genDef = type.GetGenericTypeDefinition();
+        if (genDef == typeof(Dictionary<,>) || genDef == typeof(IDictionary<,>) || genDef == typeof(IReadOnlyDictionary<,>))
+        {
+            var args = type.GetGenericArguments();
+            return (args[0], args[1]);
+        }
+        return null;
     }
 
     /// <summary>
