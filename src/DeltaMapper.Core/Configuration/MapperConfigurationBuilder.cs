@@ -16,6 +16,7 @@ public sealed class MapperConfigurationBuilder
 {
     private readonly List<MappingProfile> _profiles = [];
     private readonly List<IMappingMiddleware> _middlewares = [];
+    private readonly Dictionary<(Type, Type), Func<object?, object?>> _typeConverters = new();
 
     /// <summary>
     /// Adds a mapping profile by type (instantiates via parameterless constructor).
@@ -33,6 +34,18 @@ public sealed class MapperConfigurationBuilder
     {
         ArgumentNullException.ThrowIfNull(profile);
         _profiles.Add(profile);
+        return this;
+    }
+
+    /// <summary>
+    /// Registers a global type converter that applies across all maps
+    /// when a source property of type <typeparamref name="TSource"/>
+    /// maps to a destination property of type <typeparamref name="TDest"/>.
+    /// </summary>
+    public MapperConfigurationBuilder CreateTypeConverter<TSource, TDest>(Func<TSource, TDest> converter)
+    {
+        ArgumentNullException.ThrowIfNull(converter);
+        _typeConverters[(typeof(TSource), typeof(TDest))] = src => src == null ? default(TDest) : (object?)converter((TSource)src);
         return this;
     }
 
@@ -79,13 +92,15 @@ public sealed class MapperConfigurationBuilder
         foreach (var tm in allTypeMaps)
         {
             var key = (tm.SourceType, tm.DestinationType);
-            compiled[key] = CompileTypeMap(tm);
+            compiled[key] = CompileTypeMap(tm, _typeConverters);
         }
 
         return MapperConfiguration.CreateFromBuilder(compiled, _middlewares);
     }
 
-    private static CompiledMap CompileTypeMap(TypeMapConfiguration tm)
+    private static CompiledMap CompileTypeMap(
+        TypeMapConfiguration tm,
+        Dictionary<(Type, Type), Func<object?, object?>> typeConverters)
     {
         var srcType = tm.SourceType;
         var dstType = tm.DestinationType;
@@ -95,7 +110,7 @@ public sealed class MapperConfigurationBuilder
         // Check if destination type needs constructor injection (records or init-only properties)
         if (NeedsConstructorInjection(dstType, dstProps))
         {
-            return CompileConstructorMap(tm, srcType, dstType, srcProps, dstProps);
+            return CompileConstructorMap(tm, srcType, dstType, srcProps, dstProps, typeConverters);
         }
 
         // Build property assignment list at compile time — reflection cost is paid here only
@@ -322,6 +337,18 @@ public sealed class MapperConfigurationBuilder
                     setter(dst, mapped);
                 });
             }
+            else if (typeConverters.TryGetValue((srcPropCaptured.PropertyType, dstPropCaptured.PropertyType), out var typeConverter))
+            {
+                // Global type converter — compiled getter/setter with user-supplied conversion
+                var getter = CompileGetter(srcPropCaptured);
+                var setter = CompileSetter(dstPropCaptured);
+                var conv = typeConverter;
+                assignments.Add((src, dst, ctx) =>
+                {
+                    var value = getter(src);
+                    setter(dst, conv(value));
+                });
+            }
 
             // Wrap convention-matched assignment with condition if present
             if (memberConfig?.ConditionPredicate != null && assignments.Count > assignmentCountBefore)
@@ -380,7 +407,8 @@ public sealed class MapperConfigurationBuilder
 
     private static CompiledMap CompileConstructorMap(
         TypeMapConfiguration tm, Type srcType, Type dstType,
-        PropertyInfo[] srcProps, PropertyInfo[] dstProps)
+        PropertyInfo[] srcProps, PropertyInfo[] dstProps,
+        Dictionary<(Type, Type), Func<object?, object?>> typeConverters)
     {
         // Find the best constructor — prefer the one with the most parameters matching source properties
         var constructors = dstType.GetConstructors(BindingFlags.Public | BindingFlags.Instance);
@@ -468,6 +496,12 @@ public sealed class MapperConfigurationBuilder
                             (src, ctx) => ResolveEnumValue(
                                 compiledGetter(src), nameMap, dstEnumType, dstIsNullable, param.Name!),
                             condition, fallback));
+                    }
+                    else if (typeConverters.TryGetValue((capturedSrcProp.PropertyType, param.ParameterType), out var paramConverter))
+                    {
+                        var conv = paramConverter;
+                        paramResolvers.Add(WrapParamWithCondition(
+                            (src, ctx) => conv(compiledGetter(src)), condition, fallback));
                     }
                     else
                     {
@@ -825,15 +859,15 @@ public sealed class MapperConfigurationBuilder
     /// </summary>
     private static readonly Dictionary<Type, HashSet<Type>> _wideningMap = new()
     {
-        [typeof(byte)]   = new() { typeof(short), typeof(ushort), typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(float), typeof(double), typeof(decimal) },
-        [typeof(sbyte)]  = new() { typeof(short), typeof(int), typeof(long), typeof(float), typeof(double), typeof(decimal) },
-        [typeof(short)]  = new() { typeof(int), typeof(long), typeof(float), typeof(double), typeof(decimal) },
+        [typeof(byte)] = new() { typeof(short), typeof(ushort), typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(float), typeof(double), typeof(decimal) },
+        [typeof(sbyte)] = new() { typeof(short), typeof(int), typeof(long), typeof(float), typeof(double), typeof(decimal) },
+        [typeof(short)] = new() { typeof(int), typeof(long), typeof(float), typeof(double), typeof(decimal) },
         [typeof(ushort)] = new() { typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(float), typeof(double), typeof(decimal) },
-        [typeof(int)]    = new() { typeof(long), typeof(double), typeof(decimal) },
-        [typeof(uint)]   = new() { typeof(long), typeof(ulong), typeof(double), typeof(decimal) },
-        [typeof(long)]   = new() { typeof(decimal) },
-        [typeof(ulong)]  = new() { typeof(decimal) },
-        [typeof(float)]  = new() { typeof(double) },
+        [typeof(int)] = new() { typeof(long), typeof(double), typeof(decimal) },
+        [typeof(uint)] = new() { typeof(long), typeof(ulong), typeof(double), typeof(decimal) },
+        [typeof(long)] = new() { typeof(decimal) },
+        [typeof(ulong)] = new() { typeof(decimal) },
+        [typeof(float)] = new() { typeof(double) },
     };
 
     /// <summary>
