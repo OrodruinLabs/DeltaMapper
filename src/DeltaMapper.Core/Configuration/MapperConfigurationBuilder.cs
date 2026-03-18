@@ -109,6 +109,8 @@ public sealed class MapperConfigurationBuilder
             var memberConfig = tm.MemberConfigurations
                 .FirstOrDefault(mc => mc.DestinationMemberName.Equals(dstProp.Name, StringComparison.OrdinalIgnoreCase));
 
+            var assignmentCountBefore = assignments.Count;
+
             if (memberConfig != null)
             {
                 if (memberConfig.IsIgnored)
@@ -118,11 +120,12 @@ public sealed class MapperConfigurationBuilder
                 {
                     var resolver = memberConfig.CustomResolver;
                     var compiledSetter = CompileSetter(dstProp);
-                    assignments.Add((src, dst, ctx) =>
+                    Action<object, object, MapperContext> assign = (src, dst, ctx) =>
                     {
                         var value = resolver(src);
                         compiledSetter(dst, value);
-                    });
+                    };
+                    assignments.Add(WrapWithCondition(assign, memberConfig.ConditionPredicate));
                     continue;
                 }
 
@@ -131,19 +134,21 @@ public sealed class MapperConfigurationBuilder
                     var srcProp = FindSourceProperty(srcProps, dstProp.Name);
                     var substituteValue = memberConfig.NullSubstituteValue;
                     var compiledSetter = CompileSetter(dstProp);
+                    Action<object, object, MapperContext> assign;
                     if (srcProp != null)
                     {
                         var compiledGetter = CompileGetter(srcProp);
-                        assignments.Add((src, dst, ctx) =>
+                        assign = (src, dst, ctx) =>
                         {
                             var value = compiledGetter(src);
                             compiledSetter(dst, value ?? substituteValue);
-                        });
+                        };
                     }
                     else
                     {
-                        assignments.Add((src, dst, ctx) => compiledSetter(dst, substituteValue));
+                        assign = (src, dst, ctx) => compiledSetter(dst, substituteValue);
                     }
+                    assignments.Add(WrapWithCondition(assign, memberConfig.ConditionPredicate));
                     continue;
                 }
             }
@@ -317,6 +322,12 @@ public sealed class MapperConfigurationBuilder
                     setter(dst, mapped);
                 });
             }
+
+            // Wrap convention-matched assignment with condition if present
+            if (memberConfig?.ConditionPredicate != null && assignments.Count > assignmentCountBefore)
+            {
+                assignments[^1] = WrapWithCondition(assignments[^1], memberConfig.ConditionPredicate);
+            }
         }
 
         // Build the combined delegate — this closure captures assignments, factory, and tm hooks
@@ -398,18 +409,20 @@ public sealed class MapperConfigurationBuilder
             var memberConfig = tm.MemberConfigurations
                 .FirstOrDefault(mc => mc.DestinationMemberName.Equals(param.Name!, StringComparison.OrdinalIgnoreCase));
 
+            var condition = memberConfig?.ConditionPredicate;
+            var fallback = param.HasDefaultValue && param.DefaultValue != DBNull.Value
+                ? param.DefaultValue
+                : (param.ParameterType.IsValueType ? Activator.CreateInstance(param.ParameterType) : null);
+
             if (memberConfig?.IsIgnored == true)
             {
-                // Ignored — use parameter default or type default
-                var defaultValue = param.HasDefaultValue && param.DefaultValue != DBNull.Value
-                    ? param.DefaultValue
-                    : (param.ParameterType.IsValueType ? Activator.CreateInstance(param.ParameterType) : null);
-                paramResolvers.Add((src, ctx) => defaultValue);
+                paramResolvers.Add((src, ctx) => fallback);
             }
             else if (memberConfig?.CustomResolver != null)
             {
                 var resolver = memberConfig.CustomResolver;
-                paramResolvers.Add((src, ctx) => resolver(src));
+                paramResolvers.Add(WrapParamWithCondition(
+                    (src, ctx) => resolver(src), condition, fallback));
             }
             else if (memberConfig?.HasNullSubstitute == true)
             {
@@ -418,11 +431,13 @@ public sealed class MapperConfigurationBuilder
                 if (srcProp != null)
                 {
                     var capturedSrcProp = srcProp;
-                    paramResolvers.Add((src, ctx) => capturedSrcProp.GetValue(src) ?? substituteValue);
+                    paramResolvers.Add(WrapParamWithCondition(
+                        (src, ctx) => capturedSrcProp.GetValue(src) ?? substituteValue, condition, fallback));
                 }
                 else
                 {
-                    paramResolvers.Add((src, ctx) => substituteValue);
+                    paramResolvers.Add(WrapParamWithCondition(
+                        (src, ctx) => substituteValue, condition, fallback));
                 }
             }
             else
@@ -435,34 +450,34 @@ public sealed class MapperConfigurationBuilder
                     if (IsSameEnumNullabilityDiff(capturedSrcProp.PropertyType, param.ParameterType))
                     {
                         var dstIsNullable = Nullable.GetUnderlyingType(param.ParameterType) != null;
-                        paramResolvers.Add((src, ctx) =>
+                        paramResolvers.Add(WrapParamWithCondition((src, ctx) =>
                         {
                             var value = compiledGetter(src);
                             if (value == null && !dstIsNullable)
                                 throw new DeltaMapperException(
                                     $"Cannot map null enum value to non-nullable parameter '{param.Name}'.");
                             return value;
-                        });
+                        }, condition, fallback));
                     }
                     else if (IsEnumMapping(capturedSrcProp.PropertyType, param.ParameterType))
                     {
                         var dstEnumType = Nullable.GetUnderlyingType(param.ParameterType) ?? param.ParameterType;
                         var dstIsNullable = Nullable.GetUnderlyingType(param.ParameterType) != null;
                         var nameMap = GetOrCreateEnumNameMap(dstEnumType);
-                        paramResolvers.Add((src, ctx) => ResolveEnumValue(
-                            compiledGetter(src), nameMap, dstEnumType, dstIsNullable, param.Name!));
+                        paramResolvers.Add(WrapParamWithCondition(
+                            (src, ctx) => ResolveEnumValue(
+                                compiledGetter(src), nameMap, dstEnumType, dstIsNullable, param.Name!),
+                            condition, fallback));
                     }
                     else
                     {
-                        paramResolvers.Add((src, ctx) => compiledGetter(src));
+                        paramResolvers.Add(WrapParamWithCondition(
+                            (src, ctx) => compiledGetter(src), condition, fallback));
                     }
                 }
                 else
                 {
-                    var defaultValue = param.HasDefaultValue && param.DefaultValue != DBNull.Value
-                        ? param.DefaultValue
-                        : (param.ParameterType.IsValueType ? Activator.CreateInstance(param.ParameterType) : null);
-                    paramResolvers.Add((src, ctx) => defaultValue);
+                    paramResolvers.Add((src, ctx) => fallback);
                 }
             }
         }
@@ -485,7 +500,8 @@ public sealed class MapperConfigurationBuilder
             {
                 var resolver = memberConfig.CustomResolver;
                 var setter = dstProp;
-                initOnlyAssignments.Add((src, dst, ctx) => setter.SetValue(dst, resolver(src)));
+                Action<object, object, MapperContext> assign = (src, dst, ctx) => setter.SetValue(dst, resolver(src));
+                initOnlyAssignments.Add(WrapWithCondition(assign, memberConfig.ConditionPredicate));
                 continue;
             }
 
@@ -494,14 +510,16 @@ public sealed class MapperConfigurationBuilder
                 var srcProp2 = FindSourceProperty(srcProps, dstProp.Name);
                 var substituteValue = memberConfig.NullSubstituteValue;
                 var setter = dstProp;
+                Action<object, object, MapperContext> assign;
                 if (srcProp2 != null)
                 {
-                    initOnlyAssignments.Add((src, dst, ctx) => setter.SetValue(dst, srcProp2.GetValue(src) ?? substituteValue));
+                    assign = (src, dst, ctx) => setter.SetValue(dst, srcProp2.GetValue(src) ?? substituteValue);
                 }
                 else
                 {
-                    initOnlyAssignments.Add((src, dst, ctx) => setter.SetValue(dst, substituteValue));
+                    assign = (src, dst, ctx) => setter.SetValue(dst, substituteValue);
                 }
+                initOnlyAssignments.Add(WrapWithCondition(assign, memberConfig.ConditionPredicate));
                 continue;
             }
 
@@ -515,29 +533,32 @@ public sealed class MapperConfigurationBuilder
                 if (IsSameEnumNullabilityDiff(capturedSrc.PropertyType, capturedDst.PropertyType))
                 {
                     var dstIsNullable = Nullable.GetUnderlyingType(capturedDst.PropertyType) != null;
-                    initOnlyAssignments.Add((src, dst, ctx) =>
+                    Action<object, object, MapperContext> assign = (src, dst, ctx) =>
                     {
                         var value = compiledGetter(src);
                         if (value == null && !dstIsNullable)
                             throw new DeltaMapperException(
                                 $"Cannot map null enum value to non-nullable property '{capturedDst.Name}'.");
                         capturedDst.SetValue(dst, value);
-                    });
+                    };
+                    initOnlyAssignments.Add(WrapWithCondition(assign, memberConfig?.ConditionPredicate));
                 }
                 else if (IsEnumMapping(capturedSrc.PropertyType, capturedDst.PropertyType))
                 {
                     var dstEnumType = Nullable.GetUnderlyingType(capturedDst.PropertyType) ?? capturedDst.PropertyType;
                     var dstIsNullable = Nullable.GetUnderlyingType(capturedDst.PropertyType) != null;
                     var nameMap = GetOrCreateEnumNameMap(dstEnumType);
-                    initOnlyAssignments.Add((src, dst, ctx) =>
+                    Action<object, object, MapperContext> assign = (src, dst, ctx) =>
                     {
                         var resolved = ResolveEnumValue(compiledGetter(src), nameMap, dstEnumType, dstIsNullable, capturedDst.Name);
                         capturedDst.SetValue(dst, resolved);
-                    });
+                    };
+                    initOnlyAssignments.Add(WrapWithCondition(assign, memberConfig?.ConditionPredicate));
                 }
                 else if (IsDirectlyAssignable(capturedSrc.PropertyType, capturedDst.PropertyType))
                 {
-                    initOnlyAssignments.Add((src, dst, ctx) => capturedDst.SetValue(dst, compiledGetter(src)));
+                    Action<object, object, MapperContext> assign = (src, dst, ctx) => capturedDst.SetValue(dst, compiledGetter(src));
+                    initOnlyAssignments.Add(WrapWithCondition(assign, memberConfig?.ConditionPredicate));
                 }
             }
         }
@@ -615,6 +636,24 @@ public sealed class MapperConfigurationBuilder
         return Expression.Lambda<Func<object>>(
             Expression.Convert(Expression.New(type), typeof(object))
         ).Compile();
+    }
+
+    private static Action<object, object, MapperContext> WrapWithCondition(
+        Action<object, object, MapperContext> assign, Func<object, bool>? predicate)
+    {
+        if (predicate == null) return assign;
+        return (src, dst, ctx) =>
+        {
+            if (predicate(src))
+                assign(src, dst, ctx);
+        };
+    }
+
+    private static Func<object, MapperContext, object?> WrapParamWithCondition(
+        Func<object, MapperContext, object?> resolver, Func<object, bool>? predicate, object? fallback)
+    {
+        if (predicate == null) return resolver;
+        return (src, ctx) => predicate(src) ? resolver(src, ctx) : fallback;
     }
 
     private static PropertyInfo? FindSourceProperty(PropertyInfo[] srcProps, string dstName)

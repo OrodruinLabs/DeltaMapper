@@ -21,4 +21,9 @@ public interface IMemberOptions<TSrc>
     /// Use the specified value when the source value is null.
     /// </summary>
     void NullSubstitute(object value);
+
+    /// <summary>
+    /// Only map this member when the condition is true.
+    /// </summary>
+    void Condition(Expression<Func<TSrc, bool>> predicate);
 }
