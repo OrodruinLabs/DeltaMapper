@@ -654,8 +654,20 @@ public sealed class MapperConfigurationBuilder
 
     private static ulong ToUInt64(object enumValue)
     {
-        // Preserve bit pattern for both signed and unsigned underlying types
-        return unchecked((ulong)Convert.ToInt64(enumValue));
+        // Type-aware conversion that handles all enum underlying types
+        // including ulong values above Int64.MaxValue (e.g. 1UL << 63)
+        return Type.GetTypeCode(enumValue.GetType()) switch
+        {
+            TypeCode.SByte => unchecked((ulong)Convert.ToSByte(enumValue)),
+            TypeCode.Int16 => unchecked((ulong)Convert.ToInt16(enumValue)),
+            TypeCode.Int32 => unchecked((ulong)Convert.ToInt32(enumValue)),
+            TypeCode.Int64 => unchecked((ulong)Convert.ToInt64(enumValue)),
+            TypeCode.Byte => Convert.ToByte(enumValue),
+            TypeCode.UInt16 => Convert.ToUInt16(enumValue),
+            TypeCode.UInt32 => Convert.ToUInt32(enumValue),
+            TypeCode.UInt64 => Convert.ToUInt64(enumValue),
+            _ => unchecked((ulong)Convert.ToInt64(enumValue)),
+        };
     }
 
     private static bool IsSameEnumNullabilityDiff(Type srcType, Type dstType)
