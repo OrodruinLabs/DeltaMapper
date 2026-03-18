@@ -155,7 +155,17 @@ public sealed class MapperConfigurationBuilder
 
             // Convention matching — find source property with same name (case-insensitive)
             var matchingSrcProp = FindSourceProperty(srcProps, dstProp.Name);
-            if (matchingSrcProp == null) continue;
+            if (matchingSrcProp == null)
+            {
+                // Try flattening: CustomerName → Customer.Name
+                var flattenedGetter = TryBuildFlattenedGetter(srcType, dstProp.Name);
+                if (flattenedGetter != null)
+                {
+                    var setter = CompileSetter(dstProp);
+                    assignments.Add((src, dst, ctx) => setter(dst, flattenedGetter(src)));
+                }
+                continue;
+            }
 
             // Capture loop variables for closure
             var srcPropCaptured = matchingSrcProp;
@@ -661,6 +671,119 @@ public sealed class MapperConfigurationBuilder
         return srcProps.FirstOrDefault(p => p.Name.Equals(dstName, StringComparison.OrdinalIgnoreCase));
     }
 
+    /// <summary>
+    /// Attempts to build a null-safe compiled getter for a flattened destination property name.
+    /// For example, given source type <c>Order</c> and destination name <c>CustomerName</c>,
+    /// this method discovers the chain <c>Order.Customer.Name</c> and compiles a null-safe
+    /// expression <c>src => src.Customer == null ? null : (object)src.Customer.Name</c>.
+    /// </summary>
+    /// <param name="srcType">The root source type to search.</param>
+    /// <param name="dstPropertyName">The flattened destination property name (e.g. "CustomerName").</param>
+    /// <returns>A compiled getter delegate, or <c>null</c> if no matching property chain is found.</returns>
+    private static Func<object, object?>? TryBuildFlattenedGetter(Type srcType, string dstPropertyName)
+    {
+        // Walk the PascalCase segments greedily, trying longer prefixes first.
+        var param = Expression.Parameter(typeof(object), "src");
+        var chain = TryBuildChain(srcType, dstPropertyName, param, Expression.Convert(param, srcType));
+        if (chain == null) return null;
+
+        var lambda = Expression.Lambda<Func<object, object?>>(chain, param);
+        return lambda.Compile();
+    }
+
+    /// <summary>
+    /// Recursively matches PascalCase segments of <paramref name="remaining"/> against properties on
+    /// <paramref name="currentType"/>, building a null-safe expression chain along the way.
+    /// Greedy: tries longer prefixes first so "Customer" beats "C" when both match.
+    /// </summary>
+    private static Expression? TryBuildChain(Type currentType, string remaining, ParameterExpression rootParam, Expression currentExpr)
+    {
+        var props = currentType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+
+        // Try all split points from longest prefix to shortest (greedy matching).
+        // Start at remaining.Length so we also try an exact full-string match (empty suffix).
+        for (int len = remaining.Length; len >= 1; len--)
+        {
+            var prefix = remaining[..len];
+            var suffix = remaining[len..];
+
+            var matched = props.FirstOrDefault(p => p.Name.Equals(prefix, StringComparison.OrdinalIgnoreCase));
+            if (matched == null) continue;
+
+            // Build the raw property-access expression on the correctly-typed current object
+            var typedCurrent = currentType.IsValueType ? currentExpr : Expression.Convert(currentExpr, currentType);
+            var propAccess = Expression.Property(typedCurrent, matched);
+
+            if (suffix.Length == 0)
+            {
+                // Leaf: exact match — wrap with null guard then box
+                return BuildNullSafeAccess(currentType, currentExpr, propAccess);
+            }
+
+            // More segments remain — recurse into the matched property's type
+            var nextType = matched.PropertyType;
+            if (!IsTraversableType(nextType)) continue;
+
+            // Pass the property value (typed) as the next current expression
+            var nextExpr = nextType.IsValueType
+                ? (Expression)propAccess
+                : Expression.Convert(Expression.Convert(propAccess, typeof(object)), nextType);
+
+            var innerChain = TryBuildChain(nextType, suffix, rootParam, nextExpr);
+            if (innerChain == null) continue;
+
+            // Wrap with null guard: if current object or the intermediate property is null → return null
+            if (!currentType.IsValueType && !matched.PropertyType.IsValueType)
+            {
+                var nullConst = Expression.Constant(null, typeof(object));
+                var currentAsObj = Expression.Convert(currentExpr, typeof(object));
+                var isCurrentNull = Expression.Equal(currentAsObj, nullConst);
+                var propAsObj = Expression.Convert(propAccess, typeof(object));
+                var isPropNull = Expression.Equal(propAsObj, nullConst);
+
+                return Expression.Condition(
+                    Expression.OrElse(isCurrentNull, isPropNull),
+                    nullConst,
+                    innerChain);
+            }
+
+            return innerChain;
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// Returns true for types that can be traversed during flattening (reference types and structs
+    /// that are not primitives, strings, or enums).
+    /// </summary>
+    private static bool IsTraversableType(Type type)
+    {
+        return !type.IsPrimitive
+            && !type.IsEnum
+            && type != typeof(string)
+            && type != typeof(decimal);
+    }
+
+    /// <summary>
+    /// Wraps <paramref name="propAccess"/> with a null guard on <paramref name="currentExpr"/>
+    /// when <paramref name="currentType"/> is a reference type, returning <c>null</c> if the
+    /// current object is null, otherwise returning the boxed property value.
+    /// </summary>
+    private static Expression BuildNullSafeAccess(Type currentType, Expression currentExpr, MemberExpression propAccess)
+    {
+        var boxed = Expression.Convert(propAccess, typeof(object));
+
+        if (currentType.IsValueType)
+            return boxed;
+
+        var nullConst = Expression.Constant(null, typeof(object));
+        var currentAsObj = Expression.Convert(currentExpr, typeof(object));
+        var isNull = Expression.Equal(currentAsObj, nullConst);
+
+        return Expression.Condition(isNull, nullConst, boxed);
+    }
+
     private static bool IsDirectlyAssignable(Type srcType, Type dstType)
     {
         return dstType.IsAssignableFrom(srcType);
@@ -825,15 +948,15 @@ public sealed class MapperConfigurationBuilder
     /// </summary>
     private static readonly Dictionary<Type, HashSet<Type>> _wideningMap = new()
     {
-        [typeof(byte)]   = new() { typeof(short), typeof(ushort), typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(float), typeof(double), typeof(decimal) },
-        [typeof(sbyte)]  = new() { typeof(short), typeof(int), typeof(long), typeof(float), typeof(double), typeof(decimal) },
-        [typeof(short)]  = new() { typeof(int), typeof(long), typeof(float), typeof(double), typeof(decimal) },
+        [typeof(byte)] = new() { typeof(short), typeof(ushort), typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(float), typeof(double), typeof(decimal) },
+        [typeof(sbyte)] = new() { typeof(short), typeof(int), typeof(long), typeof(float), typeof(double), typeof(decimal) },
+        [typeof(short)] = new() { typeof(int), typeof(long), typeof(float), typeof(double), typeof(decimal) },
         [typeof(ushort)] = new() { typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(float), typeof(double), typeof(decimal) },
-        [typeof(int)]    = new() { typeof(long), typeof(double), typeof(decimal) },
-        [typeof(uint)]   = new() { typeof(long), typeof(ulong), typeof(double), typeof(decimal) },
-        [typeof(long)]   = new() { typeof(decimal) },
-        [typeof(ulong)]  = new() { typeof(decimal) },
-        [typeof(float)]  = new() { typeof(double) },
+        [typeof(int)] = new() { typeof(long), typeof(double), typeof(decimal) },
+        [typeof(uint)] = new() { typeof(long), typeof(ulong), typeof(double), typeof(decimal) },
+        [typeof(long)] = new() { typeof(decimal) },
+        [typeof(ulong)] = new() { typeof(decimal) },
+        [typeof(float)] = new() { typeof(double) },
     };
 
     /// <summary>
