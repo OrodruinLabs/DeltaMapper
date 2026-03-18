@@ -76,7 +76,7 @@ This document contains the DeltaMapper benchmark suite results, comparing DeltaM
 
 ## Performance Tiers
 
-DeltaMapper offers two call patterns depending on your needs:
+DeltaMapper offers three performance tiers depending on your needs:
 
 | Tier | Call Pattern | Flat Mean | Features |
 |------|-------------|-----------|----------|
