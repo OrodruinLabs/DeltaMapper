@@ -1,3 +1,4 @@
+using DeltaMapper.Abstractions;
 using DeltaMapper.Configuration;
 using FluentAssertions;
 using Xunit;
@@ -45,7 +46,7 @@ public class DictionaryProfile : MappingProfile
 
 public class DictionaryMappingTests
 {
-    private readonly Abstractions.IMapper _mapper;
+    private readonly IMapper _mapper;
 
     public DictionaryMappingTests()
     {
@@ -116,4 +117,103 @@ public class DictionaryMappingTests
 
         dest.Metadata.Should().ContainKey("key").WhoseValue.Should().Be("val");
     }
+
+    [Fact]
+    public void Dict06_MapsDictionaryWithMappedValueTypes()
+    {
+        var mapper = MapperConfiguration.Create(cfg =>
+        {
+            cfg.AddProfile(new DictComplexProfile());
+        }).CreateMapper();
+
+        var source = new DictComplexSource
+        {
+            Items = new Dictionary<string, DictChildSource>
+            {
+                ["a"] = new() { Name = "Alice" },
+                ["b"] = new() { Name = "Bob" }
+            }
+        };
+
+        var dest = mapper.Map<DictComplexSource, DictComplexDest>(source);
+
+        dest.Items.Should().HaveCount(2);
+        dest.Items["a"].Name.Should().Be("Alice");
+        dest.Items["b"].Name.Should().Be("Bob");
+    }
+
+    [Fact]
+    public void Dict07_MapsReadOnlyDictionarySource()
+    {
+        var mapper = MapperConfiguration.Create(cfg =>
+        {
+            cfg.AddProfile(new DictReadOnlyProfile());
+        }).CreateMapper();
+
+        var source = new DictReadOnlySource
+        {
+            Data = new Dictionary<string, int> { ["x"] = 1, ["y"] = 2 }
+        };
+
+        var dest = mapper.Map<DictReadOnlySource, DictReadOnlyDest>(source);
+
+        dest.Data.Should().HaveCount(2);
+        dest.Data["x"].Should().Be(1);
+    }
+
+    [Fact]
+    public void Dict08_ClonesDictionaryWhenTypesMatch()
+    {
+        var mapper = MapperConfiguration.Create(cfg =>
+        {
+            cfg.AddProfile(new DictCloneProfile());
+        }).CreateMapper();
+
+        var source = new DictCloneSource
+        {
+            Tags = new Dictionary<string, int> { ["a"] = 1 }
+        };
+
+        var dest = mapper.Map<DictCloneSource, DictCloneDest>(source);
+
+        dest.Tags.Should().BeEquivalentTo(source.Tags);
+        dest.Tags.Should().NotBeSameAs(source.Tags); // cloned, not reference-shared
+    }
+}
+
+// ── Complex value type models ─────────────────────────────────────
+
+public class DictChildSource { public string Name { get; set; } = ""; }
+public class DictChildDest { public string Name { get; set; } = ""; }
+
+public class DictComplexSource { public Dictionary<string, DictChildSource> Items { get; set; } = new(); }
+public class DictComplexDest { public Dictionary<string, DictChildDest> Items { get; set; } = new(); }
+
+file class DictComplexProfile : MappingProfile
+{
+    public DictComplexProfile()
+    {
+        CreateMap<DictChildSource, DictChildDest>();
+        CreateMap<DictComplexSource, DictComplexDest>();
+    }
+}
+
+// ── IReadOnlyDictionary models ────────────────────────────────────
+
+public class DictReadOnlySource { public IReadOnlyDictionary<string, int> Data { get; set; } = new Dictionary<string, int>(); }
+public class DictReadOnlyDest { public Dictionary<string, int> Data { get; set; } = new(); }
+
+file class DictReadOnlyProfile : MappingProfile
+{
+    public DictReadOnlyProfile() => CreateMap<DictReadOnlySource, DictReadOnlyDest>();
+}
+
+// ── Clone (same key/value types but different dict types) ─────────
+
+public class DictCloneSource { public IDictionary<string, int> Tags { get; set; } = new Dictionary<string, int>(); }
+public class DictCloneDest { public Dictionary<string, int> Tags { get; set; } = new(); }
+
+file class DictCloneProfile : MappingProfile
+{
+    public DictCloneProfile() => CreateMap<DictCloneSource, DictCloneDest>();
 }

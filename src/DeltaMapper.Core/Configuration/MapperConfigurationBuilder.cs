@@ -220,18 +220,26 @@ public sealed class MapperConfigurationBuilder
                 var sKey = srcKeyType!; var sVal = srcValType!;
                 var dKey = dstKeyType!; var dVal = dstValType!;
                 var dstDictType = typeof(Dictionary<,>).MakeGenericType(dKey, dVal);
+                // Build typed enumeration via KeyValuePair<,> to support IReadOnlyDictionary and others
+                var kvpType = typeof(KeyValuePair<,>).MakeGenericType(sKey, sVal);
+                var keyProp = kvpType.GetProperty("Key")!;
+                var valueProp = kvpType.GetProperty("Value")!;
+                var keyAssignable = IsDirectlyAssignable(sKey, dKey);
+                var valAssignable = IsDirectlyAssignable(sVal, dVal);
                 assignments.Add((src, dst, ctx) =>
                 {
                     var srcDict = getter(src);
                     if (srcDict == null) { setter(dst, null); return; }
 
                     var newDict = (System.Collections.IDictionary)Activator.CreateInstance(dstDictType)!;
-                    foreach (System.Collections.DictionaryEntry entry in (System.Collections.IDictionary)srcDict)
+                    foreach (var kvp in (System.Collections.IEnumerable)srcDict)
                     {
-                        var key = IsDirectlyAssignable(sKey, dKey) ? entry.Key : ctx.Config.Execute(entry.Key, sKey, dKey, ctx);
-                        var val = entry.Value == null ? null
-                            : IsDirectlyAssignable(sVal, dVal) ? entry.Value
-                            : ctx.Config.Execute(entry.Value, sVal, dVal, ctx);
+                        var entryKey = keyProp.GetValue(kvp)!;
+                        var entryVal = valueProp.GetValue(kvp);
+                        var key = keyAssignable ? entryKey : ctx.Config.Execute(entryKey, sKey, dKey, ctx);
+                        var val = entryVal == null ? null
+                            : valAssignable ? entryVal
+                            : ctx.Config.Execute(entryVal, sVal, dVal, ctx);
                         newDict[key] = val;
                     }
                     setter(dst, newDict);
@@ -725,13 +733,29 @@ public sealed class MapperConfigurationBuilder
 
     private static (Type Key, Type Value)? GetDictionaryTypes(Type type)
     {
-        if (!type.IsGenericType) return null;
-        var genDef = type.GetGenericTypeDefinition();
-        if (genDef == typeof(Dictionary<,>) || genDef == typeof(IDictionary<,>) || genDef == typeof(IReadOnlyDictionary<,>))
+        // Check the type itself
+        if (type.IsGenericType)
         {
-            var args = type.GetGenericArguments();
-            return (args[0], args[1]);
+            var genDef = type.GetGenericTypeDefinition();
+            if (genDef == typeof(Dictionary<,>) || genDef == typeof(IDictionary<,>) || genDef == typeof(IReadOnlyDictionary<,>))
+            {
+                var args = type.GetGenericArguments();
+                return (args[0], args[1]);
+            }
         }
+
+        // Scan implemented interfaces for IDictionary<,> or IReadOnlyDictionary<,>
+        foreach (var iface in type.GetInterfaces())
+        {
+            if (!iface.IsGenericType) continue;
+            var ifaceDef = iface.GetGenericTypeDefinition();
+            if (ifaceDef == typeof(IDictionary<,>) || ifaceDef == typeof(IReadOnlyDictionary<,>))
+            {
+                var args = iface.GetGenericArguments();
+                return (args[0], args[1]);
+            }
+        }
+
         return null;
     }
 
