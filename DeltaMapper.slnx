@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/DeltaMapper.Core/DeltaMapper.Core.csproj" />
+    <Project Path="src/DeltaMapper.EFCore/DeltaMapper.EFCore.csproj" />
+    <Project Path="src/DeltaMapper.OpenTelemetry/DeltaMapper.OpenTelemetry.csproj" />
+    <Project Path="src/DeltaMapper.SourceGen/DeltaMapper.SourceGen.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/DeltaMapper.UnitTests/DeltaMapper.UnitTests.csproj" />
+    <Project Path="tests/DeltaMapper.Benchmarks/DeltaMapper.Benchmarks.csproj" />
+    <Project Path="tests/DeltaMapper.IntegrationTests/DeltaMapper.IntegrationTests.csproj" />
+    <Project Path="tests/DeltaMapper.SourceGen.Tests/DeltaMapper.SourceGen.Tests.csproj" />
+  </Folder>
+</Solution>

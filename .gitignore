@@ -1,0 +1,21 @@
+## .NET
+bin/
+obj/
+*.nupkg
+*.snupkg
+
+## IDE
+.vs/
+.idea/
+*.user
+*.suo
+
+## Test Results
+**/TestResults/
+
+## Benchmarks
+BenchmarkDotNet.Artifacts/
+
+## OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>DeltaMapper.EFCore</RootNamespace>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+
+    <!-- NuGet package identity -->
+    <PackageId>DeltaMapper.EFCore</PackageId>
+    <Version>0.1.0-alpha</Version>
+    <Authors>Jose Mejia</Authors>
+    <Description>EF Core proxy-aware middleware for DeltaMapper — detects proxy types and skips unloaded navigation properties</Description>
+    <PackageTags>mapper;efcore;entity-framework;proxy;navigation;net10;csharp</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/OrodruinLabs/DeltaMapper</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/OrodruinLabs/DeltaMapper</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../DeltaMapper.Core/DeltaMapper.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.*" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="../../icon.png" Pack="true" PackagePath="/" />
+    <None Include="../../README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+</Project>

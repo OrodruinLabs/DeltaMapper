@@ -1,0 +1,53 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+    <RootNamespace>DeltaMapper.SourceGen</RootNamespace>
+    <IsRoslynComponent>true</IsRoslynComponent>
+
+    <!-- NuGet package identity -->
+    <PackageId>DeltaMapper.SourceGen</PackageId>
+    <Version>0.1.0-alpha</Version>
+    <Authors>Jose Mejia</Authors>
+    <Description>Roslyn source generator for DeltaMapper. Attach [GenerateMap] to a profile class and get compile-time mapping delegates with zero reflection at runtime. Includes DM001/DM002 analyzer diagnostics. MIT licensed.</Description>
+    <PackageTags>mapper;source-generator;roslyn;analyzer;dto;diff;patch;net10;csharp</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/OrodruinLabs/DeltaMapper</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/OrodruinLabs/DeltaMapper</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageReleaseNotes>
+v0.1.0-alpha — Initial release.
+
+- [GenerateMap] attribute for compile-time mapping code generation
+- Zero-overhead direct-call methods and IMapper fast-path integration
+- DM001 (unmapped property) and DM002 (unresolvable type) diagnostics
+- Supports nested types, collections, and [Ignore]
+    </PackageReleaseNotes>
+    <!-- RS2008: release-tracking manifests are not required for an alpha source generator -->
+    <NoWarn>$(NoWarn);RS2008</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.*" PrivateAssets="all" />
+  </ItemGroup>
+  <!-- Roslyn analyzer packaging: place the assembly under analyzers/dotnet/cs -->
+  <ItemGroup>
+    <None Include="$(OutputPath)\$(AssemblyName).dll"
+          Pack="true"
+          PackagePath="analyzers/dotnet/cs"
+          Visible="false" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="../../icon.png" Pack="true" PackagePath="/" />
+    <None Include="../../README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>DeltaMapper.SourceGen.Tests</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+</Project>
