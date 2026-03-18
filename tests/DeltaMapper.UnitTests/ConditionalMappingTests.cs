@@ -1,3 +1,4 @@
+using DeltaMapper.Abstractions;
 using DeltaMapper.Configuration;
 using FluentAssertions;
 using Xunit;
@@ -87,20 +88,76 @@ public class ConditionalMappingTests
             {
                 map.ForMember(d => d.Name, o =>
                 {
-                    o.MapFrom(s => s.Name.ToUpper());
+                    o.MapFrom(s => s.Name.ToUpperInvariant());
                     o.Condition(s => s.Name.Length > 3);
                 });
             }));
         }).CreateMapper();
 
-        var short_name = new CondSource { Id = 1, Name = "Bo", Age = 1 };
-        var long_name = new CondSource { Id = 2, Name = "Alice", Age = 1 };
+        var shortName = new CondSource { Id = 1, Name = "Bo", Age = 1 };
+        var longName = new CondSource { Id = 2, Name = "Alice", Age = 1 };
 
-        var dest1 = mapper.Map<CondSource, CondDest>(short_name);
-        var dest2 = mapper.Map<CondSource, CondDest>(long_name);
+        var dest1 = mapper.Map<CondSource, CondDest>(shortName);
+        var dest2 = mapper.Map<CondSource, CondDest>(longName);
 
         dest1.Name.Should().Be("default"); // condition false, keeps default
         dest2.Name.Should().Be("ALICE"); // condition true, resolver applied
+    }
+
+    [Fact]
+    public void Cond05_ConditionFalse_ExistingDestPreserved()
+    {
+        var mapper = MapperConfiguration.Create(cfg =>
+        {
+            cfg.AddProfile(new InlineProfile<CondSource, CondDest>(map =>
+                map.ForMember(d => d.Age, o => o.Condition(s => s.Age > 0))));
+        }).CreateMapper();
+
+        var src = new CondSource { Id = 1, Name = "Bob", Age = 0 };
+        var existing = new CondDest { Id = 99, Name = "Original", Age = 42, Email = "keep@me.com" };
+        var dest = mapper.Map(src, existing);
+
+        dest.Age.Should().Be(42); // condition false → existing value preserved
+        dest.Name.Should().Be("Bob"); // no condition → mapped
+        dest.Should().BeSameAs(existing);
+    }
+
+    [Fact]
+    public void Cond06_NullSubstituteWithConditionTrue()
+    {
+        var mapper = MapperConfiguration.Create(cfg =>
+        {
+            cfg.AddProfile(new InlineProfile<CondSource, CondDest>(map =>
+                map.ForMember(d => d.Email, o =>
+                {
+                    o.NullSubstitute("fallback@test.com");
+                    o.Condition(s => s.Email != null || s.Age > 0);
+                })));
+        }).CreateMapper();
+
+        var src = new CondSource { Id = 1, Name = "Alice", Age = 5, Email = null };
+        var dest = mapper.Map<CondSource, CondDest>(src);
+
+        dest.Email.Should().Be("fallback@test.com"); // condition true, null substitute applied
+    }
+
+    [Fact]
+    public void Cond07_NullSubstituteWithConditionFalse()
+    {
+        var mapper = MapperConfiguration.Create(cfg =>
+        {
+            cfg.AddProfile(new InlineProfile<CondSource, CondDest>(map =>
+                map.ForMember(d => d.Email, o =>
+                {
+                    o.NullSubstitute("fallback@test.com");
+                    o.Condition(s => s.Age > 0);
+                })));
+        }).CreateMapper();
+
+        var src = new CondSource { Id = 1, Name = "Bob", Age = 0, Email = null };
+        var dest = mapper.Map<CondSource, CondDest>(src);
+
+        dest.Email.Should().Be("default@test.com"); // condition false → keeps destination default
     }
 }
 
@@ -109,7 +166,7 @@ public class ConditionalMappingTests
 /// </summary>
 file class InlineProfile<TSrc, TDst> : MappingProfile
 {
-    public InlineProfile(Action<Abstractions.IMappingExpression<TSrc, TDst>> configure)
+    public InlineProfile(Action<IMappingExpression<TSrc, TDst>> configure)
     {
         var expr = CreateMap<TSrc, TDst>();
         configure(expr);

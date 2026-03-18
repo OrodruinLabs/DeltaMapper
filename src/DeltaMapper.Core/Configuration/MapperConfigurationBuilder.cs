@@ -496,7 +496,8 @@ public sealed class MapperConfigurationBuilder
             {
                 var resolver = memberConfig.CustomResolver;
                 var setter = dstProp;
-                initOnlyAssignments.Add((src, dst, ctx) => setter.SetValue(dst, resolver(src)));
+                Action<object, object, MapperContext> assign = (src, dst, ctx) => setter.SetValue(dst, resolver(src));
+                initOnlyAssignments.Add(WrapWithCondition(assign, memberConfig.ConditionPredicate));
                 continue;
             }
 
@@ -505,14 +506,16 @@ public sealed class MapperConfigurationBuilder
                 var srcProp2 = FindSourceProperty(srcProps, dstProp.Name);
                 var substituteValue = memberConfig.NullSubstituteValue;
                 var setter = dstProp;
+                Action<object, object, MapperContext> assign;
                 if (srcProp2 != null)
                 {
-                    initOnlyAssignments.Add((src, dst, ctx) => setter.SetValue(dst, srcProp2.GetValue(src) ?? substituteValue));
+                    assign = (src, dst, ctx) => setter.SetValue(dst, srcProp2.GetValue(src) ?? substituteValue);
                 }
                 else
                 {
-                    initOnlyAssignments.Add((src, dst, ctx) => setter.SetValue(dst, substituteValue));
+                    assign = (src, dst, ctx) => setter.SetValue(dst, substituteValue);
                 }
+                initOnlyAssignments.Add(WrapWithCondition(assign, memberConfig.ConditionPredicate));
                 continue;
             }
 
@@ -526,29 +529,32 @@ public sealed class MapperConfigurationBuilder
                 if (IsSameEnumNullabilityDiff(capturedSrc.PropertyType, capturedDst.PropertyType))
                 {
                     var dstIsNullable = Nullable.GetUnderlyingType(capturedDst.PropertyType) != null;
-                    initOnlyAssignments.Add((src, dst, ctx) =>
+                    Action<object, object, MapperContext> assign = (src, dst, ctx) =>
                     {
                         var value = compiledGetter(src);
                         if (value == null && !dstIsNullable)
                             throw new DeltaMapperException(
                                 $"Cannot map null enum value to non-nullable property '{capturedDst.Name}'.");
                         capturedDst.SetValue(dst, value);
-                    });
+                    };
+                    initOnlyAssignments.Add(WrapWithCondition(assign, memberConfig?.ConditionPredicate));
                 }
                 else if (IsEnumMapping(capturedSrc.PropertyType, capturedDst.PropertyType))
                 {
                     var dstEnumType = Nullable.GetUnderlyingType(capturedDst.PropertyType) ?? capturedDst.PropertyType;
                     var dstIsNullable = Nullable.GetUnderlyingType(capturedDst.PropertyType) != null;
                     var nameMap = GetOrCreateEnumNameMap(dstEnumType);
-                    initOnlyAssignments.Add((src, dst, ctx) =>
+                    Action<object, object, MapperContext> assign = (src, dst, ctx) =>
                     {
                         var resolved = ResolveEnumValue(compiledGetter(src), nameMap, dstEnumType, dstIsNullable, capturedDst.Name);
                         capturedDst.SetValue(dst, resolved);
-                    });
+                    };
+                    initOnlyAssignments.Add(WrapWithCondition(assign, memberConfig?.ConditionPredicate));
                 }
                 else if (IsDirectlyAssignable(capturedSrc.PropertyType, capturedDst.PropertyType))
                 {
-                    initOnlyAssignments.Add((src, dst, ctx) => capturedDst.SetValue(dst, compiledGetter(src)));
+                    Action<object, object, MapperContext> assign = (src, dst, ctx) => capturedDst.SetValue(dst, compiledGetter(src));
+                    initOnlyAssignments.Add(WrapWithCondition(assign, memberConfig?.ConditionPredicate));
                 }
             }
         }
