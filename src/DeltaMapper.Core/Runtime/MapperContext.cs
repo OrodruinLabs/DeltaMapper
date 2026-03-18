@@ -9,7 +9,7 @@ namespace DeltaMapper.Runtime;
 public sealed class MapperContext
 {
     internal MapperConfiguration Config { get; }
-    private readonly Dictionary<object, object> _visited = new(ReferenceEqualityComparer.Instance);
+    private Dictionary<object, object>? _visited;
 
     internal MapperContext(MapperConfiguration config) => Config = config;
 
@@ -18,11 +18,17 @@ public sealed class MapperContext
     /// Uses reference equality (identity comparison).
     /// </summary>
     internal bool TryGetMapped(object source, out object? mapped)
-        => _visited.TryGetValue(source, out mapped);
+    {
+        if (_visited is null) { mapped = null; return false; }
+        return _visited.TryGetValue(source, out mapped);
+    }
 
     /// <summary>
     /// Registers a source-to-destination mapping for circular reference detection.
     /// </summary>
     internal void Register(object source, object dest)
-        => _visited[source] = dest;
+    {
+        _visited ??= new Dictionary<object, object>(ReferenceEqualityComparer.Instance);
+        _visited[source] = dest;
+    }
 }
