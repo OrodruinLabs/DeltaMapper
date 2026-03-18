@@ -32,7 +32,7 @@ The generator emits:
 | `UserProfile.MapUserToUserDto(src)` | **7.2 ns** | Hot path, no middleware needed |
 | `mapper.Map<User, UserDto>(src)` | **24 ns** | DI, middleware, hooks, Patch |
 
-The IMapper path automatically detects and uses source-gen delegates when available.
+The IMapper path automatically detects and uses source-gen delegates when available, unless an explicit runtime profile is registered for the same type pair (compiled maps take precedence).
 
 ## Analyzer Diagnostics
 

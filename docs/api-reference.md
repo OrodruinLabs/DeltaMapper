@@ -117,7 +117,7 @@ public class UserService(IMapper mapper)
 
 When no mapping is registered `DeltaMapperException` is thrown with a clear, actionable message:
 
-```
+```text
 No mapping registered from 'User' to 'UserDto'.
 Register a mapping in a MappingProfile using CreateMap<User, UserDto>().
 ```
