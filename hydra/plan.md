@@ -1,54 +1,44 @@
-# Plan — Phase 5: Benchmarks, Docs, Community (FEAT-006)
-
-─── ◈ HYDRA ▸ PLANNING ─────────────────────────────
+# Plan — Performance Optimization (FEAT-008)
 
 ## Objective
 
-Implement BenchmarkDotNet suite comparing DeltaMapper (runtime), DeltaMapper (source-gen), Mapperly, AutoMapper, and hand-written code across flat/nested/collection/patch scenarios. Publish BENCHMARKS.md with placeholder table structure. Polish AutoMapper migration guide and finalize README.
+Source-gen fast path, lazy MapperContext, skip pipeline closure, compiled expression delegates. Target: SourceGen <15ns, Runtime <50ns for flat objects.
 
 ## Status Summary
 
 | Status | Count |
 |--------|-------|
-| PLANNED | 0 |
-| IN_PROGRESS | 0 |
-| IMPLEMENTED | 4 |
-| DONE | 0 |
-| BLOCKED | 0 |
-| TOTAL | 4 |
+| READY  | 5     |
+| DONE   | 0     |
+| TOTAL  | 5     |
 
 ## Recovery Pointer
 
-**Next**: All tasks IMPLEMENTED — FEAT-006 complete
-**State**: TASK-038 IMPLEMENTED — README benchmarks table + roadmap Phase 5 Done + migration guide v0.4 polish
-**Last updated**: 2026-03-17T21:30:00Z
+**Next**: TASK-039 + TASK-040 (Wave 1, parallel)
+**State**: PLANNING_COMPLETE
+**Last updated**: 2026-03-18T00:00:00Z
 
 ## Tasks
 
 | ID | Title | Status | Wave | Depends On |
 |----|-------|--------|------|------------|
-| TASK-035 | Benchmark project scaffold + shared models | IMPLEMENTED | 1 | -- |
-| TASK-036 | Benchmark scenarios (flat/nested/collection/patch) | IMPLEMENTED | 2 | TASK-035 |
-| TASK-037 | BENCHMARKS.md placeholder document | IMPLEMENTED | 2 | TASK-035 |
-| TASK-038 | README final polish + migration guide update | IMPLEMENTED | 3 | TASK-037 |
+| TASK-039 | Lazy MapperContext | READY | 1 | -- |
+| TASK-040 | Skip pipeline closure when no middleware | READY | 1 | -- |
+| TASK-041 | Compiled expression delegates | READY | 2 | -- |
+| TASK-042 | Source-gen fast path (RegisterFactory + Mapper bypass) | READY | 3 | TASK-039, TASK-040 |
+| TASK-043 | Re-run benchmarks and update BENCHMARKS.md | READY | 4 | TASK-041, TASK-042 |
 
 ## Wave Groups
 
-### Wave 1
-- TASK-035 (benchmark project foundation — no dependencies)
+### Wave 1 (parallel)
+- TASK-039: Lazy MapperContext (-20ns runtime)
+- TASK-040: Skip pipeline closure (-15ns runtime)
 
 ### Wave 2
-- TASK-036, TASK-037 (independent: TASK-036 writes benchmark .cs files, TASK-037 writes BENCHMARKS.md — no file overlap)
+- TASK-041: Compiled expression delegates (-65ns runtime)
 
 ### Wave 3
-- TASK-038 (depends on TASK-037 for benchmark table content to reference in README)
+- TASK-042: Source-gen fast path (79.5ns → ~10ns)
 
-## Design Notes
-
-- Benchmark project is a console app (`<OutputType>Exe</OutputType>`) not a test project
-- Uses `[MemoryDiagnoser]` on all benchmark classes — allocations are a primary metric
-- Competitors (AutoMapper, Mapperly) are PackageReferences in the benchmark project only
-- Source-gen benchmarks use `[GenerateMap]` attribute from DeltaMapper.SourceGen
-- BENCHMARKS.md contains placeholder `<pending>` values — actual numbers require CI/local run
-- Migration guide at `docs/migration-from-automapper.md` already exists and is comprehensive — TASK-038 does light polish only
-- README already has good structure — TASK-038 adds benchmark result table inline and updates roadmap status
+### Wave 4
+- TASK-043: Re-run benchmarks, update docs
