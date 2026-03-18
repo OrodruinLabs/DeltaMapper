@@ -213,4 +213,42 @@ public class MapperGeneratorFlatTests
         var sourceText = mapTree!.ToString();
         sourceText.Should().NotContain("dst.", "no assignments when no properties match");
     }
+
+    [Fact]
+    public void Generator_FactoryMethod_UsesObjectInitializerForFlatTypes()
+    {
+        var result = GeneratorTestHelper.RunGenerator(FlatPocoSource);
+
+        var factoryTree = result.GeneratedTrees
+            .SingleOrDefault(t => t.FilePath.EndsWith("UserProfile.User_To_UserDto.Factory.g.cs"));
+
+        factoryTree.Should().NotBeNull("factory file must be generated");
+
+        var sourceText = factoryTree!.ToString();
+
+        // Should use object initializer pattern (=> new()) not two-step (var dst = new)
+        sourceText.Should().Contain("=> new()", "flat types should use object initializer");
+        sourceText.Should().Contain("Id = src.Id,");
+        sourceText.Should().Contain("Name = src.Name,");
+        sourceText.Should().Contain("Email = src.Email,");
+        sourceText.Should().NotContain("var dst = new", "flat types should not use two-step pattern");
+    }
+
+    [Fact]
+    public void Generator_FactoryMethod_EmitsPublicStaticMapMethod()
+    {
+        var result = GeneratorTestHelper.RunGenerator(FlatPocoSource);
+
+        var factoryTree = result.GeneratedTrees
+            .SingleOrDefault(t => t.FilePath.EndsWith("UserProfile.User_To_UserDto.Factory.g.cs"));
+
+        factoryTree.Should().NotBeNull();
+
+        var sourceText = factoryTree!.ToString();
+
+        sourceText.Should().Contain("public static MyApp.UserDto MapUserToUserDto(MyApp.User src)",
+            "should generate public static Map method for direct zero-overhead calls");
+        sourceText.Should().Contain("ArgumentNullException.ThrowIfNull(src)",
+            "public method should validate input");
+    }
 }
