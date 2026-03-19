@@ -9,7 +9,7 @@
 
     <!-- NuGet package identity -->
     <PackageId>DeltaMapper.SourceGen</PackageId>
-    <Version>0.1.0-alpha</Version>
+    <Version>0.2.0-alpha</Version>
     <Authors>Jose Mejia</Authors>
     <Description>Roslyn source generator for DeltaMapper. Attach [GenerateMap] to a profile class and get compile-time mapping delegates with zero reflection at runtime. Includes DM001/DM002 analyzer diagnostics. MIT licensed.</Description>
     <PackageTags>mapper;source-generator;roslyn;analyzer;dto;diff;patch;net10;csharp</PackageTags>
@@ -21,12 +21,9 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
-v0.1.0-alpha — Initial release.
+v0.2.0-alpha — Feature gaps release.
 
-- [GenerateMap] attribute for compile-time mapping code generation
-- Zero-overhead direct-call methods and IMapper fast-path integration
-- DM001 (unmapped property) and DM002 (unresolvable type) diagnostics
-- Supports nested types, collections, and [Ignore]
+- Assembly scanning skips generic profile types (fixes DM002 false positives)
     </PackageReleaseNotes>
     <!-- RS2008: release-tracking manifests are not required for an alpha source generator -->
     <NoWarn>$(NoWarn);RS2008</NoWarn>

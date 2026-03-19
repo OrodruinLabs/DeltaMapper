@@ -11,6 +11,16 @@ DeltaMapper uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.2.0-alpha] - 2026-03-19
+
+### Core
+
+- Unflattening support — map flat source properties into nested destination objects
+- Type converter support — `CreateTypeConverter<TSource, TDest>()` for custom conversion logic
+- Assembly scanning now skips open generic profile types (fixes false-positive errors on registration)
+
+---
+
 ## [0.1.0-alpha] - 2026-03-18
 
 Initial release.
@@ -68,5 +78,6 @@ Initial release.
 - On-demand benchmark workflow via `workflow_dispatch`
 - BenchmarkDotNet suite comparing against Mapperly, AutoMapper, and hand-written code
 
-[Unreleased]: https://github.com/OrodruinLabs/DeltaMapper/compare/v0.1.0-alpha...HEAD
+[Unreleased]: https://github.com/OrodruinLabs/DeltaMapper/compare/v0.2.0-alpha...HEAD
+[0.2.0-alpha]: https://github.com/OrodruinLabs/DeltaMapper/compare/v0.1.0-alpha...v0.2.0-alpha
 [0.1.0-alpha]: https://github.com/OrodruinLabs/DeltaMapper/releases/tag/v0.1.0-alpha

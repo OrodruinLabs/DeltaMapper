@@ -9,7 +9,7 @@
 
     <!-- NuGet package identity -->
     <PackageId>DeltaMapper.OpenTelemetry</PackageId>
-    <Version>0.1.0-alpha</Version>
+    <Version>0.2.0-alpha</Version>
     <Authors>Jose Mejia</Authors>
     <Description>OpenTelemetry tracing middleware for DeltaMapper — emits Activity spans for every mapping operation</Description>
     <PackageTags>mapper;opentelemetry;tracing;activity;observability;net10;csharp</PackageTags>
