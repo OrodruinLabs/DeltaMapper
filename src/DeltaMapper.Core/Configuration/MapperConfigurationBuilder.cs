@@ -866,18 +866,25 @@ public sealed class MapperConfigurationBuilder
             if (innerChain == null) continue;
 
             // Wrap with null guard: if current object or the intermediate property is null → return null
-            if (!currentType.IsValueType && !matched.PropertyType.IsValueType)
+            var nullConst = Expression.Constant(null, typeof(object));
+            Expression? guard = null;
+
+            if (!currentType.IsValueType)
             {
-                var nullConst = Expression.Constant(null, typeof(object));
                 var currentAsObj = Expression.Convert(currentExpr, typeof(object));
-                var isCurrentNull = Expression.Equal(currentAsObj, nullConst);
+                guard = Expression.Equal(currentAsObj, nullConst);
+            }
+
+            if (!matched.PropertyType.IsValueType)
+            {
                 var propAsObj = Expression.Convert(propAccess, typeof(object));
                 var isPropNull = Expression.Equal(propAsObj, nullConst);
+                guard = guard != null ? Expression.OrElse(guard, isPropNull) : isPropNull;
+            }
 
-                return Expression.Condition(
-                    Expression.OrElse(isCurrentNull, isPropNull),
-                    nullConst,
-                    innerChain);
+            if (guard != null)
+            {
+                return Expression.Condition(guard, nullConst, innerChain);
             }
 
             return innerChain;
