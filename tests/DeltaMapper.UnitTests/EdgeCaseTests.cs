@@ -41,11 +41,11 @@ public class EdgeCaseTests
     }
 
     [Fact]
-    public void EC01_Map_NullSource_Throws()
+    public void EC01_MapList_NullSource_Throws()
     {
         var mapper = CreateMapper();
 
-        var act = () => mapper.Map<EC_Source, EC_Dest>(null!);
+        var act = () => mapper.MapList<EC_Source, EC_Dest>(null!);
 
         act.Should().Throw<ArgumentNullException>();
     }
@@ -107,10 +107,11 @@ public class EdgeCaseTests
     }
 
     [Fact]
-    public void EC07_Build_NoTypeMaps_Throws()
+    public void EC07_Build_NoTypeMaps_Exception_Has_No_InnerException()
     {
         var act = () => MapperConfiguration.Create(cfg => { }).CreateMapper();
 
-        act.Should().Throw<DeltaMapperException>();
+        var ex = act.Should().Throw<DeltaMapperException>().Which;
+        ex.InnerException.Should().BeNull();
     }
 }
