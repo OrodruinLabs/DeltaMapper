@@ -1,3 +1,4 @@
+using System.Globalization;
 using DeltaMapper.Abstractions;
 using DeltaMapper.Configuration;
 using FluentAssertions;
@@ -101,7 +102,7 @@ public class TypeConverterTests
     {
         var config = MapperConfiguration.Create(cfg =>
         {
-            cfg.CreateTypeConverter<string, DateTime>(s => DateTime.Parse(s));
+            cfg.CreateTypeConverter<string, DateTime>(s => DateTime.Parse(s, CultureInfo.InvariantCulture));
             cfg.AddProfile<TC_StringDateProfile>();
         });
         var mapper = config.CreateMapper();
@@ -144,7 +145,7 @@ public class TypeConverterTests
         var config = MapperConfiguration.Create(cfg =>
         {
             // Register a converter that would only apply when types differ
-            cfg.CreateTypeConverter<string, DateTime>(s => DateTime.Parse(s));
+            cfg.CreateTypeConverter<string, DateTime>(s => DateTime.Parse(s, CultureInfo.InvariantCulture));
             cfg.AddProfile<TC_StringDateProfile>();
         });
         var mapper = config.CreateMapper();
@@ -167,7 +168,7 @@ public class TypeConverterTests
     {
         var config = MapperConfiguration.Create(cfg =>
         {
-            cfg.CreateTypeConverter<string, DateTime>(s => DateTime.Parse(s));
+            cfg.CreateTypeConverter<string, DateTime>(s => DateTime.Parse(s, CultureInfo.InvariantCulture));
             cfg.CreateTypeConverter<int, string>(i => $"#{i}");
             cfg.AddProfile<TC_MultiProfile>();
         });
@@ -191,7 +192,7 @@ public class TypeConverterTests
     {
         var config = MapperConfiguration.Create(cfg =>
         {
-            cfg.CreateTypeConverter<string, DateTime?>(s => string.IsNullOrEmpty(s) ? (DateTime?)null : DateTime.Parse(s));
+            cfg.CreateTypeConverter<string, DateTime?>(s => string.IsNullOrEmpty(s) ? (DateTime?)null : DateTime.Parse(s, CultureInfo.InvariantCulture));
             cfg.AddProfile<TC_NullProfile>();
         });
         var mapper = config.CreateMapper();
@@ -223,7 +224,7 @@ public class TypeConverterTests
     {
         var mapper = MapperConfiguration.Create(cfg =>
         {
-            cfg.CreateTypeConverter<string, DateTime>(s => DateTime.Parse(s));
+            cfg.CreateTypeConverter<string, DateTime>(s => DateTime.Parse(s, CultureInfo.InvariantCulture));
             cfg.AddProfile(new TCInlineProfile<RecordWithDateSource, RecordWithDateDest>());
         }).CreateMapper();
 
