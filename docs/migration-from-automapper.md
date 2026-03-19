@@ -28,6 +28,7 @@ dotnet add package DeltaMapper
 | `ReverseMap()` | `ReverseMap()` | Same signature |
 | `MapperConfiguration` (ctor) | `MapperConfiguration.Create(cfg => ...)` | Static factory replaces `new MapperConfiguration(cfg => ...)` |
 | `cfg.AddProfile<P>()` | `cfg.AddProfile<P>()` | Same signature |
+| `cfg.AddMaps(assembly)` | `cfg.AddProfilesFromAssembly(assembly)` | See [Assembly Scanning](#assembly-scanning) below |
 | `cfg.AssertConfigurationIsValid()` | DM001/DM002 analyzer diagnostics (compile-time) | Remove the runtime call; the source generator emits DM001 (unmapped destination property) and DM002 (type not found) at compile time. Note: these cover common misconfiguration but are not a full equivalent of `AssertConfigurationIsValid()` |
 | `mapper.Map<T>(src)` | `mapper.Map<T>(src)` | Same signature |
 | `mapper.Map<Src, Dst>(src)` | `mapper.Map<Src, Dst>(src)` | Same signature |
@@ -54,13 +55,67 @@ using DeltaMapper.Extensions;
 
 builder.Services.AddDeltaMapper(cfg =>
 {
-    cfg.AddProfile<UserProfile>();
-    cfg.AddProfile<OrderProfile>();
-    // add all your profiles here
+    cfg.AddProfilesFromAssemblyContaining<UserProfile>();
 });
 ```
 
-DeltaMapper requires profiles to be listed explicitly. Assembly scanning is not supported in v0.1; explicit registration is intentional — it makes the full mapping surface visible at a glance.
+---
+
+## Assembly Scanning
+
+AutoMapper discovers profiles via `cfg.AddMaps(assembly)`. DeltaMapper offers two equivalent methods:
+
+```csharp
+// By Assembly reference
+cfg.AddProfilesFromAssembly(typeof(UserProfile).Assembly);
+
+// By marker type (resolves assembly from typeof(T))
+cfg.AddProfilesFromAssemblyContaining<UserProfile>();
+```
+
+Both methods skip abstract profiles and profiles without a parameterless constructor. They can be combined with explicit `AddProfile<T>()` calls in the same configuration.
+
+---
+
+## Flattening and Unflattening
+
+AutoMapper flattens and unflattens nested objects automatically by convention. DeltaMapper v0.2 matches this behaviour — no `CreateMap` options are needed.
+
+```csharp
+// AutoMapper — works automatically
+CreateMap<Order, OrderFlatDto>();   // Order.Customer.Name → CustomerName
+CreateMap<OrderFlatDto, Order>();   // CustomerName → Customer.Name
+
+// DeltaMapper — identical syntax, same automatic behaviour
+CreateMap<Order, OrderFlatDto>();
+CreateMap<OrderFlatDto, Order>();
+```
+
+---
+
+## Type Converters
+
+AutoMapper supports `TypeConverter<Src, Dst>` classes. DeltaMapper uses a lighter inline syntax with `CreateTypeConverter`:
+
+**AutoMapper:**
+
+```csharp
+cfg.CreateMap<string, DateTime>().ConvertUsing(s => DateTime.Parse(s));
+// or
+public class StringToDateTimeConverter : TypeConverter<string, DateTime>
+{
+    protected override DateTime ConvertCore(string source) => DateTime.Parse(source);
+}
+cfg.AddConverter<StringToDateTimeConverter>();
+```
+
+**DeltaMapper:**
+
+```csharp
+cfg.CreateTypeConverter<string, DateTime>(s => DateTime.Parse(s));
+```
+
+The converter is registered globally and applies to every map that has a property pair of those types.
 
 ---
 
@@ -110,19 +165,22 @@ Review the diff after running these scripts — edge cases (inline `Profile` sub
 
 ---
 
-## Feature status as of v0.1
+## Feature status as of v0.2
 
-The following table summarises AutoMapper features relative to DeltaMapper v0.1.
+The following table summarises AutoMapper features relative to DeltaMapper v0.2.
 
-| AutoMapper feature | DeltaMapper v0.1 status |
+| AutoMapper feature | DeltaMapper v0.2 status |
 |---|---|
 | `AssertConfigurationIsValid()` | DM001/DM002 compile-time analyzer diagnostics via source generator |
 | `MappingDiff<T>` / change tracking | `Patch()` method returns structured change sets |
 | Source generator / zero-overhead path | `[GenerateMap]` attribute via `DeltaMapper.SourceGen` |
 | EF Core proxy awareness | `AddEFCoreSupport()` via `DeltaMapper.EFCore` |
 | OpenTelemetry tracing | `AddMapperTracing()` via `DeltaMapper.OpenTelemetry` |
+| Flattening (`Order.Customer.Name` → `CustomerName`) | Supported — automatic by convention |
+| Unflattening (`CustomerName` → `Customer.Name`) | Supported — automatic by convention |
+| Assembly scanning (`cfg.AddMaps(assembly)`) | `cfg.AddProfilesFromAssembly(assembly)` / `cfg.AddProfilesFromAssemblyContaining<T>()` |
+| `TypeConverter<Src, Dst>` | `cfg.CreateTypeConverter<Src, Dst>(converter)` inline lambda |
 | `ProjectTo<T>()` for EF Core | Not planned — use Mapster |
-| `TypeConverter<Src, Dst>` | Not implemented |
 | `ValueConverter<Src, Dst>` | Not implemented — use `MapFrom` resolver |
 | `IValueResolver<Src, Dst, TMember>` | Not implemented — use `MapFrom` resolver |
 | `ConstructUsing(src => ...)` | Not needed — constructor injection is automatic for records and init-only types |
