@@ -68,6 +68,13 @@ public class OrderMixedDto
     public FlatAddress? Address { get; set; }   // convention (direct)
 }
 
+// Incompatible flattened type (Order.Customer.Name is string, CustomerName is int)
+public class OrderIncompatibleDto
+{
+    public int Id { get; set; }
+    public int CustomerName { get; set; } // incompatible: source Customer.Name is string
+}
+
 // ── Tests ──────────────────────────────────────────────────────────
 
 public class FlatteningTests
@@ -213,6 +220,28 @@ public class FlatteningTests
 
         dst.Id.Should().Be(7);
         dst.CustomerAge.Should().Be(0); // default(int), not crash
+    }
+
+    [Fact]
+    public void Flat08_IncompatibleFlattenedType_PropertySkipped()
+    {
+        // Order.Customer.Name is string, destination CustomerName is int
+        // Flattening should skip incompatible property gracefully
+        var mapper = MapperConfiguration.Create(cfg =>
+        {
+            cfg.AddProfile(new FlatInlineProfile<FlatOrder, OrderIncompatibleDto>());
+        }).CreateMapper();
+
+        var src = new FlatOrder
+        {
+            Id = 8,
+            Customer = new FlatCustomer { Name = "Alice" }
+        };
+
+        var dst = mapper.Map<FlatOrder, OrderIncompatibleDto>(src);
+
+        dst.Id.Should().Be(8);
+        dst.CustomerName.Should().Be(0); // default(int), incompatible type skipped
     }
 }
 
