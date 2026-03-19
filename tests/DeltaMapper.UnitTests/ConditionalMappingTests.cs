@@ -213,6 +213,40 @@ public class ConditionalMappingTests
         dest1.Name.Should().BeNull(); // condition false → ctor gets null default
         dest2.Name.Should().Be("ALICE"); // condition true → resolver applied
     }
+
+    [Fact]
+    public void Cond11_Ignore_Then_Condition_Throws()
+    {
+        var act = () => MapperConfiguration.Create(cfg =>
+        {
+            cfg.AddProfile(new InlineProfile<CondSource, CondDest>(map =>
+                map.ForMember(d => d.Name, o =>
+                {
+                    o.Ignore();
+                    o.Condition(s => s.Name.Length > 3);
+                })));
+        });
+
+        act.Should().Throw<InvalidOperationException>()
+            .WithMessage("*Cannot combine*Condition*Ignore*");
+    }
+
+    [Fact]
+    public void Cond12_Condition_Then_Ignore_Throws()
+    {
+        var act = () => MapperConfiguration.Create(cfg =>
+        {
+            cfg.AddProfile(new InlineProfile<CondSource, CondDest>(map =>
+                map.ForMember(d => d.Name, o =>
+                {
+                    o.Condition(s => s.Name.Length > 3);
+                    o.Ignore();
+                })));
+        });
+
+        act.Should().Throw<InvalidOperationException>()
+            .WithMessage("*Cannot combine*Ignore*Condition*");
+    }
 }
 
 // ── Record model for ctor-bound tests ─────────────────────────────
