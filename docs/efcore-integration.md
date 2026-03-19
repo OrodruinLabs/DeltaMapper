@@ -31,9 +31,9 @@ The `EFCoreProxyMiddleware` inspects the source object's runtime type to detect 
 
 When a proxy is detected, the middleware skips all collection-typed properties during mapping. This prevents accidental lazy loading triggers that would otherwise issue extra database queries or throw if the `DbContext` has already been disposed. The proxy flag is scoped per source object, so nested non-proxy objects retain normal collection mapping.
 
-Scalar properties and eagerly-loaded navigations (non-collection reference properties that have already been populated) are mapped normally.
+Scalar properties are mapped normally. Non-proxy entities pass through the middleware unchanged with negligible overhead.
 
-Non-proxy entities pass through the middleware unchanged with negligible overhead.
+> **Note:** The middleware only skips *collection* properties. Reference navigation properties (single-object navigations like `Order.Customer`) are **not** skipped and may still trigger lazy loading on proxy entities if not eagerly loaded. Use `.Include()` for any reference navigations you need mapped, or project to a DTO that excludes them.
 
 ## Limitations
 

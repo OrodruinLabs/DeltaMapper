@@ -127,7 +127,7 @@ public class GeneratedMapRegistryTests : IDisposable
     // ── GR-08 ─────────────────────────────────────────────────────────────────
 
     [Fact]
-    public void GR08_FastPath_UsesFactory_WhenNoMiddlewareOrProfile()
+    public void GR08_FastPath_UsesFactory_WhenNoCompiledMapForTypePair()
     {
         // Register a factory — simulating what [ModuleInitializer] does
         Func<User, UserDto> factory = src => new UserDto { Id = src.Id, FirstName = src.FirstName };
