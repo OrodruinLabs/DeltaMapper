@@ -215,17 +215,26 @@ public sealed class MapperConfigurationBuilder
                 var flattenedGetter = TryBuildFlattenedGetter(srcType, dstProp.Name);
                 if (flattenedGetter != null)
                 {
-                    var setter = CompileSetter(dstProp);
-                    var isNonNullableValueType = dstProp.PropertyType.IsValueType
-                        && Nullable.GetUnderlyingType(dstProp.PropertyType) == null;
-                    assignments.Add((src, dst, ctx) =>
+                    // Verify the flattened leaf type is compatible with the destination
+                    var leafType = TryGetFlattenedLeafType(srcType, dstProp.Name);
+                    if (leafType != null && !IsDirectlyAssignable(leafType, dstProp.PropertyType))
                     {
-                        var value = flattenedGetter(src);
-                        // Skip assignment when flattened chain returns null for non-nullable value types
-                        // (null intermediate → leave destination at default rather than unbox crash)
-                        if (value == null && isNonNullableValueType) return;
-                        setter(dst, value);
-                    });
+                        // Incompatible types — skip this flattened mapping
+                    }
+                    else
+                    {
+                        var setter = CompileSetter(dstProp);
+                        var isNonNullableValueType = dstProp.PropertyType.IsValueType
+                            && Nullable.GetUnderlyingType(dstProp.PropertyType) == null;
+                        assignments.Add((src, dst, ctx) =>
+                        {
+                            var value = flattenedGetter(src);
+                            // Skip assignment when flattened chain returns null for non-nullable value types
+                            // (null intermediate → leave destination at default rather than unbox crash)
+                            if (value == null && isNonNullableValueType) return;
+                            setter(dst, value);
+                        });
+                    }
                 }
                 else if (IsComplexType(dstProp.PropertyType))
                 {
@@ -807,6 +816,33 @@ public sealed class MapperConfigurationBuilder
     /// <summary>
     /// Attempts to build a null-safe compiled getter for a flattened destination property name.
     /// For example, given source type <c>Order</c> and destination name <c>CustomerName</c>,
+    /// Returns the <see cref="Type"/> of the leaf property reached by walking the same
+    /// PascalCase chain as <see cref="TryBuildFlattenedGetter"/>, without compiling an expression.
+    /// Returns <c>null</c> if no matching chain is found.
+    /// </summary>
+    private static Type? TryGetFlattenedLeafType(Type srcType, string dstPropertyName)
+    {
+        return TryGetLeafType(srcType, dstPropertyName);
+    }
+
+    private static Type? TryGetLeafType(Type currentType, string remaining)
+    {
+        var props = currentType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+        for (int len = remaining.Length; len >= 1; len--)
+        {
+            var prefix = remaining[..len];
+            var suffix = remaining[len..];
+            var matched = props.FirstOrDefault(p => p.Name.Equals(prefix, StringComparison.OrdinalIgnoreCase));
+            if (matched == null) continue;
+            if (suffix.Length == 0) return matched.PropertyType;
+            if (!IsTraversableType(matched.PropertyType)) continue;
+            var leaf = TryGetLeafType(matched.PropertyType, suffix);
+            if (leaf != null) return leaf;
+        }
+        return null;
+    }
+
+    /// <summary>
     /// this method discovers the chain <c>Order.Customer.Name</c> and compiles a null-safe
     /// expression <c>src => src.Customer == null ? null : (object)src.Customer.Name</c>.
     /// </summary>
