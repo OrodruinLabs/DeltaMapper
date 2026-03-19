@@ -9,7 +9,7 @@
 
     <!-- NuGet package identity -->
     <PackageId>DeltaMapper</PackageId>
-    <Version>0.2.0-alpha</Version>
+    <Version>1.0.0-rc.1</Version>
     <Authors>Jose Mejia</Authors>
     <Description>Fast, diff-aware .NET object mapper. Expression-compiled delegates, FrozenDictionary-backed lookup, fluent profile API, MappingDiff&lt;T&gt; / Patch support, source-generator integration, and DI extensions. MIT licensed.</Description>
     <PackageTags>mapper;object-mapper;automapper;dto;diff;patch;source-generator;net10;csharp</PackageTags>
@@ -21,11 +21,9 @@
     <PackageIcon>icon.png</PackageIcon>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
-v0.2.0-alpha — Feature gaps release.
+v1.0.0-rc.1 — First release candidate.
 
-- Unflattening support (nested destination objects from flat sources)
-- Type converter support (CreateTypeConverter&lt;TSource, TDest&gt;)
-- Assembly scanning skips generic profile types
+Full feature set: flattening/unflattening, assembly scanning, type converters, conditional mapping, MappingDiff/Patch, middleware pipeline, DI extensions. See CHANGELOG.md for details.
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
