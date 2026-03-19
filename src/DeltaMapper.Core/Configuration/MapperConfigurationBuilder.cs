@@ -823,10 +823,9 @@ public sealed class MapperConfigurationBuilder
     }
 
     /// <summary>
-    /// Attempts to build a null-safe compiled getter for a flattened destination property name.
-    /// For example, given source type <c>Order</c> and destination name <c>CustomerName</c>,
     /// Returns the <see cref="Type"/> of the leaf property reached by walking the same
     /// PascalCase chain as <see cref="TryBuildFlattenedGetter"/>, without compiling an expression.
+    /// Used to verify type compatibility before wiring up a flattened assignment.
     /// Returns <c>null</c> if no matching chain is found.
     /// </summary>
     private static Type? TryGetFlattenedLeafType(Type srcType, string dstPropertyName)
