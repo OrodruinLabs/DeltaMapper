@@ -16,9 +16,18 @@ internal sealed class EFCoreProxyMiddleware : IMappingMiddleware
         if (!IsProxy(source))
             return next();
 
-        // For proxied entities, proceed with mapping but mark context
-        // so navigations can be handled appropriately
-        return next();
+        // Mark the context so collection navigation properties are skipped,
+        // preventing lazy loading triggers on unloaded ICollection<T> navigations.
+        var wasProxy = ctx.IsProxyMapping;
+        ctx.IsProxyMapping = true;
+        try
+        {
+            return next();
+        }
+        finally
+        {
+            ctx.IsProxyMapping = wasProxy;
+        }
     }
 
     /// <summary>

@@ -14,6 +14,12 @@ public sealed class MapperContext
     internal MapperContext(MapperConfiguration config) => Config = config;
 
     /// <summary>
+    /// When true, the current mapping source is an EF Core proxy entity.
+    /// Collection navigation properties should be skipped to prevent lazy loading.
+    /// </summary>
+    internal bool IsProxyMapping { get; set; }
+
+    /// <summary>
     /// Attempts to retrieve a previously mapped destination for the given source object.
     /// Uses reference equality (identity comparison).
     /// </summary>

@@ -384,6 +384,10 @@ public sealed class MapperConfigurationBuilder
                         return;
                     }
 
+                    // Skip collection navigations in EF Core proxy entities to prevent lazy loading
+                    if (ctx.IsProxyMapping)
+                        return;
+
                     var enumerable = (System.Collections.IEnumerable)srcCollection;
                     List<object> items = [];
                     foreach (var item in enumerable)
