@@ -145,7 +145,7 @@ public class OrderProfile : MappingProfile
 }
 ```
 
-Conditions work alongside `MapFrom`, `NullSubstitute`, and `Ignore` — the condition is evaluated first, and if false the member option is skipped entirely.
+Conditions work alongside `MapFrom` and `NullSubstitute` — the condition is evaluated first, and if false the member option is skipped entirely. `Ignore` and `Condition` cannot be combined on the same member; use `Condition` alone to conditionally skip mapping.
 
 ## Performance
 

@@ -47,7 +47,7 @@ First release candidate. Consolidates all features from 0.1.0-alpha and 0.2.0-al
 ### Conditional Mapping
 
 - `.Condition(Expression<Func<TSrc, bool>>)` — skip a property mapping when the predicate returns false
-- Works with `MapFrom`, `NullSubstitute`, and `Ignore`
+- Works with `MapFrom` and `NullSubstitute`. Combining with `Ignore` throws `InvalidOperationException` at configuration time
 
 ### MappingDiff and Patch
 

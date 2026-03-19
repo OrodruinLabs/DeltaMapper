@@ -18,7 +18,14 @@ internal sealed class MemberOptions<TSrc> : IMemberOptions<TSrc>
         Resolver = src => compiled((TSrc)src);
     }
 
-    public void Ignore() => IsIgnored = true;
+    public void Ignore()
+    {
+        if (ConditionPredicate is not null)
+            throw new InvalidOperationException(
+                "Cannot combine Ignore() with Condition() on the same member. " +
+                "Use Condition() alone to conditionally skip mapping.");
+        IsIgnored = true;
+    }
 
     public void NullSubstitute(object value)
     {
@@ -29,6 +36,10 @@ internal sealed class MemberOptions<TSrc> : IMemberOptions<TSrc>
     public void Condition(Expression<Func<TSrc, bool>> predicate)
     {
         ArgumentNullException.ThrowIfNull(predicate);
+        if (IsIgnored)
+            throw new InvalidOperationException(
+                "Cannot combine Condition() with Ignore() on the same member. " +
+                "Use Condition() alone to conditionally skip mapping.");
         var compiled = predicate.Compile();
         ConditionPredicate = src => compiled((TSrc)src);
     }
