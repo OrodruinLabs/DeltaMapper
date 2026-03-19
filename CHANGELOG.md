@@ -9,6 +9,17 @@ DeltaMapper uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- Build() validation: throws `DeltaMapperException` when no type maps are registered (fail-fast)
+- EF Core proxy middleware: now skips collection navigation properties on proxy entities to prevent lazy loading
+- Test: constructor-injection + type converter path coverage
+- Test: duplicate converter overwrite (last-wins) behavior
+- Test: assembly scanning resilience
+
+### Fixed
+- Flattening: skip properties with incompatible leaf types instead of runtime crash
+- EF Core proxy middleware: was a no-op stub, now implements actual navigation skipping
+
 ---
 
 ## [0.2.0-alpha] - 2026-03-19
