@@ -74,6 +74,14 @@ cfg.AddProfilesFromAssemblyContaining<UserProfile>();
 cfg.CreateTypeConverter<string, DateTime>(s => DateTime.Parse(s));
 ```
 
+## Conditional Mapping
+
+```csharp
+// Skip mapping a property when a condition is not met
+CreateMap<Order, OrderDto>()
+    .ForMember(d => d.Discount, o => o.Condition(s => s.IsPremiumCustomer));
+```
+
 ## Performance
 
 | What's being mapped | DeltaMapper | vs Mapperly | vs AutoMapper |

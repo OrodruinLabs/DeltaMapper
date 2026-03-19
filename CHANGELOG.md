@@ -11,6 +11,92 @@ DeltaMapper uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.0.0-rc.1] - 2026-03-19
+
+First release candidate. Consolidates all features from 0.1.0-alpha and 0.2.0-alpha.
+
+### Core
+
+- `MapperConfiguration.Create()` — static factory; compiles all maps at startup into a `FrozenDictionary`
+- `IMapper` with `Map<T>()`, `Map<TSrc, TDst>()`, `MapList<>()`, and non-generic overloads
+- Fluent profile API — `CreateMap`, `ForMember`, `Ignore`, `NullSubstitute`, `BeforeMap`, `AfterMap`, `ReverseMap`
+- Convention matching — case-insensitive property name matching, numeric widening, collection mapping, recursive complex types
+- Records and init-only properties — automatic constructor injection
+- Circular reference detection via `ReferenceEqualityComparer`
+- Middleware pipeline with zero overhead when no middleware is registered
+- `AddDeltaMapper()` DI extension for ASP.NET Core / Generic Host
+- `DeltaMapperException` with actionable error messages
+
+### Flattening and Unflattening
+
+- Automatic flattening of nested properties by convention (`Order.Customer.Name` → `CustomerName`)
+- Automatic unflattening to rebuild nested objects from flat sources
+- Multi-level chains, null-safe access, round-trip support
+- Compiled expression delegates — no reflection overhead at map time
+
+### Assembly Scanning
+
+- `AddProfilesFromAssembly(Assembly)` and `AddProfilesFromAssemblyContaining<T>()` for bulk profile registration
+- Abstract profiles, generic definitions, and missing parameterless constructors are silently skipped
+
+### Type Converters
+
+- `CreateTypeConverter<TSource, TDest>(Func<TSource, TDest>)` — global type pair conversion across all maps
+- Null-safe: converter is not invoked for null source values
+
+### Conditional Mapping
+
+- `.Condition(Expression<Func<TSrc, bool>>)` — skip a property mapping when the predicate returns false
+- Works with `MapFrom`, `NullSubstitute`, and `Ignore`
+
+### MappingDiff and Patch
+
+- `MappingDiff<T>` — structured change set with `Result`, `HasChanges`, and `Changes`
+- `Patch<TSrc, TDst>()` — map onto existing instance and return per-property changes
+- `PropertyChange` record with dot-notation paths for nested changes
+
+### Source Generator (`DeltaMapper.SourceGen`)
+
+- `[GenerateMap]` attribute for compile-time mapping code generation
+- Zero-reflection direct-call methods at ~7 ns
+- `GeneratedMapRegistry` with `[ModuleInitializer]` auto-registration
+- `DM001` and `DM002` analyzer diagnostics
+
+### EF Core (`DeltaMapper.EFCore`)
+
+- `EFCoreProxyMiddleware` — detects Castle.Core dynamic proxies and skips unloaded navigation properties
+- `AddEFCoreSupport()` extension method
+
+### OpenTelemetry (`DeltaMapper.OpenTelemetry`)
+
+- `TracingMiddleware` — `Activity` spans with source/destination type tags
+- `AddMapperTracing()` extension method with `HasListeners()` fast path
+
+### Performance
+
+- Compiled expression delegates replace `PropertyInfo.GetValue/SetValue` reflection
+- Compiled `Expression.New()` factory replaces `Activator.CreateInstance`
+- Lazy `MapperContext` — no `Dictionary` allocation for flat mappings
+- Pipeline closure skipped when no middleware registered
+- Object initializer pattern in source-gen factory methods
+- Cached fast-path routing per type pair
+
+### Fixed
+
+- Assembly scanning now skips open generic profile types, preventing a false-positive `MissingMethodException` on registration
+- Flattening: skip properties with incompatible leaf types instead of runtime `InvalidCastException`
+- Flattening: allow `Nullable<T>` ↔ `T` assignments for value types
+- EF Core proxy middleware: implemented actual collection navigation skipping (was a no-op stub)
+- Build() validation: throws `DeltaMapperException` when no type maps are registered (fail-fast)
+
+### Infrastructure
+
+- GitHub Actions CI (build + test on PRs and pushes to main)
+- On-demand benchmark workflow via `workflow_dispatch`
+- BenchmarkDotNet suite comparing against Mapperly, AutoMapper, and hand-written code
+
+---
+
 ## [0.2.0-alpha] - 2026-03-19
 
 ### Added
@@ -110,6 +196,7 @@ Initial release.
 - On-demand benchmark workflow via `workflow_dispatch`
 - BenchmarkDotNet suite comparing against Mapperly, AutoMapper, and hand-written code
 
-[Unreleased]: https://github.com/OrodruinLabs/DeltaMapper/compare/v0.2.0-alpha...HEAD
+[Unreleased]: https://github.com/OrodruinLabs/DeltaMapper/compare/v1.0.0-rc.1...HEAD
+[1.0.0-rc.1]: https://github.com/OrodruinLabs/DeltaMapper/compare/v0.2.0-alpha...v1.0.0-rc.1
 [0.2.0-alpha]: https://github.com/OrodruinLabs/DeltaMapper/compare/v0.1.0-alpha...v0.2.0-alpha
 [0.1.0-alpha]: https://github.com/OrodruinLabs/DeltaMapper/releases/tag/v0.1.0-alpha

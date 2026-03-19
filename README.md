@@ -129,6 +129,24 @@ var mapper = MapperConfiguration.Create(cfg =>
 var dto = mapper.Map<OrderRequest, OrderDto>(request);
 ```
 
+## Conditional Mapping
+
+Skip a property mapping when a condition is not met — the destination property keeps its default or existing value.
+
+```csharp
+public class OrderProfile : MappingProfile
+{
+    public OrderProfile()
+    {
+        CreateMap<Order, OrderDto>()
+            .ForMember(d => d.Discount, o => o.Condition(s => s.IsPremiumCustomer))
+            .ForMember(d => d.Notes, o => o.Condition(s => s.Notes != null));
+    }
+}
+```
+
+Conditions work alongside `MapFrom`, `NullSubstitute`, and `Ignore` — the condition is evaluated first, and if false the member option is skipped entirely.
+
 ## Performance
 
 DeltaMapper's source generator produces code as fast as hand-written — and on collections, faster than every competitor tested.
