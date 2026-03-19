@@ -201,3 +201,78 @@ public class EFCoreProxyTests : IDisposable
         dto.Title.Should().Be("Middleware Blog");
     }
 }
+
+// ── Flattened EF models ──────────────────────────────────────────────
+
+public class EF_Author
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public EF_Address? Address { get; set; }
+}
+
+public class EF_Address
+{
+    public string? City { get; set; }
+    public string? Country { get; set; }
+}
+
+public class EF_AuthorFlatDto
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string? AddressCity { get; set; }
+    public string? AddressCountry { get; set; }
+}
+
+file sealed class AuthorFlatProfile : MappingProfile
+{
+    public AuthorFlatProfile()
+    {
+        CreateMap<EF_Author, EF_AuthorFlatDto>();
+    }
+}
+
+public class EFCoreFlatteningTests
+{
+    [Fact]
+    public void EF_Flat01_Flattening_With_EFCore_Support()
+    {
+        var mapper = MapperConfiguration.Create(cfg =>
+        {
+            cfg.AddEFCoreSupport();
+            cfg.AddProfile<AuthorFlatProfile>();
+        }).CreateMapper();
+
+        var author = new EF_Author
+        {
+            Id = 1,
+            Name = "Tolkien",
+            Address = new EF_Address { City = "Oxford", Country = "UK" }
+        };
+
+        var dto = mapper.Map<EF_Author, EF_AuthorFlatDto>(author);
+
+        dto.Name.Should().Be("Tolkien");
+        dto.AddressCity.Should().Be("Oxford");
+        dto.AddressCountry.Should().Be("UK");
+    }
+
+    [Fact]
+    public void EF_Flat02_Flattening_With_Null_Navigation()
+    {
+        var mapper = MapperConfiguration.Create(cfg =>
+        {
+            cfg.AddEFCoreSupport();
+            cfg.AddProfile<AuthorFlatProfile>();
+        }).CreateMapper();
+
+        var author = new EF_Author { Id = 2, Name = "Lewis", Address = null };
+
+        var dto = mapper.Map<EF_Author, EF_AuthorFlatDto>(author);
+
+        dto.Name.Should().Be("Lewis");
+        dto.AddressCity.Should().BeNull();
+        dto.AddressCountry.Should().BeNull();
+    }
+}
