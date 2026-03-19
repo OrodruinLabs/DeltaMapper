@@ -133,8 +133,10 @@ public class GeneratedMapRegistryTests : IDisposable
         Func<User, UserDto> factory = src => new UserDto { Id = src.Id, FirstName = src.FirstName };
         GeneratedMapRegistry.RegisterFactory(factory);
 
-        // Create config with no profiles (empty) and no middleware
-        var config = DeltaMapper.Configuration.MapperConfiguration.Create(_ => { });
+        // Create config with a profile (required by Build validation) and no middleware.
+        // The generated factory should still take priority over the convention map.
+        var config = DeltaMapper.Configuration.MapperConfiguration.Create(cfg =>
+            cfg.AddProfile<UserMappingProfile>());
         var mapper = config.CreateMapper();
 
         // Map should use the fast path (factory)

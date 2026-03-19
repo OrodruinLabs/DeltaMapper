@@ -1,5 +1,6 @@
 using DeltaMapper.Abstractions;
 using DeltaMapper.Configuration;
+using DeltaMapper.Exceptions;
 using DeltaMapper.Runtime;
 using DeltaMapper.UnitTests.TestModels;
 using FluentAssertions;
@@ -111,4 +112,30 @@ public class MapperConfigurationTests
         registryValue.Should().NotBeNull();
         registryValue!.GetType().Name.Should().Contain("FrozenDictionary");
     }
+
+    [Fact]
+    public void Build_WithNoProfiles_ThrowsDeltaMapperException()
+    {
+        var act = () => MapperConfiguration.Create(cfg => { });
+
+        act.Should().Throw<DeltaMapperException>()
+            .WithMessage("*no type maps*");
+    }
+
+    [Fact]
+    public void Build_WithProfileButNoMaps_ThrowsDeltaMapperException()
+    {
+        var act = () => MapperConfiguration.Create(cfg =>
+        {
+            cfg.AddProfile(new EmptyTestProfile());
+        });
+
+        act.Should().Throw<DeltaMapperException>()
+            .WithMessage("*no type maps*");
+    }
+}
+
+file sealed class EmptyTestProfile : MappingProfile
+{
+    public EmptyTestProfile() { }
 }

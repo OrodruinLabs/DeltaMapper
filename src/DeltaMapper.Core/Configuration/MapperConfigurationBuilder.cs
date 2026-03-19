@@ -126,6 +126,11 @@ public sealed class MapperConfigurationBuilder
         }
         allTypeMaps.AddRange(reverseMaps);
 
+        if (allTypeMaps.Count == 0)
+            throw new DeltaMapperException(
+                "MapperConfiguration has no type maps registered. " +
+                "Add at least one MappingProfile with CreateMap<TSource, TDest>().");
+
         // Compile each type map into a delegate
         var compiled = new Dictionary<(Type, Type), CompiledMap>();
         foreach (var tm in allTypeMaps)
