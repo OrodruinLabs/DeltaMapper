@@ -41,6 +41,25 @@ public class OrderDeepFlatDto
     public string? CustomerAddressZip { get; set; }
 }
 
+// Value-type flattened property (tests null intermediate → value type destination)
+public class FlatCustomerWithAge
+{
+    public string? Name { get; set; }
+    public int Age { get; set; }
+}
+
+public class OrderWithAgeCustomer
+{
+    public int Id { get; set; }
+    public FlatCustomerWithAge? Customer { get; set; }
+}
+
+public class OrderValueTypeFlatDto
+{
+    public int Id { get; set; }
+    public int CustomerAge { get; set; }
+}
+
 // Mixed: some properties flat (convention), some flattened
 public class OrderMixedDto
 {
@@ -178,6 +197,22 @@ public class FlatteningTests
         dst.Id.Should().Be(6);
         dst.CustomerName.Should().Be("Carol");       // flattened
         dst.Address.Should().BeSameAs(address);      // direct convention mapping
+    }
+    [Fact]
+    public void Flat07_NullIntermediate_ValueTypeDestination_DefaultsToZero()
+    {
+        // Customer is null → CustomerAge (int) should remain default (0), not throw NullReferenceException
+        var mapper = MapperConfiguration.Create(cfg =>
+        {
+            cfg.AddProfile(new FlatInlineProfile<OrderWithAgeCustomer, OrderValueTypeFlatDto>());
+        }).CreateMapper();
+
+        var src = new OrderWithAgeCustomer { Id = 7, Customer = null };
+
+        var dst = mapper.Map<OrderWithAgeCustomer, OrderValueTypeFlatDto>(src);
+
+        dst.Id.Should().Be(7);
+        dst.CustomerAge.Should().Be(0); // default(int), not crash
     }
 }
 

@@ -44,7 +44,20 @@ public sealed class MapperConfigurationBuilder
     public MapperConfigurationBuilder AddProfilesFromAssembly(Assembly assembly)
     {
         ArgumentNullException.ThrowIfNull(assembly);
-        var profileTypes = assembly.GetTypes()
+
+        Type[] types;
+        try
+        {
+            types = assembly.GetTypes();
+        }
+        catch (ReflectionTypeLoadException ex)
+        {
+            // Some types may fail to load (e.g., missing dependencies in plugin assemblies).
+            // Fall back to the types that did load successfully.
+            types = ex.Types.Where(t => t != null).ToArray()!;
+        }
+
+        var profileTypes = types
             .Where(t => t.IsSubclassOf(typeof(MappingProfile))
                       && !t.IsAbstract
                       && !t.IsGenericTypeDefinition
@@ -203,7 +216,16 @@ public sealed class MapperConfigurationBuilder
                 if (flattenedGetter != null)
                 {
                     var setter = CompileSetter(dstProp);
-                    assignments.Add((src, dst, ctx) => setter(dst, flattenedGetter(src)));
+                    var isNonNullableValueType = dstProp.PropertyType.IsValueType
+                        && Nullable.GetUnderlyingType(dstProp.PropertyType) == null;
+                    assignments.Add((src, dst, ctx) =>
+                    {
+                        var value = flattenedGetter(src);
+                        // Skip assignment when flattened chain returns null for non-nullable value types
+                        // (null intermediate → leave destination at default rather than unbox crash)
+                        if (value == null && isNonNullableValueType) return;
+                        setter(dst, value);
+                    });
                 }
                 else if (IsComplexType(dstProp.PropertyType))
                 {
@@ -795,7 +817,7 @@ public sealed class MapperConfigurationBuilder
     {
         // Walk the PascalCase segments greedily, trying longer prefixes first.
         var param = Expression.Parameter(typeof(object), "src");
-        var chain = TryBuildChain(srcType, dstPropertyName, param, Expression.Convert(param, srcType));
+        var chain = TryBuildChain(srcType, dstPropertyName, Expression.Convert(param, srcType));
         if (chain == null) return null;
 
         var lambda = Expression.Lambda<Func<object, object?>>(chain, param);
@@ -807,7 +829,7 @@ public sealed class MapperConfigurationBuilder
     /// <paramref name="currentType"/>, building a null-safe expression chain along the way.
     /// Greedy: tries longer prefixes first so "Customer" beats "C" when both match.
     /// </summary>
-    private static Expression? TryBuildChain(Type currentType, string remaining, ParameterExpression rootParam, Expression currentExpr)
+    private static Expression? TryBuildChain(Type currentType, string remaining, Expression currentExpr)
     {
         var props = currentType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
 
@@ -840,7 +862,7 @@ public sealed class MapperConfigurationBuilder
                 ? (Expression)propAccess
                 : Expression.Convert(Expression.Convert(propAccess, typeof(object)), nextType);
 
-            var innerChain = TryBuildChain(nextType, suffix, rootParam, nextExpr);
+            var innerChain = TryBuildChain(nextType, suffix, nextExpr);
             if (innerChain == null) continue;
 
             // Wrap with null guard: if current object or the intermediate property is null → return null

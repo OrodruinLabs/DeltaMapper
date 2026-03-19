@@ -130,21 +130,23 @@ public sealed class UnflatteningTests
     }
 
     [Fact]
-    public void Unflatten04_NonMatchingPrefix_PropertySkipped()
+    public void Unflatten04_SourceHasMatchingPropsButNullValues_CreatesNestedWithNulls()
     {
-        // No source property matches the Customer prefix → Customer should be null (default)
+        // FlatOrderSource declares CustomerName/CustomerEmail (compile-time match exists),
+        // so unflattening activates and creates a Customer object — even though values are null.
         var mapper = MapperConfiguration.Create(cfg =>
         {
             cfg.AddProfile(new UnflatInlineProfile<FlatOrderSource, NestedOrderDestination>());
         }).CreateMapper();
 
-        var src = new FlatOrderSource { Id = 4 }; // no CustomerName or CustomerEmail
+        var src = new FlatOrderSource { Id = 4 }; // CustomerName/CustomerEmail are null (default)
 
         var dst = mapper.Map<FlatOrderSource, NestedOrderDestination>(src);
 
-        // A Customer object IS created (with null Name/Email) because nulls are still valid values.
-        // The important thing is: no exception, and Id is mapped correctly.
         dst.Id.Should().Be(4);
+        dst.Customer.Should().NotBeNull();
+        dst.Customer!.Name.Should().BeNull();
+        dst.Customer!.Email.Should().BeNull();
     }
 
     [Fact]

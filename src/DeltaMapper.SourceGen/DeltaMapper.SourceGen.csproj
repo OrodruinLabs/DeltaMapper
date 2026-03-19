@@ -21,9 +21,10 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
-v0.2.0-alpha — Feature gaps release.
+v0.2.0-alpha — Version bump to align with DeltaMapper.Core 0.2.0-alpha.
 
-- Assembly scanning skips generic profile types (fixes DM002 false positives)
+- No source generator changes in this release
+- See DeltaMapper 0.2.0-alpha for new Core features (flattening, assembly scanning, type converters)
     </PackageReleaseNotes>
     <!-- RS2008: release-tracking manifests are not required for an alpha source generator -->
     <NoWarn>$(NoWarn);RS2008</NoWarn>
