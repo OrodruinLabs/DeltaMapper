@@ -127,14 +127,17 @@ public class GeneratedMapRegistryTests : IDisposable
     // ── GR-08 ─────────────────────────────────────────────────────────────────
 
     [Fact]
-    public void GR08_FastPath_UsesFactory_WhenNoMiddlewareOrProfile()
+    public void GR08_FastPath_UsesFactory_WhenNoCompiledMapForTypePair()
     {
         // Register a factory — simulating what [ModuleInitializer] does
         Func<User, UserDto> factory = src => new UserDto { Id = src.Id, FirstName = src.FirstName };
         GeneratedMapRegistry.RegisterFactory(factory);
 
-        // Create config with no profiles (empty) and no middleware
-        var config = DeltaMapper.Configuration.MapperConfiguration.Create(_ => { });
+        // Create config with an unrelated profile (required by Build validation) and no middleware.
+        // UserSummaryMappingProfile maps User→UserSummaryDto, NOT User→UserDto,
+        // so the generated factory should handle User→UserDto via the fast path.
+        var config = DeltaMapper.Configuration.MapperConfiguration.Create(cfg =>
+            cfg.AddProfile<UserSummaryMappingProfile>());
         var mapper = config.CreateMapper();
 
         // Map should use the fast path (factory)

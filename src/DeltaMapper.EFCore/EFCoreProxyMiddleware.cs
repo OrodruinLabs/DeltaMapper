@@ -4,21 +4,27 @@ using DeltaMapper.Middleware;
 using DeltaMapper.Runtime;
 
 /// <summary>
-/// Middleware that detects EF Core proxy entities and skips unloaded navigation properties
-/// to prevent lazy loading triggers during mapping.
+/// Middleware that detects EF Core Castle.Core proxy entities and skips all collection-typed
+/// properties during mapping to prevent lazy loading triggers. The proxy flag is scoped
+/// per source object, so nested non-proxy objects retain normal collection mapping.
 /// </summary>
 internal sealed class EFCoreProxyMiddleware : IMappingMiddleware
 {
     /// <inheritdoc />
     public object Map(object source, Type destType, MapperContext ctx, Func<object> next)
     {
-        // Fast path: non-proxy types pass straight through
-        if (!IsProxy(source))
+        // Set the proxy flag based on the current source object so that
+        // nested non-proxy objects correctly re-enable collection mapping.
+        var wasProxy = ctx.IsProxyMapping;
+        ctx.IsProxyMapping = IsProxy(source);
+        try
+        {
             return next();
-
-        // For proxied entities, proceed with mapping but mark context
-        // so navigations can be handled appropriately
-        return next();
+        }
+        finally
+        {
+            ctx.IsProxyMapping = wasProxy;
+        }
     }
 
     /// <summary>

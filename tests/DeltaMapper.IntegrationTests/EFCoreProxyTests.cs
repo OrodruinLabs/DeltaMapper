@@ -152,6 +152,33 @@ public class EFCoreProxyTests : IDisposable
     }
 
     [Fact]
+    public void EFCore05_MiddlewareDoesNotThrow_WithEagerlyLoadedNavigations()
+    {
+        // When navigations ARE loaded (Include), mapping should still work
+        _db.Blogs.Add(new Blog
+        {
+            Id = 5,
+            Title = "Eager Blog",
+            Posts = [new Post { Id = 20, Content = "Loaded", BlogId = 5 }]
+        });
+        _db.SaveChanges();
+        _db.ChangeTracker.Clear();
+
+        var blog = _db.Blogs.Include(b => b.Posts).First(b => b.Id == 5);
+
+        var config = MapperConfiguration.Create(cfg =>
+        {
+            cfg.AddEFCoreSupport();
+            cfg.AddProfile<BlogMappingProfile>();
+        });
+        var mapper = config.CreateMapper();
+
+        var dto = mapper.Map<Blog, BlogDto>(blog);
+        dto.Id.Should().Be(5);
+        dto.Title.Should().Be("Eager Blog");
+    }
+
+    [Fact]
     public void EFCore04_MiddlewareRegisteredViaAddEFCoreSupport()
     {
         // Arrange & Act — build a config with AddEFCoreSupport() and map a simple entity

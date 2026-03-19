@@ -126,6 +126,11 @@ public sealed class MapperConfigurationBuilder
         }
         allTypeMaps.AddRange(reverseMaps);
 
+        if (allTypeMaps.Count == 0)
+            throw new DeltaMapperException(
+                "MapperConfiguration has no type maps registered. " +
+                "Add at least one MappingProfile with CreateMap<TSource, TDest>().");
+
         // Compile each type map into a delegate
         var compiled = new Dictionary<(Type, Type), CompiledMap>();
         foreach (var tm in allTypeMaps)
@@ -215,6 +220,11 @@ public sealed class MapperConfigurationBuilder
                 var flattenedGetter = TryBuildFlattenedGetter(srcType, dstProp.Name);
                 if (flattenedGetter != null)
                 {
+                    // Skip if the flattened leaf type is incompatible with the destination
+                    var leafType = TryGetFlattenedLeafType(srcType, dstProp.Name);
+                    if (leafType != null && !CanAssignFlattenedLeaf(leafType, dstProp.PropertyType))
+                        continue;
+
                     var setter = CompileSetter(dstProp);
                     var isNonNullableValueType = dstProp.PropertyType.IsValueType
                         && Nullable.GetUnderlyingType(dstProp.PropertyType) == null;
@@ -363,6 +373,11 @@ public sealed class MapperConfigurationBuilder
                 var dstCollType = dstPropCaptured.PropertyType;
                 assignments.Add((src, dst, ctx) =>
                 {
+                    // Skip collection properties on EF Core proxy entities BEFORE
+                    // reading the getter, which would trigger lazy loading.
+                    if (ctx.IsProxyMapping)
+                        return;
+
                     var srcCollection = getter(src);
                     if (srcCollection == null)
                     {
@@ -805,10 +820,38 @@ public sealed class MapperConfigurationBuilder
     }
 
     /// <summary>
-    /// Attempts to build a null-safe compiled getter for a flattened destination property name.
+    /// Returns the <see cref="Type"/> of the leaf property reached by walking the same
+    /// PascalCase chain as <see cref="TryBuildFlattenedGetter"/>, without compiling an expression.
+    /// Used to verify type compatibility before wiring up a flattened assignment.
+    /// Returns <c>null</c> if no matching chain is found.
+    /// </summary>
+    private static Type? TryGetFlattenedLeafType(Type srcType, string dstPropertyName)
+    {
+        return TryGetLeafType(srcType, dstPropertyName);
+    }
+
+    private static Type? TryGetLeafType(Type currentType, string remaining)
+    {
+        var props = currentType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+        for (int len = remaining.Length; len >= 1; len--)
+        {
+            var prefix = remaining[..len];
+            var suffix = remaining[len..];
+            var matched = props.FirstOrDefault(p => p.Name.Equals(prefix, StringComparison.OrdinalIgnoreCase));
+            if (matched == null) continue;
+            if (suffix.Length == 0) return matched.PropertyType;
+            if (!IsTraversableType(matched.PropertyType)) continue;
+            var leaf = TryGetLeafType(matched.PropertyType, suffix);
+            if (leaf != null) return leaf;
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// Builds a null-safe compiled getter for a flattened destination property name.
+    /// Walks the source type's property chain by splitting PascalCase segments greedily.
     /// For example, given source type <c>Order</c> and destination name <c>CustomerName</c>,
-    /// this method discovers the chain <c>Order.Customer.Name</c> and compiles a null-safe
-    /// expression <c>src => src.Customer == null ? null : (object)src.Customer.Name</c>.
+    /// discovers the chain <c>Order.Customer.Name</c> and compiles a null-safe expression.
     /// </summary>
     /// <param name="srcType">The root source type to search.</param>
     /// <param name="dstPropertyName">The flattened destination property name (e.g. "CustomerName").</param>
@@ -927,6 +970,31 @@ public sealed class MapperConfigurationBuilder
     private static bool IsDirectlyAssignable(Type srcType, Type dstType)
     {
         return dstType.IsAssignableFrom(srcType);
+    }
+
+    /// <summary>
+    /// Returns true when a flattened leaf property of <paramref name="srcType"/> can be assigned
+    /// to a destination property of <paramref name="dstType"/>. Allows direct assignment,
+    /// same-enum nullability differences, and Nullable&lt;T&gt; ↔ T for value types
+    /// (which the compiled setter handles via boxing/unboxing).
+    /// </summary>
+    private static bool CanAssignFlattenedLeaf(Type srcType, Type dstType)
+    {
+        if (IsDirectlyAssignable(srcType, dstType))
+            return true;
+
+        if (IsSameEnumNullabilityDiff(srcType, dstType))
+            return true;
+
+        // Allow Nullable<T> → T and T → Nullable<T> for value types.
+        // .NET boxing rules mean Nullable<T> boxes to T, and the compiled
+        // setter's Expression.Convert handles the unboxing.
+        var srcUnderlying = Nullable.GetUnderlyingType(srcType) ?? srcType;
+        var dstUnderlying = Nullable.GetUnderlyingType(dstType) ?? dstType;
+        return srcType != dstType
+            && srcUnderlying == dstUnderlying
+            && srcUnderlying.IsValueType
+            && !srcUnderlying.IsEnum;
     }
 
     private static readonly ConcurrentDictionary<Type, FrozenSet<string>> _enumNameCache = new();
