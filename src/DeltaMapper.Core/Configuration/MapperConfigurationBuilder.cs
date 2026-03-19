@@ -222,7 +222,7 @@ public sealed class MapperConfigurationBuilder
                 {
                     // Skip if the flattened leaf type is incompatible with the destination
                     var leafType = TryGetFlattenedLeafType(srcType, dstProp.Name);
-                    if (leafType != null && !IsDirectlyAssignable(leafType, dstProp.PropertyType))
+                    if (leafType != null && !CanAssignFlattenedLeaf(leafType, dstProp.PropertyType))
                         continue;
 
                     var setter = CompileSetter(dstProp);
@@ -970,6 +970,31 @@ public sealed class MapperConfigurationBuilder
     private static bool IsDirectlyAssignable(Type srcType, Type dstType)
     {
         return dstType.IsAssignableFrom(srcType);
+    }
+
+    /// <summary>
+    /// Returns true when a flattened leaf property of <paramref name="srcType"/> can be assigned
+    /// to a destination property of <paramref name="dstType"/>. Allows direct assignment,
+    /// same-enum nullability differences, and Nullable&lt;T&gt; ↔ T for value types
+    /// (which the compiled setter handles via boxing/unboxing).
+    /// </summary>
+    private static bool CanAssignFlattenedLeaf(Type srcType, Type dstType)
+    {
+        if (IsDirectlyAssignable(srcType, dstType))
+            return true;
+
+        if (IsSameEnumNullabilityDiff(srcType, dstType))
+            return true;
+
+        // Allow Nullable<T> → T and T → Nullable<T> for value types.
+        // .NET boxing rules mean Nullable<T> boxes to T, and the compiled
+        // setter's Expression.Convert handles the unboxing.
+        var srcUnderlying = Nullable.GetUnderlyingType(srcType) ?? srcType;
+        var dstUnderlying = Nullable.GetUnderlyingType(dstType) ?? dstType;
+        return srcType != dstType
+            && srcUnderlying == dstUnderlying
+            && srcUnderlying.IsValueType
+            && !srcUnderlying.IsEnum;
     }
 
     private static readonly ConcurrentDictionary<Type, FrozenSet<string>> _enumNameCache = new();
