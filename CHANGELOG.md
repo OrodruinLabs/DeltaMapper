@@ -11,6 +11,44 @@ DeltaMapper uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.2.0-alpha] - 2026-03-19
+
+### Added
+
+#### Flattening
+
+- Automatic flattening of nested properties by convention — `Order.Customer.Name` maps to destination property `CustomerName` with no configuration required
+- Multi-level chains are supported: `Order.Customer.Address.Zip` → `CustomerAddressZip`
+- Null-safe access throughout the flattened chain — a null intermediate object returns null rather than throwing
+- Flattened path getters are compiled into expression delegates at build time; no reflection overhead at map time
+
+#### Unflattening
+
+- Automatic reverse of flattening — flat source properties (`CustomerName`, `CustomerEmail`) are grouped into a nested destination object (`Customer.Name`, `Customer.Email`) by convention, using the destination property name as the prefix to match
+- Triggered automatically when the destination exposes a complex-type property and the source has flat properties whose names start with that property name
+- Works alongside regular convention mapping on the same type map
+- Round-trip support: flatten a nested object to a flat DTO and unflatten back to recover the original structure
+
+#### Assembly Scanning
+
+- `cfg.AddProfilesFromAssembly(Assembly assembly)` — scans an assembly for all concrete `MappingProfile` subclasses that have parameterless constructors and registers them automatically
+- `cfg.AddProfilesFromAssemblyContaining<T>()` — convenience overload that resolves the assembly from `typeof(T).Assembly`
+- Abstract profiles, generic profile definitions, and profiles without a parameterless constructor are silently skipped during scanning
+- Compatible with explicit `AddProfile<T>()` — both can be used together in the same configuration block
+
+#### Type Converters
+
+- `cfg.CreateTypeConverter<TSource, TDest>(Func<TSource, TDest> converter)` — registers a global type converter that is applied across all maps whenever a source property of type `TSource` maps to a destination property of type `TDest`
+- Multiple converters for different type pairs can be registered in one configuration; all apply independently
+- Convention direct-assign path is unchanged for same-type properties — converters only activate when the source and destination types differ
+- Null source values are handled safely: the converter delegate is not invoked and the destination receives null/default
+
+### Fixed
+
+- Assembly scanning now skips open generic profile types, preventing a false-positive `MissingMethodException` on registration
+
+---
+
 ## [0.1.0-alpha] - 2026-03-18
 
 Initial release.
@@ -68,5 +106,6 @@ Initial release.
 - On-demand benchmark workflow via `workflow_dispatch`
 - BenchmarkDotNet suite comparing against Mapperly, AutoMapper, and hand-written code
 
-[Unreleased]: https://github.com/OrodruinLabs/DeltaMapper/compare/v0.1.0-alpha...HEAD
+[Unreleased]: https://github.com/OrodruinLabs/DeltaMapper/compare/v0.2.0-alpha...HEAD
+[0.2.0-alpha]: https://github.com/OrodruinLabs/DeltaMapper/compare/v0.1.0-alpha...v0.2.0-alpha
 [0.1.0-alpha]: https://github.com/OrodruinLabs/DeltaMapper/releases/tag/v0.1.0-alpha

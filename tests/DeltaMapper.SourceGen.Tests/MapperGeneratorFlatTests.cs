@@ -153,7 +153,7 @@ public class MapperGeneratorFlatTests
         mapTree.Should().NotBeNull();
 
         var sourceText = mapTree!.ToString();
-        sourceText.Should().Contain("dst.Name = src.Name;",  "Name matches by name and type");
+        sourceText.Should().Contain("dst.Name = src.Name;", "Name matches by name and type");
         sourceText.Should().NotContain("dst.Age = src.Age;", "Age has mismatched types and must be skipped");
     }
 

@@ -10,7 +10,7 @@ namespace DeltaMapper.SourceGen
     {
         // Attribute short names that mark a destination property as ignored
         private const string IgnoreAttributeShortName = "Ignore";
-        private const string IgnoreAttributeAltName   = "DeltaMapperIgnore";
+        private const string IgnoreAttributeAltName = "DeltaMapperIgnore";
 
         // ── map method emission ──────────────────────────────────────────────
 
@@ -30,13 +30,13 @@ namespace DeltaMapper.SourceGen
 
             var srcFullName = src.ToDisplayString();
             var dstFullName = dst.ToDisplayString();
-            var methodName  = $"Map_{src.Name}_To_{dst.Name}";
+            var methodName = $"Map_{src.Name}_To_{dst.Name}";
 
             var pairs = knownPairs ?? Array.Empty<(INamedTypeSymbol, INamedTypeSymbol)>();
             var assignmentLines = BuildAssignmentLines(src, dst, pairs);
 
-            var indent  = ns is not null ? "    " : "";
-            var nsOpen  = ns is not null ? $"namespace {ns}\n{{\n" : "";
+            var indent = ns is not null ? "    " : "";
+            var nsOpen = ns is not null ? $"namespace {ns}\n{{\n" : "";
             var nsClose = ns is not null ? "\n}" : "";
 
             var accessibility = profileClass.DeclaredAccessibility.ToString().ToLowerInvariant();
@@ -69,14 +69,14 @@ using System.Linq;
                 ? null
                 : profileClass.ContainingNamespace.ToDisplayString();
 
-            var srcFullName  = src.ToDisplayString();
-            var dstFullName  = dst.ToDisplayString();
-            var methodName   = $"Create_{src.Name}_To_{dst.Name}";
+            var srcFullName = src.ToDisplayString();
+            var dstFullName = dst.ToDisplayString();
+            var methodName = $"Create_{src.Name}_To_{dst.Name}";
 
             var pairs = knownPairs ?? Array.Empty<(INamedTypeSymbol, INamedTypeSymbol)>();
 
-            var indent  = ns is not null ? "    " : "";
-            var nsOpen  = ns is not null ? $"namespace {ns}\n{{\n" : "";
+            var indent = ns is not null ? "    " : "";
+            var nsOpen = ns is not null ? $"namespace {ns}\n{{\n" : "";
             var nsClose = ns is not null ? "\n}" : "";
 
             var accessibility = profileClass.DeclaredAccessibility.ToString().ToLowerInvariant();
@@ -201,16 +201,16 @@ using System.Linq;
                 ? null
                 : profileClass.ContainingNamespace.ToDisplayString();
 
-            var indent  = ns is not null ? "    " : "";
-            var nsOpen  = ns is not null ? $"namespace {ns}\n{{\n" : "";
+            var indent = ns is not null ? "    " : "";
+            var nsOpen = ns is not null ? $"namespace {ns}\n{{\n" : "";
             var nsClose = ns is not null ? "\n}" : "";
 
             var sb = new StringBuilder();
             foreach (var (src, dst) in mappings)
             {
-                var srcFull       = src.ToDisplayString();
-                var dstFull       = dst.ToDisplayString();
-                var mapMethod     = $"Map_{src.Name}_To_{dst.Name}";
+                var srcFull = src.ToDisplayString();
+                var dstFull = dst.ToDisplayString();
+                var mapMethod = $"Map_{src.Name}_To_{dst.Name}";
                 var factoryMethod = $"Create_{src.Name}_To_{dst.Name}";
                 sb.AppendLine(
                     $"{indent}        DeltaMapper.Runtime.GeneratedMapRegistry.Register<{srcFull}, {dstFull}>" +
@@ -341,7 +341,7 @@ using System.Linq;
                     srcElement is INamedTypeSymbol srcElemNamedArr &&
                     FindPair(knownPairs, srcElemNamedArr, dstElemNamedArr) is { } nestedPairArr)
                 {
-                    var nm      = $"Map_{nestedPairArr.Src.Name}_To_{nestedPairArr.Dst.Name}";
+                    var nm = $"Map_{nestedPairArr.Src.Name}_To_{nestedPairArr.Dst.Name}";
                     var dstFull = nestedPairArr.Dst.ToDisplayString();
                     return $"dst.{dstName} = src.{srcName}?.Select(x => {{ if (x is null) return null!; var mapped = new {dstFull}(); {nm}(x, mapped); return mapped; }}).ToArray();";
                 }
@@ -372,7 +372,7 @@ using System.Linq;
                     srcElement is INamedTypeSymbol srcElemNamedList &&
                     FindPair(knownPairs, srcElemNamedList, dstElemNamedList) is { } nestedPairList)
                 {
-                    var nm      = $"Map_{nestedPairList.Src.Name}_To_{nestedPairList.Dst.Name}";
+                    var nm = $"Map_{nestedPairList.Src.Name}_To_{nestedPairList.Dst.Name}";
                     var dstFull = nestedPairList.Dst.ToDisplayString();
                     return $"dst.{dstName} = src.{srcName}?.Select(x => {{ if (x is null) return null!; var mapped = new {dstFull}(); {nm}(x, mapped); return mapped; }}).ToList();";
                 }
@@ -386,7 +386,7 @@ using System.Linq;
                 if (srcProp.Type is INamedTypeSymbol srcComplex &&
                     FindPair(knownPairs, srcComplex, dstComplex) is { } nestedPair)
                 {
-                    var nm      = $"Map_{nestedPair.Src.Name}_To_{nestedPair.Dst.Name}";
+                    var nm = $"Map_{nestedPair.Src.Name}_To_{nestedPair.Dst.Name}";
                     var dstFull = nestedPair.Dst.ToDisplayString();
                     return $"if (src.{srcName} is not null) {{ dst.{dstName} = new {dstFull}(); {nm}(src.{srcName}, dst.{dstName}); }}";
                 }
@@ -408,16 +408,16 @@ using System.Linq;
         {
             return prop.Symbol.GetAttributes().Any(a =>
             {
-                var name     = a.AttributeClass?.Name ?? string.Empty;
+                var name = a.AttributeClass?.Name ?? string.Empty;
                 var fullName = a.AttributeClass?.ToDisplayString() ?? string.Empty;
 
-                return name     == IgnoreAttributeShortName           ||
-                       name     == IgnoreAttributeAltName             ||
-                       name     == IgnoreAttributeShortName + "Attribute" ||
-                       name     == IgnoreAttributeAltName   + "Attribute" ||
-                       fullName == "DeltaMapper.Ignore"               ||
-                       fullName == "DeltaMapper.DeltaMapperIgnore"    ||
-                       fullName == "DeltaMapper.IgnoreAttribute"      ||
+                return name == IgnoreAttributeShortName ||
+                       name == IgnoreAttributeAltName ||
+                       name == IgnoreAttributeShortName + "Attribute" ||
+                       name == IgnoreAttributeAltName + "Attribute" ||
+                       fullName == "DeltaMapper.Ignore" ||
+                       fullName == "DeltaMapper.DeltaMapperIgnore" ||
+                       fullName == "DeltaMapper.IgnoreAttribute" ||
                        fullName == "DeltaMapper.DeltaMapperIgnoreAttribute";
             });
         }

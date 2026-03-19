@@ -11,8 +11,8 @@ namespace DeltaMapper.SourceGen.Diagnostics
     internal static class MappingAnalyzer
     {
         // Attribute short names that mark a destination property as ignored
-        private const string IgnoreAttributeShortName  = "Ignore";
-        private const string IgnoreAttributeAltName    = "DeltaMapperIgnore";
+        private const string IgnoreAttributeShortName = "Ignore";
+        private const string IgnoreAttributeAltName = "DeltaMapperIgnore";
 
         /// <summary>
         /// Called during the Execute phase.  Reports DM001 for every unmatched,
@@ -121,16 +121,16 @@ namespace DeltaMapper.SourceGen.Diagnostics
         {
             return prop.GetAttributes().Any(a =>
             {
-                var name     = a.AttributeClass?.Name ?? string.Empty;
+                var name = a.AttributeClass?.Name ?? string.Empty;
                 var fullName = a.AttributeClass?.ToDisplayString() ?? string.Empty;
 
-                return name     == IgnoreAttributeShortName                         ||
-                       name     == IgnoreAttributeAltName                           ||
-                       name     == IgnoreAttributeShortName + "Attribute"           ||
-                       name     == IgnoreAttributeAltName   + "Attribute"           ||
-                       fullName == "DeltaMapper.Ignore"                             ||
-                       fullName == "DeltaMapper.DeltaMapperIgnore"                  ||
-                       fullName == "DeltaMapper.IgnoreAttribute"                    ||
+                return name == IgnoreAttributeShortName ||
+                       name == IgnoreAttributeAltName ||
+                       name == IgnoreAttributeShortName + "Attribute" ||
+                       name == IgnoreAttributeAltName + "Attribute" ||
+                       fullName == "DeltaMapper.Ignore" ||
+                       fullName == "DeltaMapper.DeltaMapperIgnore" ||
+                       fullName == "DeltaMapper.IgnoreAttribute" ||
                        fullName == "DeltaMapper.DeltaMapperIgnoreAttribute";
             });
         }

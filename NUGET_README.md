@@ -48,6 +48,32 @@ if (diff.HasChanges)
     await auditLog.RecordAsync(userId, diff.Changes);
 ```
 
+## Flattening and Unflattening
+
+Nested objects are flattened to flat DTOs and back automatically — no configuration required.
+
+```csharp
+// Order.Customer.Name → CustomerName (flattening)
+CreateMap<Order, OrderFlatDto>();
+
+// CustomerName → Customer.Name (unflattening)
+CreateMap<OrderFlatDto, Order>();
+```
+
+## Assembly Scanning
+
+```csharp
+// Register all profiles in an assembly in one call
+cfg.AddProfilesFromAssemblyContaining<UserProfile>();
+```
+
+## Type Converters
+
+```csharp
+// Apply a conversion across every map that has a matching type pair
+cfg.CreateTypeConverter<string, DateTime>(s => DateTime.Parse(s));
+```
+
 ## Performance
 
 | What's being mapped | DeltaMapper | vs Mapperly | vs AutoMapper |

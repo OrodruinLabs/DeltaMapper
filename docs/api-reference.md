@@ -7,6 +7,9 @@ MapperConfiguration config = MapperConfiguration.Create(cfg =>
 {
     cfg.AddProfile<UserProfile>();          // add by generic type
     cfg.AddProfile(new OrderProfile());     // add existing instance
+    cfg.AddProfilesFromAssembly(assembly);  // scan assembly for profiles
+    cfg.AddProfilesFromAssemblyContaining<UserProfile>(); // scan assembly of T
+    cfg.CreateTypeConverter<string, DateTime>(s => DateTime.Parse(s)); // global converter
     cfg.Use<MyLoggingMiddleware>();         // add pipeline middleware
 });
 
@@ -63,6 +66,98 @@ Properties are matched by name (case-insensitive) without any configuration:
 2. Same name + safe numeric widening (e.g., `int` to `long`) — `Convert.ChangeType`
 3. Same name + `IEnumerable<T>` on both sides — map each element, produce `List<T>` or `T[]`
 4. Same name + complex object type — recursive map lookup
+5. No direct match — attempt flattening (source) or unflattening (destination), then skip
+
+## Flattening
+
+When no direct source property matches a destination property name, DeltaMapper attempts to resolve it by walking the source's object graph. The destination property name is parsed as a concatenation of property names along the path.
+
+```csharp
+public class Order
+{
+    public int Id { get; set; }
+    public Customer? Customer { get; set; }
+}
+public class Customer { public string? Name { get; set; } }
+
+// Destination property CustomerName is resolved from Order.Customer.Name
+public class OrderDto
+{
+    public int Id { get; set; }
+    public string? CustomerName { get; set; }
+}
+
+// No configuration required
+CreateMap<Order, OrderDto>();
+```
+
+Multi-level chains are resolved recursively (`Order.Customer.Address.Zip` → `CustomerAddressZip`). If any intermediate object in the chain is null, the destination property receives null and no exception is thrown. The flattened getter is compiled into an expression delegate at build time — there is no reflection overhead during mapping.
+
+## Unflattening
+
+When a destination property is a complex type and no direct source property matches its name, DeltaMapper attempts to unflatten by treating the destination property name as a prefix. Source properties whose names start with that prefix (case-insensitive) are assigned to the corresponding sub-properties of a new destination object.
+
+```csharp
+// Flat source
+public class OrderFlatDto
+{
+    public int Id { get; set; }
+    public string? CustomerName  { get; set; }
+    public string? CustomerEmail { get; set; }
+}
+
+// Nested destination — Customer is reconstructed from CustomerName and CustomerEmail
+public class Order
+{
+    public int Id { get; set; }
+    public Customer? Customer { get; set; }
+}
+public class Customer
+{
+    public string? Name  { get; set; }
+    public string? Email { get; set; }
+}
+
+// No configuration required
+CreateMap<OrderFlatDto, Order>();
+```
+
+Flattening and unflattening can be combined in the same map when some properties are flat and others are complex.
+
+## Assembly Scanning
+
+Instead of listing profiles one by one, scan an entire assembly:
+
+```csharp
+// By Assembly reference
+cfg.AddProfilesFromAssembly(typeof(UserProfile).Assembly);
+
+// By marker type (resolves assembly from typeof(T))
+cfg.AddProfilesFromAssemblyContaining<UserProfile>();
+```
+
+The scanner discovers all concrete, non-generic `MappingProfile` subclasses that have a public parameterless constructor. Abstract profiles and profiles requiring constructor arguments are silently skipped. Scanning and explicit `AddProfile<T>()` calls can be combined.
+
+## Type Converters
+
+Register a global type converter once and it applies to every property pair of those types across all maps:
+
+```csharp
+MapperConfiguration.Create(cfg =>
+{
+    cfg.CreateTypeConverter<string, DateTime>(s => DateTime.Parse(s));
+    cfg.CreateTypeConverter<int, string>(i => i.ToString("D6"));
+    cfg.AddProfile<OrderProfile>();
+});
+```
+
+The signature is:
+
+```csharp
+MapperConfigurationBuilder CreateTypeConverter<TSource, TDest>(Func<TSource, TDest> converter);
+```
+
+A converter is only invoked when the source and destination property types differ. Same-type properties continue to use the direct convention assignment path. When the source value is null the converter is not called; the destination receives null or default.
 
 ## Records and Init-Only Properties
 
@@ -101,8 +196,7 @@ When no middleware is registered the core delegate is invoked directly with zero
 ```csharp
 builder.Services.AddDeltaMapper(cfg =>
 {
-    cfg.AddProfile<UserProfile>();
-    cfg.AddProfile<OrderProfile>();
+    cfg.AddProfilesFromAssemblyContaining<UserProfile>();
 });
 
 public class UserService(IMapper mapper)

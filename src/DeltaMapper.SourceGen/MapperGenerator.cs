@@ -101,17 +101,17 @@ namespace DeltaMapper.SourceGen
 
             foreach (var (src, dst) in pairs)
             {
-                var source   = EmitHelper.EmitMapMethod(info.ProfileClass, src, dst, pairs);
+                var source = EmitHelper.EmitMapMethod(info.ProfileClass, src, dst, pairs);
                 var hintName = EmitHelper.BuildFileName(info.ProfileClass, src, dst);
                 context.AddSource(hintName, source);
 
-                var factorySource   = EmitHelper.EmitFactoryMethod(info.ProfileClass, src, dst, pairs);
+                var factorySource = EmitHelper.EmitFactoryMethod(info.ProfileClass, src, dst, pairs);
                 var factoryHintName = EmitHelper.BuildFactoryFileName(info.ProfileClass, src, dst);
                 context.AddSource(factoryHintName, factorySource);
             }
 
             // Emit one ModuleInitializer file per profile class (covers all pairs)
-            var initSource   = EmitHelper.EmitModuleInitializer(info.ProfileClass, pairs);
+            var initSource = EmitHelper.EmitModuleInitializer(info.ProfileClass, pairs);
             var initHintName = EmitHelper.BuildModuleInitializerFileName(info.ProfileClass);
             context.AddSource(initHintName, initSource);
         }
@@ -126,8 +126,8 @@ namespace DeltaMapper.SourceGen
             INamedTypeSymbol profileClass,
             List<(AttributeData Data, Location Location)> rawAttributes)
         {
-            ProfileClass   = profileClass;
-            RawAttributes  = rawAttributes;
+            ProfileClass = profileClass;
+            RawAttributes = rawAttributes;
         }
     }
 }

@@ -38,6 +38,45 @@ public sealed class MapperConfigurationBuilder
     }
 
     /// <summary>
+    /// Scans the specified assembly for all concrete MappingProfile subclasses
+    /// with parameterless constructors and adds them to the configuration.
+    /// </summary>
+    public MapperConfigurationBuilder AddProfilesFromAssembly(Assembly assembly)
+    {
+        ArgumentNullException.ThrowIfNull(assembly);
+
+        Type[] types;
+        try
+        {
+            types = assembly.GetTypes();
+        }
+        catch (ReflectionTypeLoadException ex)
+        {
+            // Some types may fail to load (e.g., missing dependencies in plugin assemblies).
+            // Fall back to the types that did load successfully.
+            types = ex.Types.Where(t => t != null).ToArray()!;
+        }
+
+        var profileTypes = types
+            .Where(t => t.IsSubclassOf(typeof(MappingProfile))
+                      && !t.IsAbstract
+                      && !t.IsGenericTypeDefinition
+                      && !t.ContainsGenericParameters
+                      && t.GetConstructor(Type.EmptyTypes) != null);
+        foreach (var type in profileTypes)
+            _profiles.Add((MappingProfile)Activator.CreateInstance(type)!);
+        return this;
+    }
+
+    /// <summary>
+    /// Scans the assembly containing <typeparamref name="T"/> for all concrete MappingProfile subclasses.
+    /// </summary>
+    public MapperConfigurationBuilder AddProfilesFromAssemblyContaining<T>()
+    {
+        return AddProfilesFromAssembly(typeof(T).Assembly);
+    }
+
+    /// <summary>
     /// Registers a global type converter that applies across all maps
     /// when a source property of type <typeparamref name="TSource"/>
     /// maps to a destination property of type <typeparamref name="TDest"/>.
@@ -170,7 +209,44 @@ public sealed class MapperConfigurationBuilder
 
             // Convention matching — find source property with same name (case-insensitive)
             var matchingSrcProp = FindSourceProperty(srcProps, dstProp.Name);
-            if (matchingSrcProp == null) continue;
+            if (matchingSrcProp == null)
+            {
+                // Try flattening: CustomerName → Customer.Name
+                var flattenedGetter = TryBuildFlattenedGetter(srcType, dstProp.Name);
+                if (flattenedGetter != null)
+                {
+                    var setter = CompileSetter(dstProp);
+                    var isNonNullableValueType = dstProp.PropertyType.IsValueType
+                        && Nullable.GetUnderlyingType(dstProp.PropertyType) == null;
+                    assignments.Add((src, dst, ctx) =>
+                    {
+                        var value = flattenedGetter(src);
+                        // Skip assignment when flattened chain returns null for non-nullable value types
+                        // (null intermediate → leave destination at default rather than unbox crash)
+                        if (value == null && isNonNullableValueType) return;
+                        setter(dst, value);
+                    });
+                }
+                else if (IsComplexType(dstProp.PropertyType))
+                {
+                    // Try unflattening: source has CustomerName, CustomerEmail → dst.Customer = { Name, Email }
+                    var unflattenAssignments = TryBuildUnflattenAssignments(srcProps, dstProp);
+                    if (unflattenAssignments != null)
+                    {
+                        var dstPropSetter = CompileSetter(dstProp);
+                        var nestedFactory = CompileFactory(dstProp.PropertyType);
+                        var capturedUnflatten = unflattenAssignments;
+                        assignments.Add((src, dst, ctx) =>
+                        {
+                            var nested = nestedFactory();
+                            foreach (var assign in capturedUnflatten)
+                                assign(src, nested);
+                            dstPropSetter(dst, nested);
+                        });
+                    }
+                }
+                continue;
+            }
 
             // Capture loop variables for closure
             var srcPropCaptured = matchingSrcProp;
@@ -693,6 +769,159 @@ public sealed class MapperConfigurationBuilder
     private static PropertyInfo? FindSourceProperty(PropertyInfo[] srcProps, string dstName)
     {
         return srcProps.FirstOrDefault(p => p.Name.Equals(dstName, StringComparison.OrdinalIgnoreCase));
+    }
+
+    /// <summary>
+    /// Attempts to build a list of sub-property assignments for unflattening.
+    /// For example, given source properties <c>CustomerName</c>, <c>CustomerEmail</c> and destination
+    /// property <c>Customer</c> (of type with <c>Name</c> and <c>Email</c>), this method builds
+    /// assignments that populate a new <c>Customer</c> instance from the flat source properties.
+    /// Returns <c>null</c> if no matching source properties are found.
+    /// </summary>
+    private static List<Action<object, object>>? TryBuildUnflattenAssignments(
+        PropertyInfo[] srcProps, PropertyInfo dstProp)
+    {
+        var prefix = dstProp.Name;
+        var nestedType = dstProp.PropertyType;
+        var nestedProps = nestedType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+
+        List<Action<object, object>>? assignments = null;
+
+        foreach (var nestedProp in nestedProps)
+        {
+            if (!nestedProp.CanWrite) continue;
+            var srcName = prefix + nestedProp.Name; // e.g., "Customer" + "Name" = "CustomerName"
+            var srcProp = FindSourceProperty(srcProps, srcName);
+            if (srcProp == null) continue;
+            if (!IsDirectlyAssignable(srcProp.PropertyType, nestedProp.PropertyType)) continue;
+
+            assignments ??= [];
+            var getter = CompileGetter(srcProp);
+            var setter = CompileSetter(nestedProp);
+            assignments.Add((src, nested) => setter(nested, getter(src)));
+        }
+
+        return assignments;
+    }
+
+    /// <summary>
+    /// Attempts to build a null-safe compiled getter for a flattened destination property name.
+    /// For example, given source type <c>Order</c> and destination name <c>CustomerName</c>,
+    /// this method discovers the chain <c>Order.Customer.Name</c> and compiles a null-safe
+    /// expression <c>src => src.Customer == null ? null : (object)src.Customer.Name</c>.
+    /// </summary>
+    /// <param name="srcType">The root source type to search.</param>
+    /// <param name="dstPropertyName">The flattened destination property name (e.g. "CustomerName").</param>
+    /// <returns>A compiled getter delegate, or <c>null</c> if no matching property chain is found.</returns>
+    private static Func<object, object?>? TryBuildFlattenedGetter(Type srcType, string dstPropertyName)
+    {
+        // Walk the PascalCase segments greedily, trying longer prefixes first.
+        var param = Expression.Parameter(typeof(object), "src");
+        var chain = TryBuildChain(srcType, dstPropertyName, Expression.Convert(param, srcType));
+        if (chain == null) return null;
+
+        var lambda = Expression.Lambda<Func<object, object?>>(chain, param);
+        return lambda.Compile();
+    }
+
+    /// <summary>
+    /// Recursively matches PascalCase segments of <paramref name="remaining"/> against properties on
+    /// <paramref name="currentType"/>, building a null-safe expression chain along the way.
+    /// Greedy: tries longer prefixes first so "Customer" beats "C" when both match.
+    /// </summary>
+    private static Expression? TryBuildChain(Type currentType, string remaining, Expression currentExpr)
+    {
+        var props = currentType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+
+        // Try all split points from longest prefix to shortest (greedy matching).
+        // Start at remaining.Length so we also try an exact full-string match (empty suffix).
+        for (int len = remaining.Length; len >= 1; len--)
+        {
+            var prefix = remaining[..len];
+            var suffix = remaining[len..];
+
+            var matched = props.FirstOrDefault(p => p.Name.Equals(prefix, StringComparison.OrdinalIgnoreCase));
+            if (matched == null) continue;
+
+            // Build the raw property-access expression on the correctly-typed current object
+            var typedCurrent = currentType.IsValueType ? currentExpr : Expression.Convert(currentExpr, currentType);
+            var propAccess = Expression.Property(typedCurrent, matched);
+
+            if (suffix.Length == 0)
+            {
+                // Leaf: exact match — wrap with null guard then box
+                return BuildNullSafeAccess(currentType, currentExpr, propAccess);
+            }
+
+            // More segments remain — recurse into the matched property's type
+            var nextType = matched.PropertyType;
+            if (!IsTraversableType(nextType)) continue;
+
+            // Pass the property value (typed) as the next current expression
+            var nextExpr = nextType.IsValueType
+                ? (Expression)propAccess
+                : Expression.Convert(Expression.Convert(propAccess, typeof(object)), nextType);
+
+            var innerChain = TryBuildChain(nextType, suffix, nextExpr);
+            if (innerChain == null) continue;
+
+            // Wrap with null guard: if current object or the intermediate property is null → return null
+            var nullConst = Expression.Constant(null, typeof(object));
+            Expression? guard = null;
+
+            if (!currentType.IsValueType)
+            {
+                var currentAsObj = Expression.Convert(currentExpr, typeof(object));
+                guard = Expression.Equal(currentAsObj, nullConst);
+            }
+
+            if (!matched.PropertyType.IsValueType)
+            {
+                var propAsObj = Expression.Convert(propAccess, typeof(object));
+                var isPropNull = Expression.Equal(propAsObj, nullConst);
+                guard = guard != null ? Expression.OrElse(guard, isPropNull) : isPropNull;
+            }
+
+            if (guard != null)
+            {
+                return Expression.Condition(guard, nullConst, innerChain);
+            }
+
+            return innerChain;
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// Returns true for types that can be traversed during flattening (reference types and structs
+    /// that are not primitives, strings, or enums).
+    /// </summary>
+    private static bool IsTraversableType(Type type)
+    {
+        return !type.IsPrimitive
+            && !type.IsEnum
+            && type != typeof(string)
+            && type != typeof(decimal);
+    }
+
+    /// <summary>
+    /// Wraps <paramref name="propAccess"/> with a null guard on <paramref name="currentExpr"/>
+    /// when <paramref name="currentType"/> is a reference type, returning <c>null</c> if the
+    /// current object is null, otherwise returning the boxed property value.
+    /// </summary>
+    private static Expression BuildNullSafeAccess(Type currentType, Expression currentExpr, MemberExpression propAccess)
+    {
+        var boxed = Expression.Convert(propAccess, typeof(object));
+
+        if (currentType.IsValueType)
+            return boxed;
+
+        var nullConst = Expression.Constant(null, typeof(object));
+        var currentAsObj = Expression.Convert(currentExpr, typeof(object));
+        var isNull = Expression.Equal(currentAsObj, nullConst);
+
+        return Expression.Condition(isNull, nullConst, boxed);
     }
 
     private static bool IsDirectlyAssignable(Type srcType, Type dstType)

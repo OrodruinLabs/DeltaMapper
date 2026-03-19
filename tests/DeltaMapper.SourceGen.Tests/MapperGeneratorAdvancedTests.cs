@@ -174,7 +174,7 @@ public class MapperGeneratorAdvancedTests
         mapTree.Should().NotBeNull("Cart_To_CartDto file must be generated");
 
         var sourceText = mapTree!.ToString();
-        sourceText.Should().Contain(".Select(",  "collection mapping must use LINQ Select");
+        sourceText.Should().Contain(".Select(", "collection mapping must use LINQ Select");
         sourceText.Should().Contain(".ToList()", "List<T> destination must use ToList()");
         sourceText.Should().Contain("Map_Item_To_ItemDto",
             "collection element map method must be called");
@@ -265,7 +265,7 @@ public class MapperGeneratorAdvancedTests
         mapTree.Should().NotBeNull("Document_To_DocumentDto file must be generated");
 
         var sourceText = mapTree!.ToString();
-        sourceText.Should().Contain(".Select(",   "array mapping must use LINQ Select");
+        sourceText.Should().Contain(".Select(", "array mapping must use LINQ Select");
         sourceText.Should().Contain(".ToArray()", "array destination must use ToArray()");
         sourceText.Should().Contain("Map_Tag_To_TagDto",
             "element map method must be called for arrays");
@@ -358,9 +358,9 @@ public class MapperGeneratorAdvancedTests
         mapTree.Should().NotBeNull("UserSrc_To_UserDst file must be generated");
 
         var sourceText = mapTree!.ToString();
-        sourceText.Should().Contain("dst.Id = src.Id;",     "Id must be mapped normally");
+        sourceText.Should().Contain("dst.Id = src.Id;", "Id must be mapped normally");
         sourceText.Should().Contain("dst.Name = src.Name;", "Name must be mapped normally");
-        sourceText.Should().NotContain("dst.Password",      "Password must be skipped due to [Ignore]");
+        sourceText.Should().NotContain("dst.Password", "Password must be skipped due to [Ignore]");
     }
 
     [Fact]
@@ -425,6 +425,6 @@ public class MapperGeneratorAdvancedTests
         mapTree.Should().NotBeNull();
         var sourceText = mapTree!.ToString();
         sourceText.Should().Contain("dst.A = src.A;", "A must be mapped");
-        sourceText.Should().NotContain("dst.B",        "B must be skipped due to [DeltaMapperIgnore]");
+        sourceText.Should().NotContain("dst.B", "B must be skipped due to [DeltaMapperIgnore]");
     }
 }

@@ -63,6 +63,72 @@ if (diff.HasChanges)
 
 `diff.Changes` is `IReadOnlyList<PropertyChange>` — each entry has `PropertyName`, `From`, `To`, `ChangeKind`. Nested paths use dot-notation (`"Address.City"`).
 
+## Flattening and Unflattening
+
+DeltaMapper automatically flattens nested objects to flat DTOs and unflattens flat DTOs back to nested objects — no configuration needed.
+
+```csharp
+// Source model
+public class Order
+{
+    public int Id { get; set; }
+    public Customer? Customer { get; set; }
+}
+public class Customer { public string? Name { get; set; } }
+
+// Flat DTO — convention maps Order.Customer.Name → CustomerName
+public class OrderFlatDto
+{
+    public int Id { get; set; }
+    public string? CustomerName { get; set; }
+}
+
+// Flattening: nested → flat
+var flat = mapper.Map<Order, OrderFlatDto>(order);
+// flat.CustomerName == order.Customer.Name
+
+// Unflattening: flat → nested (reverse map or separate CreateMap)
+var restored = mapper.Map<OrderFlatDto, Order>(flat);
+// restored.Customer.Name == flat.CustomerName
+```
+
+Null intermediate objects in the flattened chain return null without throwing. Multi-level chains (`Customer.Address.Zip` → `CustomerAddressZip`) are also resolved automatically.
+
+## Assembly Scanning
+
+Register all profiles in an assembly in one call instead of listing them individually.
+
+```csharp
+// Scan by assembly reference
+var mapper = MapperConfiguration.Create(cfg =>
+    cfg.AddProfilesFromAssembly(typeof(UserProfile).Assembly))
+    .CreateMapper();
+
+// Or scan by any type in the target assembly
+var mapper = MapperConfiguration.Create(cfg =>
+    cfg.AddProfilesFromAssemblyContaining<UserProfile>())
+    .CreateMapper();
+```
+
+Abstract profiles and profiles without a parameterless constructor are silently skipped. Assembly scanning and explicit `AddProfile<T>()` calls can be combined in the same configuration.
+
+## Type Converters
+
+Register a global converter for a type pair once and it applies automatically across all maps.
+
+```csharp
+var mapper = MapperConfiguration.Create(cfg =>
+{
+    cfg.CreateTypeConverter<string, DateTime>(s => DateTime.Parse(s));
+    cfg.CreateTypeConverter<int, string>(i => i.ToString("D6"));
+    cfg.AddProfilesFromAssemblyContaining<UserProfile>();
+})
+.CreateMapper();
+
+// Any map with a string → DateTime property pair now uses the converter
+var dto = mapper.Map<OrderRequest, OrderDto>(request);
+```
+
 ## Performance
 
 DeltaMapper's source generator produces code as fast as hand-written — and on collections, faster than every competitor tested.
@@ -82,7 +148,7 @@ DeltaMapper's source generator produces code as fast as hand-written — and on 
 
 | Guide | Description |
 |---|---|
-| [API Reference](docs/api-reference.md) | MapperConfiguration, MappingProfile, IMapper, conventions, records, middleware, DI |
+| [API Reference](docs/api-reference.md) | MapperConfiguration, MappingProfile, IMapper, conventions, flattening, assembly scanning, type converters, middleware, DI |
 | [Source Generator](docs/source-generator.md) | `[GenerateMap]`, direct calls, analyzer diagnostics |
 | [EF Core Integration](docs/efcore-integration.md) | Proxy detection, lazy loading safety |
 | [OpenTelemetry Tracing](docs/opentelemetry.md) | Activity spans, zero-overhead fast path |
