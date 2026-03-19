@@ -161,4 +161,15 @@ public class AssemblyScanningTests
 
         act.Should().Throw<ArgumentNullException>();
     }
+
+    [Fact]
+    public void AddProfilesFromAssembly_handles_valid_assembly_gracefully()
+    {
+        // Verifies the ReflectionTypeLoadException catch path doesn't interfere
+        // with normal assembly scanning on a valid assembly.
+        var act = () => MapperConfiguration.Create(cfg =>
+            cfg.AddProfilesFromAssembly(typeof(AssemblyScanningTests).Assembly));
+
+        act.Should().NotThrow();
+    }
 }
