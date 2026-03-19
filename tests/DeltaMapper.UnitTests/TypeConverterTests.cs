@@ -53,6 +53,17 @@ public class TC_Dest_NullableDateTime
     public DateTime? Value { get; set; }
 }
 
+public sealed class RecordWithDateSource
+{
+    public string Name { get; set; } = "";
+    public string BirthDate { get; set; } = "";
+}
+
+public record RecordWithDateDest(string Name, DateTime BirthDate);
+
+public sealed class StringIntSource { public string Value { get; set; } = ""; }
+public sealed class StringIntDest { public int Value { get; set; } }
+
 // ── Profiles ───────────────────────────────────────────────────────
 
 file class TC_StringDateProfile : MappingProfile
@@ -73,6 +84,11 @@ file class TC_MultiProfile : MappingProfile
 file class TC_NullProfile : MappingProfile
 {
     public TC_NullProfile() => CreateMap<TC_Source_NullString, TC_Dest_NullableDateTime>();
+}
+
+file class TCInlineProfile<TSource, TDest> : MappingProfile
+{
+    public TCInlineProfile() => CreateMap<TSource, TDest>();
 }
 
 // ── Tests ──────────────────────────────────────────────────────────
@@ -199,5 +215,39 @@ public class TypeConverterTests
         });
 
         act.Should().Throw<ArgumentNullException>();
+    }
+
+    // ── TC-07: Type converter with record / constructor-injection mapping ─────
+    [Fact]
+    public void TC07_TypeConverter_WithRecordConstructorInjection()
+    {
+        var mapper = MapperConfiguration.Create(cfg =>
+        {
+            cfg.CreateTypeConverter<string, DateTime>(s => DateTime.Parse(s));
+            cfg.AddProfile(new TCInlineProfile<RecordWithDateSource, RecordWithDateDest>());
+        }).CreateMapper();
+
+        var src = new RecordWithDateSource { Name = "Alice", BirthDate = "1990-05-15" };
+        var dst = mapper.Map<RecordWithDateSource, RecordWithDateDest>(src);
+
+        dst.Name.Should().Be("Alice");
+        dst.BirthDate.Should().Be(new DateTime(1990, 5, 15));
+    }
+
+    // ── TC-08: Duplicate converter registration — last one wins ──────────────
+    [Fact]
+    public void TC08_DuplicateConverter_LastWins()
+    {
+        var mapper = MapperConfiguration.Create(cfg =>
+        {
+            cfg.CreateTypeConverter<string, int>(s => 0);
+            cfg.CreateTypeConverter<string, int>(s => int.Parse(s));
+            cfg.AddProfile(new TCInlineProfile<StringIntSource, StringIntDest>());
+        }).CreateMapper();
+
+        var src = new StringIntSource { Value = "42" };
+        var dst = mapper.Map<StringIntSource, StringIntDest>(src);
+
+        dst.Value.Should().Be(42);
     }
 }
