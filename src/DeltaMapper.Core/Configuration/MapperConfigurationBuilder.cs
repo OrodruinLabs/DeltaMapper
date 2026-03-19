@@ -377,16 +377,17 @@ public sealed class MapperConfigurationBuilder
                 var dstCollType = dstPropCaptured.PropertyType;
                 assignments.Add((src, dst, ctx) =>
                 {
+                    // Skip collection properties on EF Core proxy entities BEFORE
+                    // reading the getter, which would trigger lazy loading.
+                    if (ctx.IsProxyMapping)
+                        return;
+
                     var srcCollection = getter(src);
                     if (srcCollection == null)
                     {
                         setter(dst, null);
                         return;
                     }
-
-                    // Skip collection navigations in EF Core proxy entities to prevent lazy loading
-                    if (ctx.IsProxyMapping)
-                        return;
 
                     var enumerable = (System.Collections.IEnumerable)srcCollection;
                     List<object> items = [];
