@@ -5,6 +5,10 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace DeltaMapper.SourceGen
 {
+    /// <summary>
+    /// Roslyn incremental source generator that emits compile-time mapping code
+    /// for profiles decorated with <c>[GenerateMap]</c>.
+    /// </summary>
     [Generator]
     public sealed class MapperGenerator : IIncrementalGenerator
     {
