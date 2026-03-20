@@ -80,12 +80,12 @@ public class DependencyInjectionTests
         mapper.Map<Address, AddressDto>(addr).City.Should().Be("Springfield");
     }
 
-    private class SimpleUserProfile : MappingProfile
+    private class SimpleUserProfile : Profile
     {
         public SimpleUserProfile() { CreateMap<User, UserDto>(); }
     }
 
-    private class SimpleAddressProfile : MappingProfile
+    private class SimpleAddressProfile : Profile
     {
         public SimpleAddressProfile() { CreateMap<Address, AddressDto>(); }
     }

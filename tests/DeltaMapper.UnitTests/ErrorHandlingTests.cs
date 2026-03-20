@@ -26,7 +26,7 @@ public class ErrorHandlingTests
         act.Should().Throw<DeltaMapperException>();
     }
 
-    private class E01Profile : MappingProfile
+    private class E01Profile : Profile
     {
         public E01Profile()
         {
@@ -51,7 +51,7 @@ public class ErrorHandlingTests
         exception.Message.Should().Contain(nameof(UserSummaryDto));
     }
 
-    private class E02Profile : MappingProfile
+    private class E02Profile : Profile
     {
         public E02Profile()
         {
@@ -74,7 +74,7 @@ public class ErrorHandlingTests
         exception.Message.Should().Contain("Register a mapping");
     }
 
-    private class E03Profile : MappingProfile
+    private class E03Profile : Profile
     {
         public E03Profile()
         {
@@ -95,7 +95,7 @@ public class ErrorHandlingTests
         act.Should().Throw<ArgumentNullException>();
     }
 
-    private class E04Profile : MappingProfile
+    private class E04Profile : Profile
     {
         public E04Profile()
         {

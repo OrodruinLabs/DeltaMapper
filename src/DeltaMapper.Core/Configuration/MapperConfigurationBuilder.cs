@@ -14,14 +14,14 @@ namespace DeltaMapper.Configuration;
 /// </summary>
 public sealed class MapperConfigurationBuilder
 {
-    private readonly List<MappingProfile> _profiles = [];
+    private readonly List<Profile> _profiles = [];
     private readonly List<IMappingMiddleware> _middlewares = [];
     private readonly Dictionary<(Type, Type), Func<object?, object?>> _typeConverters = new();
 
     /// <summary>
     /// Adds a mapping profile by type (instantiates via parameterless constructor).
     /// </summary>
-    public MapperConfigurationBuilder AddProfile<TProfile>() where TProfile : MappingProfile, new()
+    public MapperConfigurationBuilder AddProfile<TProfile>() where TProfile : Profile, new()
     {
         _profiles.Add(new TProfile());
         return this;
@@ -30,7 +30,7 @@ public sealed class MapperConfigurationBuilder
     /// <summary>
     /// Adds an existing mapping profile instance.
     /// </summary>
-    public MapperConfigurationBuilder AddProfile(MappingProfile profile)
+    public MapperConfigurationBuilder AddProfile(Profile profile)
     {
         ArgumentNullException.ThrowIfNull(profile);
         _profiles.Add(profile);
@@ -38,7 +38,7 @@ public sealed class MapperConfigurationBuilder
     }
 
     /// <summary>
-    /// Scans the specified assembly for all concrete MappingProfile subclasses
+    /// Scans the specified assembly for all concrete Profile subclasses
     /// with parameterless constructors and adds them to the configuration.
     /// </summary>
     public MapperConfigurationBuilder AddProfilesFromAssembly(Assembly assembly)
@@ -58,18 +58,18 @@ public sealed class MapperConfigurationBuilder
         }
 
         var profileTypes = types
-            .Where(t => t.IsSubclassOf(typeof(MappingProfile))
+            .Where(t => t.IsSubclassOf(typeof(Profile))
                       && !t.IsAbstract
                       && !t.IsGenericTypeDefinition
                       && !t.ContainsGenericParameters
                       && t.GetConstructor(Type.EmptyTypes) != null);
         foreach (var type in profileTypes)
-            _profiles.Add((MappingProfile)Activator.CreateInstance(type)!);
+            _profiles.Add((Profile)Activator.CreateInstance(type)!);
         return this;
     }
 
     /// <summary>
-    /// Scans the assembly containing <typeparamref name="T"/> for all concrete MappingProfile subclasses.
+    /// Scans the assembly containing <typeparamref name="T"/> for all concrete Profile subclasses.
     /// </summary>
     public MapperConfigurationBuilder AddProfilesFromAssemblyContaining<T>()
     {
@@ -129,7 +129,7 @@ public sealed class MapperConfigurationBuilder
         if (allTypeMaps.Count == 0)
             throw new DeltaMapperException(
                 "MapperConfiguration has no type maps registered. " +
-                "Add at least one MappingProfile with CreateMap<TSource, TDest>().");
+                "Add at least one Profile with CreateMap<TSource, TDest>().");
 
         // Compile each type map into a delegate
         var compiled = new Dictionary<(Type, Type), CompiledMap>();

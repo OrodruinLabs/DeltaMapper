@@ -29,7 +29,7 @@ public class ExistingDestinationTests
         existingDst.Age.Should().Be(35);
     }
 
-    private class ED01Profile : MappingProfile
+    private class ED01Profile : Profile
     {
         public ED01Profile()
         {
@@ -58,7 +58,7 @@ public class ExistingDestinationTests
         existingDst.FullName.Should().Be("Preserved Value");
     }
 
-    private class ED02Profile : MappingProfile
+    private class ED02Profile : Profile
     {
         public ED02Profile()
         {
@@ -85,7 +85,7 @@ public class ExistingDestinationTests
         existingDst.FullName.Should().Be("Clark Kent");
     }
 
-    private class ED03Profile : MappingProfile
+    private class ED03Profile : Profile
     {
         public ED03Profile()
         {

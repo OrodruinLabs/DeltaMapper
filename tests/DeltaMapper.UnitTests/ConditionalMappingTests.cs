@@ -256,7 +256,7 @@ public record CondRecordDest(int Id, string Name, int Age, string? Email);
 /// <summary>
 /// Helper to create inline profiles without a separate class per test.
 /// </summary>
-file class InlineProfile<TSrc, TDst> : MappingProfile
+file class InlineProfile<TSrc, TDst> : Profile
 {
     public InlineProfile(Action<IMappingExpression<TSrc, TDst>> configure)
     {

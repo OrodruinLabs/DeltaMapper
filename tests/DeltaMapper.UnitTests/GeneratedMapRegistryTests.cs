@@ -134,10 +134,10 @@ public class GeneratedMapRegistryTests : IDisposable
         GeneratedMapRegistry.RegisterFactory(factory);
 
         // Create config with an unrelated profile (required by Build validation) and no middleware.
-        // UserSummaryMappingProfile maps User→UserSummaryDto, NOT User→UserDto,
+        // UserSummaryProfile maps User→UserSummaryDto, NOT User→UserDto,
         // so the generated factory should handle User→UserDto via the fast path.
         var config = DeltaMapper.Configuration.MapperConfiguration.Create(cfg =>
-            cfg.AddProfile<UserSummaryMappingProfile>());
+            cfg.AddProfile<UserSummaryProfile>());
         var mapper = config.CreateMapper();
 
         // Map should use the fast path (factory)
@@ -173,7 +173,7 @@ public class GeneratedMapRegistryTests : IDisposable
     }
 }
 
-file class TestUserProfile : DeltaMapper.Configuration.MappingProfile
+file class TestUserProfile : DeltaMapper.Configuration.Profile
 {
     public TestUserProfile() => CreateMap<User, UserDto>();
 }

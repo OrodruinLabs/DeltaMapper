@@ -180,7 +180,7 @@ public sealed class UnflatteningTests
 
 // ── Helpers ────────────────────────────────────────────────────────
 
-file sealed class UnflatInlineProfile<TSrc, TDst> : MappingProfile
+file sealed class UnflatInlineProfile<TSrc, TDst> : Profile
 {
     public UnflatInlineProfile()
     {

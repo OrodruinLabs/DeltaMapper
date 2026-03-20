@@ -26,7 +26,7 @@ public class ReverseMapTests
         user.Should().NotBeNull();
     }
 
-    private class R01Profile : MappingProfile
+    private class R01Profile : Profile
     {
         public R01Profile()
         {
@@ -62,7 +62,7 @@ public class ReverseMapTests
         roundTripped.Age.Should().Be(55);
     }
 
-    private class R02Profile : MappingProfile
+    private class R02Profile : Profile
     {
         public R02Profile()
         {
@@ -96,7 +96,7 @@ public class ReverseMapTests
         roundTripped.Email.Should().Be("clara@test.com");
     }
 
-    private class R03Profile : MappingProfile
+    private class R03Profile : Profile
     {
         public R03Profile()
         {

@@ -5,7 +5,7 @@ namespace DeltaMapper.Configuration;
 /// <summary>
 /// Base class for mapping configuration profiles. Users subclass this and call CreateMap in the constructor.
 /// </summary>
-public abstract class MappingProfile
+public abstract class Profile
 {
     internal List<TypeMapConfiguration> TypeMaps { get; } = [];
 

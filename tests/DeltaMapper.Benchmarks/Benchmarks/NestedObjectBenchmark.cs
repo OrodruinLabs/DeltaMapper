@@ -61,7 +61,7 @@ public class NestedObjectBenchmark
 }
 
 /// <summary>Runtime-only profile for the nested benchmark.</summary>
-public class NestedRuntimeProfile : DeltaMapper.Configuration.MappingProfile
+public class NestedRuntimeProfile : DeltaMapper.Configuration.Profile
 {
     public NestedRuntimeProfile()
     {

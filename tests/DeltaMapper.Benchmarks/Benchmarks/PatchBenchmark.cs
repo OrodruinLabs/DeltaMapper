@@ -115,7 +115,7 @@ public class PatchBenchmark
 }
 
 /// <summary>Runtime-only profile for the patch benchmark.</summary>
-public class PatchRuntimeProfile : DeltaMapper.Configuration.MappingProfile
+public class PatchRuntimeProfile : DeltaMapper.Configuration.Profile
 {
     public PatchRuntimeProfile() => CreateMap<FlatSource, FlatDest>();
 }

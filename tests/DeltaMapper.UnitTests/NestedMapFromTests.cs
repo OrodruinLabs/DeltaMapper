@@ -29,7 +29,7 @@ public class NestedMapFromTests
         public string Email { get; set; } = "";
     }
 
-    private class ProfileWithNestedMapFrom : MappingProfile
+    private class ProfileWithNestedMapFrom : Profile
     {
         public ProfileWithNestedMapFrom()
         {
@@ -75,7 +75,7 @@ public class NestedMapFromTests
         Assert.Equal("INLINE", result.Customer.Name);
     }
 
-    private class InlineProfile : MappingProfile
+    private class InlineProfile : Profile
     {
         public InlineProfile()
         {

@@ -34,7 +34,7 @@ public class DictNullDest
 
 // ── Profile ────────────────────────────────────────────────────────
 
-public class DictionaryProfile : MappingProfile
+public class DictionaryProfile : Profile
 {
     public DictionaryProfile()
     {
@@ -186,7 +186,7 @@ public class DictionaryMappingTests
     {
         var mapper = MapperConfiguration.Create(cfg =>
         {
-            cfg.AddProfile(new DictKeyMappingProfile());
+            cfg.AddProfile(new DictKeyProfile());
         }).CreateMapper();
 
         var source = new DictKeyMappingSource
@@ -232,7 +232,7 @@ public class DictChildDest { public string Name { get; set; } = ""; }
 public class DictComplexSource { public Dictionary<string, DictChildSource> Items { get; set; } = new(); }
 public class DictComplexDest { public Dictionary<string, DictChildDest> Items { get; set; } = new(); }
 
-file class DictComplexProfile : MappingProfile
+file class DictComplexProfile : Profile
 {
     public DictComplexProfile()
     {
@@ -246,7 +246,7 @@ file class DictComplexProfile : MappingProfile
 public class DictReadOnlySource { public IReadOnlyDictionary<string, int> Data { get; set; } = new Dictionary<string, int>(); }
 public class DictReadOnlyDest { public Dictionary<string, int> Data { get; set; } = new(); }
 
-file class DictReadOnlyProfile : MappingProfile
+file class DictReadOnlyProfile : Profile
 {
     public DictReadOnlyProfile() => CreateMap<DictReadOnlySource, DictReadOnlyDest>();
 }
@@ -256,7 +256,7 @@ file class DictReadOnlyProfile : MappingProfile
 public class DictCloneSource { public IDictionary<string, int> Tags { get; set; } = new Dictionary<string, int>(); }
 public class DictCloneDest { public Dictionary<string, int> Tags { get; set; } = new(); }
 
-file class DictCloneProfile : MappingProfile
+file class DictCloneProfile : Profile
 {
     public DictCloneProfile() => CreateMap<DictCloneSource, DictCloneDest>();
 }
@@ -266,9 +266,9 @@ file class DictCloneProfile : MappingProfile
 public class DictKeyMappingSource { public Dictionary<DictChildSource, int> Items { get; set; } = new(); }
 public class DictKeyMappingDest { public Dictionary<DictChildDest, int> Items { get; set; } = new(); }
 
-file class DictKeyMappingProfile : MappingProfile
+file class DictKeyProfile : Profile
 {
-    public DictKeyMappingProfile()
+    public DictKeyProfile()
     {
         CreateMap<DictChildSource, DictChildDest>();
         CreateMap<DictKeyMappingSource, DictKeyMappingDest>();
@@ -280,7 +280,7 @@ file class DictKeyMappingProfile : MappingProfile
 public class DictNullableValSource { public Dictionary<string, int?> Data { get; set; } = new(); }
 public class DictNonNullValDest { public Dictionary<string, int> Data { get; set; } = new(); }
 
-file class DictNullableToNonNullProfile : MappingProfile
+file class DictNullableToNonNullProfile : Profile
 {
     public DictNullableToNonNullProfile() => CreateMap<DictNullableValSource, DictNonNullValDest>();
 }

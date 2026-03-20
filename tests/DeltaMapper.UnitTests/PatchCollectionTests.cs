@@ -100,7 +100,7 @@ public class PatchCollectionTests
             && c.Kind == ChangeKind.Modified);
     }
 
-    private class TeamProfile : MappingProfile
+    private class TeamProfile : Profile
     {
         public TeamProfile()
         {

@@ -62,7 +62,7 @@ public class FlatObjectBenchmark
 }
 
 /// <summary>Runtime-only profile for the flat benchmark (no source-gen attribute needed).</summary>
-public class FlatRuntimeProfile : DeltaMapper.Configuration.MappingProfile
+public class FlatRuntimeProfile : DeltaMapper.Configuration.Profile
 {
     public FlatRuntimeProfile() => CreateMap<FlatSource, FlatDest>();
 }

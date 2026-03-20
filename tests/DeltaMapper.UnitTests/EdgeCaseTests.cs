@@ -22,7 +22,7 @@ public class EC_Dest
     public int Age { get; set; }
 }
 
-file sealed class EdgeCaseProfile : MappingProfile
+file sealed class EdgeCaseProfile : Profile
 {
     public EdgeCaseProfile()
     {

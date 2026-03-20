@@ -21,7 +21,7 @@ public class PCF_Dest
     public string? Name { get; set; }
 }
 
-file sealed class PatchCrossProfile : MappingProfile
+file sealed class PatchCrossProfile : Profile
 {
     public PatchCrossProfile()
     {

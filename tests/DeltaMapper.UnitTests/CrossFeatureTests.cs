@@ -33,7 +33,7 @@ public class CF_OrderFlatDto
 
 // ── Profile ──────────────────────────────────────────────────────────
 
-file sealed class CrossFeatureProfile : MappingProfile
+file sealed class CrossFeatureProfile : Profile
 {
     public CrossFeatureProfile()
     {

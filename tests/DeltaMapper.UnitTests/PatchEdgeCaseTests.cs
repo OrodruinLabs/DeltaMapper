@@ -30,7 +30,7 @@ public class PatchEdgeCaseTests
             && c.Kind == ChangeKind.Modified);
     }
 
-    private class NullSubProfile : MappingProfile
+    private class NullSubProfile : Profile
     {
         public NullSubProfile()
         {
@@ -64,7 +64,7 @@ public class PatchEdgeCaseTests
         hasChanges.GetBoolean().Should().BeTrue();
     }
 
-    private class ProductProfile : MappingProfile
+    private class ProductProfile : Profile
     {
         public ProductProfile()
         {
@@ -93,7 +93,7 @@ public class PatchEdgeCaseTests
         diff.Result.Stock.Should().Be(50);
     }
 
-    private class AllIgnoredProfile : MappingProfile
+    private class AllIgnoredProfile : Profile
     {
         public AllIgnoredProfile()
         {

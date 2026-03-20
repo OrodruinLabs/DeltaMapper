@@ -23,7 +23,7 @@ public class ForMemberTests
         dto.FullName.Should().Be("Jane Smith");
     }
 
-    private class FM01Profile : MappingProfile
+    private class FM01Profile : Profile
     {
         public FM01Profile()
         {
@@ -48,7 +48,7 @@ public class ForMemberTests
         dto.FullName.Should().Be("Email length: 13");
     }
 
-    private class FM02Profile : MappingProfile
+    private class FM02Profile : Profile
     {
         public FM02Profile()
         {
@@ -71,7 +71,7 @@ public class ForMemberTests
         dto.Email.Should().Be(string.Empty);
     }
 
-    private class FM03Profile : MappingProfile
+    private class FM03Profile : Profile
     {
         public FM03Profile()
         {
@@ -98,7 +98,7 @@ public class ForMemberTests
         dto.Email.Should().Be(string.Empty); // ignored
     }
 
-    private class FM04Profile : MappingProfile
+    private class FM04Profile : Profile
     {
         public FM04Profile()
         {
@@ -121,7 +121,7 @@ public class ForMemberTests
         dto.Email.Should().Be("N/A");
     }
 
-    private class FM05Profile : MappingProfile
+    private class FM05Profile : Profile
     {
         public FM05Profile()
         {
@@ -145,7 +145,7 @@ public class ForMemberTests
         dto.Email.Should().Be("dave@test.com");
     }
 
-    private class FM06Profile : MappingProfile
+    private class FM06Profile : Profile
     {
         public FM06Profile()
         {
@@ -171,7 +171,7 @@ public class ForMemberTests
         dto.Email.Should().Be("no-email");
     }
 
-    private class FM07Profile : MappingProfile
+    private class FM07Profile : Profile
     {
         public FM07Profile()
         {

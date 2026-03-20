@@ -27,7 +27,7 @@ public class UCF_Customer
     public string? Email { get; set; }
 }
 
-file sealed class UnflattenConditionalProfile : MappingProfile
+file sealed class UnflattenConditionalProfile : Profile
 {
     public UnflattenConditionalProfile()
     {
@@ -36,7 +36,7 @@ file sealed class UnflattenConditionalProfile : MappingProfile
     }
 }
 
-file sealed class UnflattenRoundTripProfile : MappingProfile
+file sealed class UnflattenRoundTripProfile : Profile
 {
     public UnflattenRoundTripProfile()
     {

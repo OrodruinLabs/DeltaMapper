@@ -23,5 +23,5 @@ public sealed class DeltaMapperException : Exception
     /// </summary>
     public static DeltaMapperException ForMissingMapping(Type sourceType, Type destinationType)
         => new($"No mapping registered from '{sourceType.Name}' to '{destinationType.Name}'. " +
-               $"Register a mapping in a MappingProfile using CreateMap<{sourceType.Name}, {destinationType.Name}>().");
+               $"Register a mapping in a Profile using CreateMap<{sourceType.Name}, {destinationType.Name}>().");
 }

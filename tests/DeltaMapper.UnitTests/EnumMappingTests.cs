@@ -44,9 +44,9 @@ public class NullableEnumDest
 
 // ── Profile ────────────────────────────────────────────────────────
 
-public class EnumMappingProfile : MappingProfile
+public class EnumProfile : Profile
 {
-    public EnumMappingProfile()
+    public EnumProfile()
     {
         CreateMap<EnumSource, EnumDest>();
         CreateMap<EnumSource, EnumDiffOrderDest>();
@@ -62,7 +62,7 @@ public class EnumMappingTests
 
     public EnumMappingTests()
     {
-        _mapper = MapperConfiguration.Create(cfg => cfg.AddProfile<EnumMappingProfile>())
+        _mapper = MapperConfiguration.Create(cfg => cfg.AddProfile<EnumProfile>())
             .CreateMapper();
     }
 
@@ -277,17 +277,17 @@ public class SameEnumNullableDest { public SourceStatus? Status { get; set; } }
 public class SameEnumNullableSource { public SourceStatus? Status { get; set; } }
 public class SameEnumNonNullableDest { public SourceStatus Status { get; set; } }
 
-file class SameEnumNonNullToNullableProfile : MappingProfile
+file class SameEnumNonNullToNullableProfile : Profile
 {
     public SameEnumNonNullToNullableProfile() => CreateMap<SameEnumNonNullableSource, SameEnumNullableDest>();
 }
 
-file class SameEnumNullableToNonNullProfile : MappingProfile
+file class SameEnumNullableToNonNullProfile : Profile
 {
     public SameEnumNullableToNonNullProfile() => CreateMap<SameEnumNullableSource, SameEnumNonNullableDest>();
 }
 
-file class NullableToNonNullableEnumProfile : MappingProfile
+file class NullableToNonNullableEnumProfile : Profile
 {
     public NullableToNonNullableEnumProfile() => CreateMap<NullableEnumSource, EnumDest>();
 }
@@ -300,7 +300,7 @@ file class NullableToNonNullableEnumProfile : MappingProfile
 public class FlagsEnumSource { public SourcePermissions Permissions { get; set; } }
 public class FlagsEnumDest { public DestPermissions Permissions { get; set; } }
 
-file class FlagsEnumProfile : MappingProfile
+file class FlagsEnumProfile : Profile
 {
     public FlagsEnumProfile() => CreateMap<FlagsEnumSource, FlagsEnumDest>();
 }
@@ -310,17 +310,17 @@ file class FlagsEnumProfile : MappingProfile
 public record EnumRecordDest(int Id, DestStatus Status);
 public record NullableEnumRecordDest(int Id, DestStatus? Status);
 
-file class RecordEnumProfile : MappingProfile
+file class RecordEnumProfile : Profile
 {
     public RecordEnumProfile() => CreateMap<EnumSource, EnumRecordDest>();
 }
 
-file class NullableRecordEnumProfile : MappingProfile
+file class NullableRecordEnumProfile : Profile
 {
     public NullableRecordEnumProfile() => CreateMap<NullableEnumSource, NullableEnumRecordDest>();
 }
 
-file class NullableToNonNullRecordEnumProfile : MappingProfile
+file class NullableToNonNullRecordEnumProfile : Profile
 {
     public NullableToNonNullRecordEnumProfile() => CreateMap<NullableEnumSource, EnumRecordDest>();
 }
@@ -330,7 +330,7 @@ file class NullableToNonNullRecordEnumProfile : MappingProfile
 public enum MismatchedStatus { Active, Unknown }
 public class MismatchedEnumSource { public int Id { get; set; } public MismatchedStatus Status { get; set; } }
 
-file class MismatchedEnumProfile : MappingProfile
+file class MismatchedEnumProfile : Profile
 {
     public MismatchedEnumProfile() => CreateMap<MismatchedEnumSource, EnumDest>();
 }

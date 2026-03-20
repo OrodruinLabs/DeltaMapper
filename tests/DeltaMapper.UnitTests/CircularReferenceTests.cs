@@ -10,7 +10,7 @@ namespace DeltaMapper.UnitTests;
 public class CircularReferenceTests
 {
     // ── CR-01 ─────────────────────────────────────────────────────────────────
-    private class CR01_ParentChildProfile : MappingProfile
+    private class CR01_ParentChildProfile : Profile
     {
         public CR01_ParentChildProfile()
         {
@@ -34,7 +34,7 @@ public class CircularReferenceTests
     }
 
     // ── CR-02 ─────────────────────────────────────────────────────────────────
-    private class CR02_ParentChildProfile : MappingProfile
+    private class CR02_ParentChildProfile : Profile
     {
         public CR02_ParentChildProfile()
         {
@@ -60,7 +60,7 @@ public class CircularReferenceTests
     }
 
     // ── CR-03 ─────────────────────────────────────────────────────────────────
-    private class CR03_TreeNodeProfile : MappingProfile
+    private class CR03_TreeNodeProfile : Profile
     {
         public CR03_TreeNodeProfile()
         {
@@ -83,7 +83,7 @@ public class CircularReferenceTests
     }
 
     // ── CR-04 ─────────────────────────────────────────────────────────────────
-    private class CR04_ParentChildProfile : MappingProfile
+    private class CR04_ParentChildProfile : Profile
     {
         public CR04_ParentChildProfile()
         {

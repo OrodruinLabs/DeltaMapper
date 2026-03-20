@@ -10,7 +10,7 @@ namespace DeltaMapper.UnitTests;
 public class CollectionMappingTests
 {
     // ── CL-01 ────────────────────────────────────────────────────────────────
-    private class CL01_ClassroomProfile : MappingProfile
+    private class CL01_ClassroomProfile : Profile
     {
         public CL01_ClassroomProfile()
         {
@@ -46,7 +46,7 @@ public class CollectionMappingTests
     }
 
     // ── CL-02 ────────────────────────────────────────────────────────────────
-    private class CL02_ClassroomArrayProfile : MappingProfile
+    private class CL02_ClassroomArrayProfile : Profile
     {
         public CL02_ClassroomArrayProfile()
         {
@@ -82,7 +82,7 @@ public class CollectionMappingTests
     }
 
     // ── CL-03 ────────────────────────────────────────────────────────────────
-    private class CL03_StudentProfile : MappingProfile
+    private class CL03_StudentProfile : Profile
     {
         public CL03_StudentProfile()
         {
@@ -112,7 +112,7 @@ public class CollectionMappingTests
     }
 
     // ── CL-04 ────────────────────────────────────────────────────────────────
-    private class CL04_EmptyCollectionProfile : MappingProfile
+    private class CL04_EmptyCollectionProfile : Profile
     {
         public CL04_EmptyCollectionProfile()
         {
@@ -141,7 +141,7 @@ public class CollectionMappingTests
     }
 
     // ── CL-05 ────────────────────────────────────────────────────────────────
-    private class CL05_NullCollectionProfile : MappingProfile
+    private class CL05_NullCollectionProfile : Profile
     {
         public CL05_NullCollectionProfile()
         {
@@ -169,7 +169,7 @@ public class CollectionMappingTests
     }
 
     // ── CL-06 ────────────────────────────────────────────────────────────────
-    private class CL06_MapListEmptyProfile : MappingProfile
+    private class CL06_MapListEmptyProfile : Profile
     {
         public CL06_MapListEmptyProfile()
         {
@@ -190,7 +190,7 @@ public class CollectionMappingTests
     }
 
     // ── CL-07 ────────────────────────────────────────────────────────────────
-    private class CL07_MapListSingleProfile : MappingProfile
+    private class CL07_MapListSingleProfile : Profile
     {
         public CL07_MapListSingleProfile()
         {
@@ -217,7 +217,7 @@ public class CollectionMappingTests
     }
 
     // ── CL-08 ────────────────────────────────────────────────────────────────
-    private class CL08_MapListMultipleProfile : MappingProfile
+    private class CL08_MapListMultipleProfile : Profile
     {
         public CL08_MapListMultipleProfile()
         {

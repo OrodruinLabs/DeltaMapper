@@ -10,7 +10,7 @@ namespace DeltaMapper.UnitTests;
 public class RecordMappingTests
 {
     // ── REC-01 ────────────────────────────────────────────────────────────────
-    private class REC01_PersonRecordProfile : MappingProfile
+    private class REC01_PersonRecordProfile : Profile
     {
         public REC01_PersonRecordProfile()
         {
@@ -34,7 +34,7 @@ public class RecordMappingTests
     }
 
     // ── REC-02 ────────────────────────────────────────────────────────────────
-    private class REC02_ExtendedPersonRecordProfile : MappingProfile
+    private class REC02_ExtendedPersonRecordProfile : Profile
     {
         public REC02_ExtendedPersonRecordProfile()
         {
@@ -63,7 +63,7 @@ public class RecordMappingTests
     }
 
     // ── REC-03 ────────────────────────────────────────────────────────────────
-    private class REC03_PersonInitOnlyProfile : MappingProfile
+    private class REC03_PersonInitOnlyProfile : Profile
     {
         public REC03_PersonInitOnlyProfile()
         {
@@ -92,7 +92,7 @@ public class RecordMappingTests
     }
 
     // ── REC-04 ────────────────────────────────────────────────────────────────
-    private class REC04_PersonRecordToRecordProfile : MappingProfile
+    private class REC04_PersonRecordToRecordProfile : Profile
     {
         public REC04_PersonRecordToRecordProfile()
         {
@@ -116,7 +116,7 @@ public class RecordMappingTests
     }
 
     // ── REC-05 ────────────────────────────────────────────────────────────────
-    private class REC05_PersonRecordForMemberProfile : MappingProfile
+    private class REC05_PersonRecordForMemberProfile : Profile
     {
         public REC05_PersonRecordForMemberProfile()
         {

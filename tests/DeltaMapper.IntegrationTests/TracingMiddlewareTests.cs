@@ -22,7 +22,7 @@ public class TracingDest
 
 // ─── Mapping profile ───────────────────────────────────────────────────────────
 
-public class TracingProfile : MappingProfile
+public class TracingProfile : Profile
 {
     public TracingProfile()
     {

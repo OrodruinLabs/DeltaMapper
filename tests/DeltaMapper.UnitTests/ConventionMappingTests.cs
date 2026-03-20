@@ -10,7 +10,7 @@ namespace DeltaMapper.UnitTests;
 public class ConventionMappingTests
 {
     // ── C-01 ─────────────────────────────────────────────────────────────────
-    private class C01_UserToUserDtoProfile : MappingProfile
+    private class C01_UserToUserDtoProfile : Profile
     {
         public C01_UserToUserDtoProfile()
         {
@@ -43,7 +43,7 @@ public class ConventionMappingTests
     }
 
     // ── C-02 ─────────────────────────────────────────────────────────────────
-    private class C02_UserToUserLowerCaseProfile : MappingProfile
+    private class C02_UserToUserLowerCaseProfile : Profile
     {
         public C02_UserToUserLowerCaseProfile()
         {
@@ -72,7 +72,7 @@ public class ConventionMappingTests
     }
 
     // ── C-03 ─────────────────────────────────────────────────────────────────
-    private class C03_UserToUserWithLongProfile : MappingProfile
+    private class C03_UserToUserWithLongProfile : Profile
     {
         public C03_UserToUserWithLongProfile()
         {
@@ -99,7 +99,7 @@ public class ConventionMappingTests
     }
 
     // ── C-04 ─────────────────────────────────────────────────────────────────
-    private class C04_UserToUserSummaryDtoProfile : MappingProfile
+    private class C04_UserToUserSummaryDtoProfile : Profile
     {
         public C04_UserToUserSummaryDtoProfile()
         {
@@ -131,7 +131,7 @@ public class ConventionMappingTests
     }
 
     // ── C-05 ─────────────────────────────────────────────────────────────────
-    private class C05_UserToUserDtoProfile : MappingProfile
+    private class C05_UserToUserDtoProfile : Profile
     {
         public C05_UserToUserDtoProfile()
         {

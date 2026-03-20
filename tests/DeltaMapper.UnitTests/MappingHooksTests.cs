@@ -25,7 +25,7 @@ public class MappingHooksTests
         dto.FirstName.Should().Be("JOHN");
     }
 
-    private class H01Profile : MappingProfile
+    private class H01Profile : Profile
     {
         public H01Profile()
         {
@@ -49,7 +49,7 @@ public class MappingHooksTests
         dto.LastName.Should().Be("Doe (mapped)");
     }
 
-    private class H02Profile : MappingProfile
+    private class H02Profile : Profile
     {
         public H02Profile()
         {
@@ -76,7 +76,7 @@ public class MappingHooksTests
         executionOrder[1].Should().Be("after");
     }
 
-    private class H03Profile : MappingProfile
+    private class H03Profile : Profile
     {
         public H03Profile(List<string> log)
         {
@@ -114,7 +114,7 @@ public class MappingHooksTests
         capturedDst.Should().BeOfType<UserDto>();
     }
 
-    private class H04Profile : MappingProfile
+    private class H04Profile : Profile
     {
         public H04Profile(Action<User, UserDto> hook)
         {

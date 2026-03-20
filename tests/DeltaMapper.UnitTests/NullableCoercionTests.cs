@@ -21,7 +21,7 @@ public class NullableCoercionTests
         public bool IsActive { get; set; }
     }
 
-    private class NullableCoercionProfile : MappingProfile
+    private class NullableCoercionProfile : Profile
     {
         public NullableCoercionProfile()
         {

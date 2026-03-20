@@ -8,7 +8,7 @@ public class CollectionMapOverloadTests
     private class Student { public string Name { get; set; } = ""; public int Age { get; set; } }
     private class StudentDto { public string Name { get; set; } = ""; public int Age { get; set; } }
 
-    private class TestProfile : MappingProfile
+    private class TestProfile : Profile
     {
         public TestProfile() { CreateMap<Student, StudentDto>(); }
     }

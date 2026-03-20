@@ -8,7 +8,7 @@ using Xunit;
 namespace DeltaMapper.UnitTests;
 
 // Test profile
-public class TestUserProfile : MappingProfile
+public class TestUserProfile : Profile
 {
     public TestUserProfile()
     {
@@ -16,7 +16,7 @@ public class TestUserProfile : MappingProfile
     }
 }
 
-public class TestUserSummaryProfile : MappingProfile
+public class TestUserSummaryProfile : Profile
 {
     public TestUserSummaryProfile()
     {
@@ -29,7 +29,7 @@ public class TestUserSummaryProfile : MappingProfile
     }
 }
 
-public class MappingProfileTests
+public class ProfileTests
 {
     [Fact]
     public void CreateMap_RegistersTypeMapConfiguration()
@@ -56,7 +56,7 @@ public class MappingProfileTests
     [Fact]
     public void ForMember_Ignore_SetsIsIgnored()
     {
-        MappingProfile profile = new IgnoreTestProfile();
+        Profile profile = new IgnoreTestProfile();
         var typeMap = profile.TypeMaps[0];
 
         typeMap.MemberConfigurations.Should().HaveCount(1);
@@ -96,7 +96,7 @@ public class MappingProfileTests
     }
 }
 
-public class IgnoreTestProfile : MappingProfile
+public class IgnoreTestProfile : Profile
 {
     public IgnoreTestProfile()
     {

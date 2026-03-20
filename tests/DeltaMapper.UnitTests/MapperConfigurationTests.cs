@@ -8,24 +8,24 @@ using Xunit;
 
 namespace DeltaMapper.UnitTests;
 
-public class UserMappingProfile : MappingProfile
+public class UserProfile : Profile
 {
-    public UserMappingProfile()
+    public UserProfile()
     {
         CreateMap<User, UserDto>();
     }
 }
 
-public class UserSummaryMappingProfile : MappingProfile
+public class UserSummaryProfile : Profile
 {
-    public UserSummaryMappingProfile()
+    public UserSummaryProfile()
     {
         CreateMap<User, UserSummaryDto>()
             .ForMember(d => d.FullName, o => o.MapFrom(s => $"{s.FirstName} {s.LastName}"));
     }
 }
 
-public class DuplicateUserProfile : MappingProfile
+public class DuplicateUserProfile : Profile
 {
     public DuplicateUserProfile()
     {
@@ -39,7 +39,7 @@ public class MapperConfigurationTests
     [Fact]
     public void MC01_Create_WithProfile_CompilesMappings()
     {
-        var config = MapperConfiguration.Create(cfg => cfg.AddProfile<UserMappingProfile>());
+        var config = MapperConfiguration.Create(cfg => cfg.AddProfile<UserProfile>());
         var mapper = config.CreateMapper();
 
         var user = new User { Id = 1, FirstName = "John", LastName = "Doe", Email = "john@test.com", Age = 30 };
@@ -57,8 +57,8 @@ public class MapperConfigurationTests
     {
         var config = MapperConfiguration.Create(cfg =>
         {
-            cfg.AddProfile<UserMappingProfile>();
-            cfg.AddProfile<UserSummaryMappingProfile>();
+            cfg.AddProfile<UserProfile>();
+            cfg.AddProfile<UserSummaryProfile>();
         });
         var mapper = config.CreateMapper();
 
@@ -77,7 +77,7 @@ public class MapperConfigurationTests
         // Two profiles both register User -> UserDto, the second one should win
         var config = MapperConfiguration.Create(cfg =>
         {
-            cfg.AddProfile<UserMappingProfile>();
+            cfg.AddProfile<UserProfile>();
             cfg.AddProfile(new DuplicateUserProfile());
         });
 
@@ -91,7 +91,7 @@ public class MapperConfigurationTests
     [Fact]
     public void MC04_CreateMapper_ReturnsWorkingMapper()
     {
-        var config = MapperConfiguration.Create(cfg => cfg.AddProfile<UserMappingProfile>());
+        var config = MapperConfiguration.Create(cfg => cfg.AddProfile<UserProfile>());
         var mapper = config.CreateMapper();
 
         mapper.Should().NotBeNull();
@@ -101,7 +101,7 @@ public class MapperConfigurationTests
     [Fact]
     public void MC05_Create_UsesFrozenDictionary_Internally()
     {
-        var config = MapperConfiguration.Create(cfg => cfg.AddProfile<UserMappingProfile>());
+        var config = MapperConfiguration.Create(cfg => cfg.AddProfile<UserProfile>());
 
         // Use reflection to verify FrozenDictionary is used
         var registryField = typeof(MapperConfiguration)
@@ -135,7 +135,7 @@ public class MapperConfigurationTests
     }
 }
 
-file sealed class EmptyTestProfile : MappingProfile
+file sealed class EmptyTestProfile : Profile
 {
     public EmptyTestProfile() { }
 }

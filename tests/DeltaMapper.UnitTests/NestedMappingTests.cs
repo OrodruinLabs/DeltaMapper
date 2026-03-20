@@ -11,7 +11,7 @@ namespace DeltaMapper.UnitTests;
 public class NestedMappingTests
 {
     // ── N-01 ─────────────────────────────────────────────────────────────────
-    private class N01_OrderProfile : MappingProfile
+    private class N01_OrderProfile : Profile
     {
         public N01_OrderProfile()
         {
@@ -52,7 +52,7 @@ public class NestedMappingTests
     }
 
     // ── N-02 ─────────────────────────────────────────────────────────────────
-    private class N02_CustomerNullAddressProfile : MappingProfile
+    private class N02_CustomerNullAddressProfile : Profile
     {
         public N02_CustomerNullAddressProfile()
         {
@@ -80,7 +80,7 @@ public class NestedMappingTests
     }
 
     // ── N-03 ─────────────────────────────────────────────────────────────────
-    private class N03_DeepNestingProfile : MappingProfile
+    private class N03_DeepNestingProfile : Profile
     {
         public N03_DeepNestingProfile()
         {
@@ -123,9 +123,9 @@ public class NestedMappingTests
     }
 
     // ── N-04 ─────────────────────────────────────────────────────────────────
-    private class N04_MissingAddressMappingProfile : MappingProfile
+    private class N04_MissingAddressProfile : Profile
     {
-        public N04_MissingAddressMappingProfile()
+        public N04_MissingAddressProfile()
         {
             // Intentionally omit Address -> AddressDto mapping
             CreateMap<Customer, CustomerDto>();
@@ -135,7 +135,7 @@ public class NestedMappingTests
     [Fact]
     public void Map_NestedWithNoRegisteredMapping_ThrowsDeltaMapperException()
     {
-        var config = MapperConfiguration.Create(cfg => cfg.AddProfile<N04_MissingAddressMappingProfile>());
+        var config = MapperConfiguration.Create(cfg => cfg.AddProfile<N04_MissingAddressProfile>());
         var mapper = config.CreateMapper();
 
         var source = new Customer

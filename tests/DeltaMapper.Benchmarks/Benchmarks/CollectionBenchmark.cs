@@ -57,7 +57,7 @@ public class CollectionBenchmark
 }
 
 /// <summary>Runtime-only profile for the collection benchmark.</summary>
-public class CollectionRuntimeProfile : DeltaMapper.Configuration.MappingProfile
+public class CollectionRuntimeProfile : DeltaMapper.Configuration.Profile
 {
     public CollectionRuntimeProfile()
     {

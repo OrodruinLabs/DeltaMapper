@@ -251,7 +251,7 @@ public class FlatteningTests
 /// Inline profile that creates a convention-only map (no ForMember customisation).
 /// Used by flattening tests to verify automatic discovery.
 /// </summary>
-file sealed class FlatInlineProfile<TSrc, TDst> : MappingProfile
+file sealed class FlatInlineProfile<TSrc, TDst> : Profile
 {
     public FlatInlineProfile()
     {

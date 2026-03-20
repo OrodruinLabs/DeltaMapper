@@ -67,27 +67,27 @@ public sealed class StringIntDest { public int Value { get; set; } }
 
 // ── Profiles ───────────────────────────────────────────────────────
 
-file class TC_StringDateProfile : MappingProfile
+file class TC_StringDateProfile : Profile
 {
     public TC_StringDateProfile() => CreateMap<TC_Source_StringDate, TC_Dest_DateTimeDate>();
 }
 
-file class TC_IntStringProfile : MappingProfile
+file class TC_IntStringProfile : Profile
 {
     public TC_IntStringProfile() => CreateMap<TC_Source_IntString, TC_Dest_StringInt>();
 }
 
-file class TC_MultiProfile : MappingProfile
+file class TC_MultiProfile : Profile
 {
     public TC_MultiProfile() => CreateMap<TC_Source_Multi, TC_Dest_Multi>();
 }
 
-file class TC_NullProfile : MappingProfile
+file class TC_NullProfile : Profile
 {
     public TC_NullProfile() => CreateMap<TC_Source_NullString, TC_Dest_NullableDateTime>();
 }
 
-file class TCInlineProfile<TSource, TDest> : MappingProfile
+file class TCInlineProfile<TSource, TDest> : Profile
 {
     public TCInlineProfile() => CreateMap<TSource, TDest>();
 }

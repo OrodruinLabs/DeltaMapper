@@ -30,7 +30,7 @@ public class NonGenericMapTests
         dto.Age.Should().Be(20);
     }
 
-    private class NG01Profile : MappingProfile
+    private class NG01Profile : Profile
     {
         public NG01Profile()
         {
@@ -53,7 +53,7 @@ public class NonGenericMapTests
         act.Should().Throw<DeltaMapperException>();
     }
 
-    private class NG02Profile : MappingProfile
+    private class NG02Profile : Profile
     {
         public NG02Profile()
         {
@@ -82,7 +82,7 @@ public class NonGenericMapTests
         dto.Age.Should().Be(25);
     }
 
-    private class NG03Profile : MappingProfile
+    private class NG03Profile : Profile
     {
         public NG03Profile()
         {

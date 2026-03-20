@@ -40,7 +40,7 @@ public class PatchNestedTests
         change.Kind.Should().Be(ChangeKind.Modified);
     }
 
-    private class PN01Profile : MappingProfile
+    private class PN01Profile : Profile
     {
         public PN01Profile()
         {
@@ -75,7 +75,7 @@ public class PatchNestedTests
         diff.Result.Should().BeSameAs(destination);
     }
 
-    private class PN02Profile : MappingProfile
+    private class PN02Profile : Profile
     {
         public PN02Profile()
         {
@@ -115,7 +115,7 @@ public class PatchNestedTests
         diff.Changes[0].To.Should().NotBeNull();
     }
 
-    private class PN03Profile : MappingProfile
+    private class PN03Profile : Profile
     {
         public PN03Profile()
         {

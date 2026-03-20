@@ -31,7 +31,7 @@ public class PatchBasicTests
         change.Kind.Should().Be(ChangeKind.Modified);
     }
 
-    private class PB01Profile : MappingProfile
+    private class PB01Profile : Profile
     {
         public PB01Profile()
         {
@@ -57,7 +57,7 @@ public class PatchBasicTests
         diff.Result.Should().BeSameAs(destination);
     }
 
-    private class PB02Profile : MappingProfile
+    private class PB02Profile : Profile
     {
         public PB02Profile()
         {
@@ -91,7 +91,7 @@ public class PatchBasicTests
             && Equals(c.From, 5) && Equals(c.To, 100) && c.Kind == ChangeKind.Modified);
     }
 
-    private class PB03Profile : MappingProfile
+    private class PB03Profile : Profile
     {
         public PB03Profile()
         {

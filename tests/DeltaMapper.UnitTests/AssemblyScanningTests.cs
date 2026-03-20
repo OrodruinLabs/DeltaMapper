@@ -32,7 +32,7 @@ public sealed class ScanDest2
 
 // ── Test profiles ──────────────────────────────────────────────────
 
-public sealed class ScanProfile1 : MappingProfile
+public sealed class ScanProfile1 : Profile
 {
     public ScanProfile1()
     {
@@ -40,7 +40,7 @@ public sealed class ScanProfile1 : MappingProfile
     }
 }
 
-public sealed class ScanProfile2 : MappingProfile
+public sealed class ScanProfile2 : Profile
 {
     public ScanProfile2()
     {
@@ -49,7 +49,7 @@ public sealed class ScanProfile2 : MappingProfile
 }
 
 /// <summary>Abstract profile — should NOT be discovered by scanning.</summary>
-public abstract class AbstractScanProfile : MappingProfile
+public abstract class AbstractScanProfile : Profile
 {
     protected AbstractScanProfile()
     {
@@ -58,7 +58,7 @@ public abstract class AbstractScanProfile : MappingProfile
 }
 
 /// <summary>Profile with no parameterless constructor — should NOT be discovered.</summary>
-public sealed class NoParamlessCtor : MappingProfile
+public sealed class NoParamlessCtor : Profile
 {
     public NoParamlessCtor(string _)
     {

@@ -40,9 +40,9 @@ public class TestDbContext : DbContext
 
 // ─── Mapping profile ───────────────────────────────────────────────────────────
 
-public class BlogMappingProfile : MappingProfile
+public class BlogProfile : Profile
 {
-    public BlogMappingProfile()
+    public BlogProfile()
     {
         CreateMap<Blog, BlogDto>();
     }
@@ -81,7 +81,7 @@ public class EFCoreProxyTests : IDisposable
         var config = MapperConfiguration.Create(cfg =>
         {
             cfg.AddEFCoreSupport();
-            cfg.AddProfile<BlogMappingProfile>();
+            cfg.AddProfile<BlogProfile>();
         });
         var mapper = config.CreateMapper();
 
@@ -102,7 +102,7 @@ public class EFCoreProxyTests : IDisposable
         var config = MapperConfiguration.Create(cfg =>
         {
             cfg.AddEFCoreSupport();
-            cfg.AddProfile<BlogMappingProfile>();
+            cfg.AddProfile<BlogProfile>();
         });
         var mapper = config.CreateMapper();
 
@@ -138,7 +138,7 @@ public class EFCoreProxyTests : IDisposable
         var config = MapperConfiguration.Create(cfg =>
         {
             cfg.AddEFCoreSupport();
-            cfg.AddProfile<BlogMappingProfile>();
+            cfg.AddProfile<BlogProfile>();
         });
         var mapper = config.CreateMapper();
 
@@ -169,7 +169,7 @@ public class EFCoreProxyTests : IDisposable
         var config = MapperConfiguration.Create(cfg =>
         {
             cfg.AddEFCoreSupport();
-            cfg.AddProfile<BlogMappingProfile>();
+            cfg.AddProfile<BlogProfile>();
         });
         var mapper = config.CreateMapper();
 
@@ -187,7 +187,7 @@ public class EFCoreProxyTests : IDisposable
         var config = MapperConfiguration.Create(cfg =>
         {
             cfg.AddEFCoreSupport();
-            cfg.AddProfile<BlogMappingProfile>();
+            cfg.AddProfile<BlogProfile>();
         });
         var mapper = config.CreateMapper();
 
@@ -225,7 +225,7 @@ public class EF_AuthorFlatDto
     public string? AddressCountry { get; set; }
 }
 
-file sealed class AuthorFlatProfile : MappingProfile
+file sealed class AuthorFlatProfile : Profile
 {
     public AuthorFlatProfile()
     {

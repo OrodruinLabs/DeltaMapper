@@ -32,7 +32,7 @@ public class ConstructUsingTests
         public Money Price { get; set; } = null!;
     }
 
-    private class FactoryProfile : MappingProfile
+    private class FactoryProfile : Profile
     {
         public FactoryProfile()
         {
@@ -71,7 +71,7 @@ public class ConstructUsingTests
     private class SimpleSource { public string Name { get; set; } = ""; public string Tag { get; set; } = ""; }
     private class SimpleDest { public string Name { get; set; } = ""; public string Tag { get; set; } = ""; }
 
-    private class ConstructWithOverrideProfile : MappingProfile
+    private class ConstructWithOverrideProfile : Profile
     {
         public ConstructWithOverrideProfile()
         {
@@ -94,7 +94,7 @@ public class ConstructUsingTests
         Assert.True(received);
     }
 
-    private class LambdaProfile : MappingProfile
+    private class LambdaProfile : Profile
     {
         public LambdaProfile(Action onInvoke)
         {
