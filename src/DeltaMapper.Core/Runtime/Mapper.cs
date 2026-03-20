@@ -31,7 +31,7 @@ public sealed class Mapper : IMapper
         // Try exact map first (e.g., a registered List<S> → List<D> map takes priority)
         var srcType = source.GetType();
         var dstType = typeof(TDestination);
-        if (_config.HasMap(srcType, dstType))
+        if (_config.HasMap(srcType, dstType) || GeneratedMapRegistry.HasMapping(srcType, dstType))
         {
             var ctx = new MapperContext(_config);
             return (TDestination)_config.Execute(source, srcType, dstType, ctx);
