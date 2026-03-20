@@ -1,7 +1,5 @@
 using System;
-using DeltaMapper.Abstractions;
-using DeltaMapper.Configuration;
-using DeltaMapper.Exceptions;
+using DeltaMapper;
 using DeltaMapper.Runtime;
 using DeltaMapper.UnitTests.TestModels;
 using FluentAssertions;

@@ -279,7 +279,7 @@ public class AnalyzerDiagnosticTests
         // The C# compiler reports CS1061 when the property doesn't exist.
         // No custom DM003 analyzer is needed.
         const string source = """
-            using DeltaMapper.Configuration;
+            using DeltaMapper;
 
             namespace MyApp
             {

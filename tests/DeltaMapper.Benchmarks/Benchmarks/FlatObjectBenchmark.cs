@@ -1,12 +1,12 @@
 namespace DeltaMapper.Benchmarks.Benchmarks;
 
 using BenchmarkDotNet.Attributes;
-using DeltaMapper.Abstractions;
+using DeltaMapper;
 using DeltaMapper.Benchmarks.Competitors;
 using DeltaMapper.Benchmarks.Models;
 
 using AmMapper = AutoMapper.IMapper;
-using DmConfig = DeltaMapper.Configuration.MapperConfiguration;
+using DmConfig = DeltaMapper.MapperConfiguration;
 
 [MemoryDiagnoser]
 public class FlatObjectBenchmark
@@ -62,7 +62,7 @@ public class FlatObjectBenchmark
 }
 
 /// <summary>Runtime-only profile for the flat benchmark (no source-gen attribute needed).</summary>
-public class FlatRuntimeProfile : DeltaMapper.Configuration.Profile
+public class FlatRuntimeProfile : Profile
 {
     public FlatRuntimeProfile() => CreateMap<FlatSource, FlatDest>();
 }

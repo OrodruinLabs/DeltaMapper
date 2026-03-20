@@ -1,4 +1,4 @@
-using DeltaMapper.Configuration;
+using DeltaMapper;
 using DeltaMapper.Middleware;
 using DeltaMapper.Runtime;
 using FluentAssertions;

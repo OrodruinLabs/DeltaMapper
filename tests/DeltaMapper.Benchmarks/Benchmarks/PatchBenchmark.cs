@@ -1,12 +1,12 @@
 namespace DeltaMapper.Benchmarks.Benchmarks;
 
 using BenchmarkDotNet.Attributes;
-using DeltaMapper.Abstractions;
+using DeltaMapper;
 using DeltaMapper.Benchmarks.Competitors;
 using DeltaMapper.Benchmarks.Models;
 
 using AmMapper = AutoMapper.IMapper;
-using DmConfig = DeltaMapper.Configuration.MapperConfiguration;
+using DmConfig = DeltaMapper.MapperConfiguration;
 
 /// <summary>
 /// Patch/update-in-place benchmark.
@@ -59,7 +59,7 @@ public class PatchBenchmark
 
     /// <summary>DeltaMapper Patch — maps onto existing instance and returns property diff.</summary>
     [Benchmark]
-    public DeltaMapper.Diff.MappingDiff<FlatDest> DeltaMapper_Patch_Runtime()
+    public MappingDiff<FlatDest> DeltaMapper_Patch_Runtime()
         => _deltaMapperRuntime.Patch<FlatSource, FlatDest>(_source, new FlatDest
         {
             Id = _existing.Id,
@@ -71,7 +71,7 @@ public class PatchBenchmark
 
     /// <summary>DeltaMapper source-gen Patch path.</summary>
     [Benchmark]
-    public DeltaMapper.Diff.MappingDiff<FlatDest> DeltaMapper_Patch_SourceGen()
+    public MappingDiff<FlatDest> DeltaMapper_Patch_SourceGen()
         => _deltaMapperSourceGen.Patch<FlatSource, FlatDest>(_source, new FlatDest
         {
             Id = _existing.Id,
@@ -115,7 +115,7 @@ public class PatchBenchmark
 }
 
 /// <summary>Runtime-only profile for the patch benchmark.</summary>
-public class PatchRuntimeProfile : DeltaMapper.Configuration.Profile
+public class PatchRuntimeProfile : Profile
 {
     public PatchRuntimeProfile() => CreateMap<FlatSource, FlatDest>();
 }

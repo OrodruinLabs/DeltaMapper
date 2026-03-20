@@ -1,5 +1,5 @@
 using Xunit;
-using DeltaMapper.Configuration;
+using DeltaMapper;
 
 namespace DeltaMapper.UnitTests;
 
@@ -13,7 +13,7 @@ public class CollectionMapOverloadTests
         public TestProfile() { CreateMap<Student, StudentDto>(); }
     }
 
-    private static Abstractions.IMapper CreateMapper() =>
+    private static IMapper CreateMapper() =>
         MapperConfiguration.Create(cfg => cfg.AddProfile<TestProfile>()).CreateMapper();
 
     [Fact]

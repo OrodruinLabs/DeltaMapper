@@ -1,4 +1,4 @@
-using DeltaMapper.Configuration;
+using DeltaMapper;
 
 namespace DeltaMapper.TestFixtures;
 

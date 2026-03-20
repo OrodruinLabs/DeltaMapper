@@ -1,5 +1,4 @@
-using DeltaMapper.Configuration;
-using DeltaMapper.Exceptions;
+using DeltaMapper;
 using Xunit;
 
 namespace DeltaMapper.UnitTests;

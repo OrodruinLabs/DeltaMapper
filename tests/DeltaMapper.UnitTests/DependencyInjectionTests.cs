@@ -1,6 +1,4 @@
-using DeltaMapper.Abstractions;
-using DeltaMapper.Configuration;
-using DeltaMapper.Extensions;
+using DeltaMapper;
 using DeltaMapper.Runtime;
 using DeltaMapper.UnitTests.TestModels;
 using FluentAssertions;

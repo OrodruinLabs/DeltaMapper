@@ -1,12 +1,12 @@
 namespace DeltaMapper.Benchmarks.Benchmarks;
 
 using BenchmarkDotNet.Attributes;
-using DeltaMapper.Abstractions;
+using DeltaMapper;
 using DeltaMapper.Benchmarks.Competitors;
 using DeltaMapper.Benchmarks.Models;
 
 using AmMapper = AutoMapper.IMapper;
-using DmConfig = DeltaMapper.Configuration.MapperConfiguration;
+using DmConfig = DeltaMapper.MapperConfiguration;
 
 [MemoryDiagnoser]
 public class NestedObjectBenchmark
@@ -61,7 +61,7 @@ public class NestedObjectBenchmark
 }
 
 /// <summary>Runtime-only profile for the nested benchmark.</summary>
-public class NestedRuntimeProfile : DeltaMapper.Configuration.Profile
+public class NestedRuntimeProfile : Profile
 {
     public NestedRuntimeProfile()
     {

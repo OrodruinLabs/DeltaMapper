@@ -1,6 +1,5 @@
 using System.Reflection;
-using DeltaMapper.Abstractions;
-using DeltaMapper.Configuration;
+using DeltaMapper;
 using FluentAssertions;
 using Xunit;
 
@@ -201,7 +200,7 @@ public class AssemblyScanningTests
         var act = () => mapper.Map<DeltaMapper.TestFixtures.FixtureSource, DeltaMapper.TestFixtures.FixtureDest>(
             new DeltaMapper.TestFixtures.FixtureSource { Id = 1, Value = "test" });
 
-        act.Should().Throw<DeltaMapper.Exceptions.DeltaMapperException>();
+        act.Should().Throw<DeltaMapperException>();
     }
 
     [Fact]
