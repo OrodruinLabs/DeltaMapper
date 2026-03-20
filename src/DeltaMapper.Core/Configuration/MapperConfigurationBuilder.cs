@@ -186,10 +186,11 @@ public sealed class MapperConfigurationBuilder
                     var resolverReturnType = memberConfig.ResolverReturnType;
                     var dstPropType = dstProp.PropertyType;
 
-                    // If the resolver's return type differs from the destination property type
-                    // and is a complex type, route through recursive mapping
+                    // If the resolver's return type differs from the destination property type,
+                    // is not assignable to it, and is a complex type, route through recursive mapping
                     var needsRecursiveMap = resolverReturnType != null
                         && resolverReturnType != dstPropType
+                        && !dstPropType.IsAssignableFrom(resolverReturnType)
                         && IsComplexType(resolverReturnType);
 
                     Action<object, object, MapperContext> assign;
@@ -243,11 +244,6 @@ public sealed class MapperConfigurationBuilder
                     continue;
                 }
             }
-
-            // When ConstructUsing is active, skip convention matching for properties
-            // without explicit ForMember configuration — the factory controls those values.
-            if (tm.CustomFactory != null && memberConfig == null)
-                continue;
 
             // Convention matching — find source property with same name (case-insensitive)
             var matchingSrcProp = FindSourceProperty(srcProps, dstProp.Name);
@@ -507,6 +503,10 @@ public sealed class MapperConfigurationBuilder
         Func<object, object?, MapperContext, object> mapFunc = (src, existingDst, ctx) =>
         {
             var dst = existingDst ?? (customFactory != null ? customFactory(src) : defaultFactory!());
+
+            if (dst is null)
+                throw new DeltaMapperException(
+                    $"ConstructUsing factory returned null for mapping to '{dstType.Name}'.");
 
             // Register for circular reference detection BEFORE property assignment
             ctx.Register(src, dstType, dst);
