@@ -223,7 +223,8 @@ Initial release.
 - On-demand benchmark workflow via `workflow_dispatch`
 - BenchmarkDotNet suite comparing against Mapperly, AutoMapper, and hand-written code
 
-[Unreleased]: https://github.com/OrodruinLabs/DeltaMapper/compare/v1.0.0-rc.1...HEAD
+[Unreleased]: https://github.com/OrodruinLabs/DeltaMapper/compare/v1.0.0-rc.2...HEAD
+[1.0.0-rc.2]: https://github.com/OrodruinLabs/DeltaMapper/compare/v1.0.0-rc.1...v1.0.0-rc.2
 [1.0.0-rc.1]: https://github.com/OrodruinLabs/DeltaMapper/compare/v0.2.0-alpha...v1.0.0-rc.1
 [0.2.0-alpha]: https://github.com/OrodruinLabs/DeltaMapper/compare/v0.1.0-alpha...v0.2.0-alpha
 [0.1.0-alpha]: https://github.com/OrodruinLabs/DeltaMapper/releases/tag/v0.1.0-alpha
