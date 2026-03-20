@@ -222,15 +222,8 @@ public sealed class MapperConfigurationBuilder
                     var resolverReturnType = memberConfig.ResolverReturnType;
                     var dstPropType = dstProp.PropertyType;
 
-                    // If the resolver's return type differs from the destination property type,
-                    // is not assignable to it, and is a complex type, route through recursive mapping
-                    var needsRecursiveMap = resolverReturnType != null
-                        && resolverReturnType != dstPropType
-                        && !dstPropType.IsAssignableFrom(resolverReturnType)
-                        && IsComplexType(resolverReturnType);
-
                     Action<object, object, MapperContext> assign;
-                    if (needsRecursiveMap)
+                    if (NeedsRecursiveMapping(resolverReturnType, dstPropType))
                     {
                         var srcMapType = resolverReturnType!;
                         assign = (src, dst, ctx) =>
@@ -630,12 +623,8 @@ public sealed class MapperConfigurationBuilder
                 var resolver = memberConfig.CustomResolver;
                 var resolverReturnType = memberConfig.ResolverReturnType;
                 var paramType = param.ParameterType;
-                var needsRecursiveMap = resolverReturnType != null
-                    && resolverReturnType != paramType
-                    && !paramType.IsAssignableFrom(resolverReturnType)
-                    && IsComplexType(resolverReturnType);
 
-                if (needsRecursiveMap)
+                if (NeedsRecursiveMapping(resolverReturnType, paramType))
                 {
                     var srcMapType = resolverReturnType!;
                     paramResolvers.Add(WrapParamWithCondition(
@@ -743,13 +732,9 @@ public sealed class MapperConfigurationBuilder
                 var setter = dstProp;
                 var resolverReturnType = memberConfig.ResolverReturnType;
                 var dstPropType = dstProp.PropertyType;
-                var needsRecursiveMap = resolverReturnType != null
-                    && resolverReturnType != dstPropType
-                    && !dstPropType.IsAssignableFrom(resolverReturnType)
-                    && IsComplexType(resolverReturnType);
 
                 Action<object, object, MapperContext> assign;
-                if (needsRecursiveMap)
+                if (NeedsRecursiveMapping(resolverReturnType, dstPropType))
                 {
                     var srcMapType = resolverReturnType!;
                     assign = (src, dst, ctx) =>
@@ -1340,6 +1325,18 @@ public sealed class MapperConfigurationBuilder
             && type != typeof(string)
             && type != typeof(decimal)
             && type.IsClass;
+    }
+
+    /// <summary>
+    /// Returns true when a MapFrom resolver's return type differs from the destination type
+    /// and needs recursive mapping through a registered type map.
+    /// </summary>
+    private static bool NeedsRecursiveMapping(Type? resolverReturnType, Type destinationType)
+    {
+        return resolverReturnType != null
+            && resolverReturnType != destinationType
+            && !destinationType.IsAssignableFrom(resolverReturnType)
+            && IsComplexType(resolverReturnType);
     }
 
     private static bool IsCollectionMapping(Type srcType, Type dstType, out Type? srcElement, out Type? dstElement)
