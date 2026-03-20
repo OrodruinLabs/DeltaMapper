@@ -156,7 +156,7 @@ public sealed class Mapper : IMapper
             return false;
 
         if (!_config.HasMap(srcElementType, dstElementType)
-            && !GeneratedMapRegistry.HasFactory(srcElementType, dstElementType))
+            && !GeneratedMapRegistry.HasMapping(srcElementType, dstElementType))
             return false;
 
         // Only support collection types we can actually build

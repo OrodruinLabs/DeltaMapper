@@ -174,28 +174,34 @@ public class AssemblyScanningTests
     }
 
     [Fact]
-    public void AddProfilesFromAssembly_WithIncludeReferenced_ScansReferencedAssemblies()
+    public void AddProfilesFromAssembly_WithIncludeReferenced_FindsProfilesInReferencedAssembly()
     {
+        // FixtureProfile lives in DeltaMapper.TestFixtures (a separate referenced assembly)
         var config = MapperConfiguration.Create(cfg =>
             cfg.AddProfilesFromAssembly(typeof(AssemblyScanningTests).Assembly, includeReferencedAssemblies: true));
         var mapper = config.CreateMapper();
 
-        var result1 = mapper.Map<ScanSource, ScanDest>(new ScanSource { Id = 1, Name = "test" });
-        result1.Id.Should().Be(1);
+        // This map is ONLY registered in FixtureProfile (in the referenced assembly)
+        var result = mapper.Map<DeltaMapper.TestFixtures.FixtureSource, DeltaMapper.TestFixtures.FixtureDest>(
+            new DeltaMapper.TestFixtures.FixtureSource { Id = 42, Value = "cross-assembly" });
 
-        var result2 = mapper.Map<ScanSource2, ScanDest2>(new ScanSource2 { Code = "ABC" });
-        result2.Code.Should().Be("ABC");
+        result.Id.Should().Be(42);
+        result.Value.Should().Be("cross-assembly");
     }
 
     [Fact]
-    public void AddProfilesFromAssembly_DefaultFalse_DoesNotScanReferenced()
+    public void AddProfilesFromAssembly_DefaultFalse_DoesNotFindProfilesInReferencedAssembly()
     {
+        // Without includeReferencedAssemblies, FixtureProfile should NOT be found
         var config = MapperConfiguration.Create(cfg =>
             cfg.AddProfilesFromAssembly(typeof(AssemblyScanningTests).Assembly));
         var mapper = config.CreateMapper();
 
-        var result = mapper.Map<ScanSource, ScanDest>(new ScanSource { Id = 1, Name = "test" });
-        result.Id.Should().Be(1);
+        // FixtureSource → FixtureDest map should NOT exist
+        var act = () => mapper.Map<DeltaMapper.TestFixtures.FixtureSource, DeltaMapper.TestFixtures.FixtureDest>(
+            new DeltaMapper.TestFixtures.FixtureSource { Id = 1, Value = "test" });
+
+        act.Should().Throw<DeltaMapper.Exceptions.DeltaMapperException>();
     }
 
     [Fact]
