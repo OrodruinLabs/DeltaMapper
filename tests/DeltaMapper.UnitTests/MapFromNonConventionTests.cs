@@ -12,7 +12,7 @@ public class MapFromNonConventionTests
     private class Brand { public Guid Id { get; set; } public string Name { get; set; } = ""; }
     private class SummaryDto { public Guid Id { get; set; } public string Name { get; set; } = ""; }
     private class Product { public Brand Brand { get; set; } = null!; }
-    private class ProductDto { public SummaryDto Brand { get; set; } = null!; }
+    private class ProductDto { public SummaryDto? Brand { get; set; } }
 
     [Fact]
     public void MapFrom_WithNonConventionTypeNames_ShouldAutoApply()
@@ -95,7 +95,7 @@ public class MapFromNonConventionTests
         }
     }
 
-    // InitOnly-style: multiple levels of nesting with non-convention names
+    // Multiple levels of nesting with non-convention names
     private class Category { public Guid Id { get; set; } public string Label { get; set; } = ""; }
     private class Model { public Brand Brand { get; set; } = null!; public Category Category { get; set; } = null!; public string ModelName { get; set; } = ""; }
     private class CategoryDto { public Guid Id { get; set; } public string Label { get; set; } = ""; }
