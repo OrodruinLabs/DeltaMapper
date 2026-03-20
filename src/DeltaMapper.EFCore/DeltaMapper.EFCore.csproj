@@ -9,7 +9,7 @@
 
     <!-- NuGet package identity -->
     <PackageId>DeltaMapper.EFCore</PackageId>
-    <Version>1.0.0-rc.1</Version>
+    <Version>1.0.0-rc.2</Version>
     <Authors>Jose Mejia</Authors>
     <Description>EF Core proxy-aware middleware for DeltaMapper — detects proxy types and skips unloaded navigation properties</Description>
     <PackageTags>mapper;efcore;entity-framework;proxy;navigation;net10;csharp</PackageTags>
