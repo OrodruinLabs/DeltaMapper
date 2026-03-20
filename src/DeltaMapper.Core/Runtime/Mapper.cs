@@ -1,6 +1,6 @@
 using System.Collections.Concurrent;
 using System.Reflection;
-using DeltaMapper.Abstractions;
+using DeltaMapper;
 using DeltaMapper.Configuration;
 using DeltaMapper.Diff;
 

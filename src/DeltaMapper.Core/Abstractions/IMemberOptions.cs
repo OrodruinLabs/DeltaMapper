@@ -1,6 +1,6 @@
 using System.Linq.Expressions;
 
-namespace DeltaMapper.Abstractions;
+namespace DeltaMapper;
 
 /// <summary>
 /// Options for configuring how a specific destination member is mapped.

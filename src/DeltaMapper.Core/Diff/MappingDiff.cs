@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace DeltaMapper.Diff;
+namespace DeltaMapper;
 
 /// <summary>
 /// Holds the mapped result alongside a list of property-level changes detected during the mapping.

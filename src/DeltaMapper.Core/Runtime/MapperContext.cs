@@ -1,5 +1,5 @@
 using System.Runtime.CompilerServices;
-using DeltaMapper.Configuration;
+using DeltaMapper;
 
 namespace DeltaMapper.Runtime;
 

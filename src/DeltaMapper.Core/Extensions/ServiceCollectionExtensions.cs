@@ -1,9 +1,8 @@
-using DeltaMapper.Abstractions;
 using DeltaMapper.Configuration;
 using DeltaMapper.Runtime;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace DeltaMapper.Extensions;
+namespace DeltaMapper;
 
 /// <summary>
 /// Extension methods for registering DeltaMapper in the DI container.
