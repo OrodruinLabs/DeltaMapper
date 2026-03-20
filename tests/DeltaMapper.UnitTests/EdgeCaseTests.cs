@@ -45,7 +45,7 @@ public class EdgeCaseTests
     {
         var mapper = CreateMapper();
 
-        var act = () => mapper.MapList<EC_Source, EC_Dest>(null!);
+        var act = () => mapper.Map<EC_Source, EC_Dest>((IEnumerable<EC_Source>)null!);
 
         act.Should().Throw<ArgumentNullException>();
     }
@@ -66,7 +66,7 @@ public class EdgeCaseTests
     {
         var mapper = CreateMapper();
 
-        var result = mapper.MapList<EC_Source, EC_Dest>(Enumerable.Empty<EC_Source>());
+        var result = mapper.Map<EC_Source, EC_Dest>(Enumerable.Empty<EC_Source>());
 
         result.Should().NotBeNull().And.BeEmpty();
     }

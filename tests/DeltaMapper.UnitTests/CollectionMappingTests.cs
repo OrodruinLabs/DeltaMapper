@@ -102,7 +102,7 @@ public class CollectionMappingTests
             new Student { Name = "Frank", Grade = 72 }
         };
 
-        var result = mapper.MapList<Student, StudentDto>(source);
+        var result = mapper.Map<Student, StudentDto>(source);
 
         result.Should().HaveCount(2);
         result[0].Name.Should().Be("Eve");
@@ -183,7 +183,7 @@ public class CollectionMappingTests
         var config = MapperConfiguration.Create(cfg => cfg.AddProfile<CL06_MapListEmptyProfile>());
         var mapper = config.CreateMapper();
 
-        var result = mapper.MapList<Student, StudentDto>(Enumerable.Empty<Student>());
+        var result = mapper.Map<Student, StudentDto>(Enumerable.Empty<Student>());
 
         result.Should().NotBeNull();
         result.Should().BeEmpty();
@@ -209,7 +209,7 @@ public class CollectionMappingTests
             new Student { Name = "Grace", Grade = 100 }
         };
 
-        var result = mapper.MapList<Student, StudentDto>(source);
+        var result = mapper.Map<Student, StudentDto>(source);
 
         result.Should().HaveCount(1);
         result[0].Name.Should().Be("Grace");
@@ -238,7 +238,7 @@ public class CollectionMappingTests
             new Student { Name = "Jack", Grade = 90 }
         };
 
-        var result = mapper.MapList<Student, StudentDto>(source);
+        var result = mapper.Map<Student, StudentDto>(source);
 
         result.Should().HaveCount(3);
         result[0].Name.Should().Be("Hank");

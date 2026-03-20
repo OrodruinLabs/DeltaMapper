@@ -23,13 +23,7 @@ public interface IMapper
     TDestination Map<TSource, TDestination>(TSource source, TDestination destination);
 
     /// <summary>
-    /// Maps each element in the source enumerable to TDestination, returning a read-only list.
-    /// </summary>
-    IReadOnlyList<TDestination> MapList<TSource, TDestination>(IEnumerable<TSource> source);
-
-    /// <summary>
     /// Maps each element in the source enumerable to TDestination, returning a list.
-    /// Convenience overload matching AutoMapper's Map signature for collections.
     /// </summary>
     List<TDestination> Map<TSource, TDestination>(IEnumerable<TSource> source);
 
