@@ -11,6 +11,20 @@ DeltaMapper uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.0.0-rc.4] — 2026-03-20
+
+### Added
+- Multi-target support for .NET 8, .NET 9, and .NET 10 across all packages
+- `Directory.Build.props` for centralized build configuration
+- CI test matrix running full test suite on all three TFMs
+
+### Changed
+- Minimum supported framework lowered from .NET 10 to .NET 8 LTS
+- Conditional Microsoft.Extensions and EntityFrameworkCore package versions per TFM
+- GitHub Actions workflows install .NET 8, 9, and 10 SDKs
+
+---
+
 ## [1.0.0-rc.3] - 2026-03-20
 
 ### Fixed
@@ -232,7 +246,8 @@ Initial release.
 - On-demand benchmark workflow via `workflow_dispatch`
 - BenchmarkDotNet suite comparing against Mapperly, AutoMapper, and hand-written code
 
-[Unreleased]: https://github.com/OrodruinLabs/DeltaMapper/compare/v1.0.0-rc.3...HEAD
+[Unreleased]: https://github.com/OrodruinLabs/DeltaMapper/compare/v1.0.0-rc.4...HEAD
+[1.0.0-rc.4]: https://github.com/OrodruinLabs/DeltaMapper/compare/v1.0.0-rc.3...v1.0.0-rc.4
 [1.0.0-rc.3]: https://github.com/OrodruinLabs/DeltaMapper/compare/v1.0.0-rc.2...v1.0.0-rc.3
 [1.0.0-rc.2]: https://github.com/OrodruinLabs/DeltaMapper/compare/v1.0.0-rc.1...v1.0.0-rc.2
 [1.0.0-rc.1]: https://github.com/OrodruinLabs/DeltaMapper/compare/v0.2.0-alpha...v1.0.0-rc.1

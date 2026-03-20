@@ -1,18 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <LangVersion>latest</LangVersion>
+    <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
     <RootNamespace>DeltaMapper.EFCore</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 
     <!-- NuGet package identity -->
     <PackageId>DeltaMapper.EFCore</PackageId>
-    <Version>1.0.0-rc.3</Version>
+    <Version>1.0.0-rc.4</Version>
     <Authors>Jose Mejia</Authors>
     <Description>EF Core proxy-aware middleware for DeltaMapper — detects proxy types and skips unloaded navigation properties</Description>
-    <PackageTags>mapper;efcore;entity-framework;proxy;navigation;net10;csharp</PackageTags>
+    <PackageTags>mapper;efcore;entity-framework;proxy;navigation;net8;net9;net10;csharp</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/OrodruinLabs/DeltaMapper</PackageProjectUrl>
     <RepositoryUrl>https://github.com/OrodruinLabs/DeltaMapper</RepositoryUrl>
@@ -24,7 +21,13 @@
   <ItemGroup>
     <ProjectReference Include="../DeltaMapper.Core/DeltaMapper.Core.csproj" />
   </ItemGroup>
-  <ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.*" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.*" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.*" />
   </ItemGroup>
   <ItemGroup>
