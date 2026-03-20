@@ -64,8 +64,8 @@ public class ConstructUsingTests
 
         var result = mapper.Map<SimpleSource, SimpleDest>(new SimpleSource { Name = "Original", Tag = "Override" });
 
-        Assert.Equal("Override", result.Tag);
-        Assert.Equal("constructed", result.Name); // from factory
+        Assert.Equal("Override", result.Tag);       // explicit ForMember
+        Assert.Equal("Original", result.Name);       // convention mapping runs after factory
     }
 
     private class SimpleSource { public string Name { get; set; } = ""; public string Tag { get; set; } = ""; }
@@ -100,6 +100,27 @@ public class ConstructUsingTests
         {
             CreateMap<SimpleSource, SimpleDest>()
                 .ConstructUsing(src => { onInvoke(); return new SimpleDest(); });
+        }
+    }
+
+    [Fact]
+    public void ConstructUsing_null_factory_result_throws()
+    {
+        var mapper = MapperConfiguration.Create(cfg =>
+        {
+            cfg.AddProfile(new NullFactoryProfile());
+        }).CreateMapper();
+
+        Assert.Throws<DeltaMapperException>(() =>
+            mapper.Map<SimpleSource, SimpleDest>(new SimpleSource { Name = "test" }));
+    }
+
+    private class NullFactoryProfile : Profile
+    {
+        public NullFactoryProfile()
+        {
+            CreateMap<SimpleSource, SimpleDest>()
+                .ConstructUsing(src => null!);
         }
     }
 }
