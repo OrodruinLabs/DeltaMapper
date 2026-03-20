@@ -631,7 +631,7 @@ public sealed class MapperConfigurationBuilder
                         (src, ctx) =>
                         {
                             var value = resolver(src);
-                            if (value == null) return null;
+                            if (value == null) return fallback;
                             return ctx.Config.Execute(value, srcMapType, paramType, ctx);
                         }, condition, fallback));
                 }
