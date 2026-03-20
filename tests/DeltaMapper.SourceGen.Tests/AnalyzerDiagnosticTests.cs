@@ -268,6 +268,60 @@ public class AnalyzerDiagnosticTests
             "when a type cannot be resolved, no mapping file should be generated");
     }
 
+    // ─────────────────────────────────────────────────────────────────────────
+    // DM003 — NOT NEEDED (compiler already catches via CS1061)
+    // ─────────────────────────────────────────────────────────────────────────
+
+    [Fact]
+    public void ForMember_on_nonexistent_property_is_caught_by_compiler()
+    {
+        // ForMember uses a strongly-typed lambda (dest => dest.PropertyName).
+        // The C# compiler reports CS1061 when the property doesn't exist.
+        // No custom DM003 analyzer is needed.
+        const string source = """
+            using DeltaMapper.Configuration;
+
+            namespace MyApp
+            {
+                public class Src { public int Id { get; set; } }
+                public class Dst { public int Id { get; set; } }
+
+                public class BadProfile : Profile
+                {
+                    public BadProfile()
+                    {
+                        CreateMap<Src, Dst>()
+                            .ForMember(d => d.NonExistent, o => o.Ignore());
+                    }
+                }
+            }
+            """;
+
+        var syntaxTree = Microsoft.CodeAnalysis.CSharp.CSharpSyntaxTree.ParseText(source);
+        var refs = AppDomain.CurrentDomain.GetAssemblies()
+            .Where(a => !a.IsDynamic && !string.IsNullOrWhiteSpace(a.Location))
+            .Select(a => (MetadataReference)MetadataReference.CreateFromFile(a.Location))
+            .ToList();
+
+        var coreLocation = typeof(DeltaMapper.Runtime.GeneratedMapRegistry).Assembly.Location;
+        if (!string.IsNullOrWhiteSpace(coreLocation))
+            refs.Add(MetadataReference.CreateFromFile(coreLocation));
+
+        var compilation = Microsoft.CodeAnalysis.CSharp.CSharpCompilation.Create(
+            "TestAssembly", [syntaxTree], refs,
+            new Microsoft.CodeAnalysis.CSharp.CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+
+        var diagnostics = compilation.GetDiagnostics();
+
+        // CS1061: 'Dst' does not contain a definition for 'NonExistent'
+        diagnostics.Should().Contain(d => d.Id == "CS1061",
+            "the C# compiler already catches ForMember on non-existent properties via the strongly-typed lambda");
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // General — No diagnostics for clean mappings
+    // ─────────────────────────────────────────────────────────────────────────
+
     [Fact]
     public void NoDiagnostics_ForFullyMatchedPerfectMapping()
     {

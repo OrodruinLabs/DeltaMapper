@@ -82,6 +82,27 @@ public static class GeneratedMapRegistry
     }
 
     /// <summary>
+    /// Checks whether a factory delegate is registered for the given type pair.
+    /// </summary>
+    public static bool HasFactory(Type srcType, Type dstType)
+    {
+        ArgumentNullException.ThrowIfNull(srcType);
+        ArgumentNullException.ThrowIfNull(dstType);
+        return _factoryRegistry.ContainsKey((srcType, dstType));
+    }
+
+    /// <summary>
+    /// Checks whether any mapping (action or factory) is registered for the given type pair.
+    /// </summary>
+    public static bool HasMapping(Type srcType, Type dstType)
+    {
+        ArgumentNullException.ThrowIfNull(srcType);
+        ArgumentNullException.ThrowIfNull(dstType);
+        var key = (srcType, dstType);
+        return _factoryRegistry.ContainsKey(key) || _boxedRegistry.ContainsKey(key);
+    }
+
+    /// <summary>
     /// Removes all registered delegates. Intended for test isolation only.
     /// </summary>
     internal static void Clear()

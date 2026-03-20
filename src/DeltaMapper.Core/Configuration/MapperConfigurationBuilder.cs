@@ -40,10 +40,51 @@ public sealed class MapperConfigurationBuilder
     /// <summary>
     /// Scans the specified assembly for all concrete Profile subclasses
     /// with parameterless constructors and adds them to the configuration.
+    /// When <paramref name="includeReferencedAssemblies"/> is <c>true</c>,
+    /// also scans assemblies referenced by the given assembly.
     /// </summary>
-    public MapperConfigurationBuilder AddProfilesFromAssembly(Assembly assembly)
+    public MapperConfigurationBuilder AddProfilesFromAssembly(Assembly assembly, bool includeReferencedAssemblies = false)
     {
         ArgumentNullException.ThrowIfNull(assembly);
+        var scanned = new HashSet<string>();
+        ScanAssembly(assembly, scanned);
+
+        if (includeReferencedAssemblies)
+        {
+            foreach (var referencedName in assembly.GetReferencedAssemblies())
+            {
+                try
+                {
+                    var referenced = Assembly.Load(referencedName);
+                    ScanAssembly(referenced, scanned);
+                }
+                catch (FileNotFoundException) { }
+                catch (FileLoadException) { }
+                catch (BadImageFormatException)
+                {
+                    // Skip assemblies that fail to load (missing deps, wrong platform, etc.)
+                }
+            }
+        }
+
+        return this;
+    }
+
+    /// <summary>
+    /// Scans the assembly containing <typeparamref name="T"/> for all concrete Profile subclasses.
+    /// When <paramref name="includeReferencedAssemblies"/> is <c>true</c>,
+    /// also scans assemblies referenced by that assembly.
+    /// </summary>
+    public MapperConfigurationBuilder AddProfilesFromAssemblyContaining<T>(bool includeReferencedAssemblies = false)
+    {
+        return AddProfilesFromAssembly(typeof(T).Assembly, includeReferencedAssemblies);
+    }
+
+    private void ScanAssembly(Assembly assembly, HashSet<string> scanned)
+    {
+        var assemblyName = assembly.FullName ?? assembly.GetName().Name ?? "";
+        if (!scanned.Add(assemblyName))
+            return;
 
         Type[] types;
         try
@@ -52,10 +93,10 @@ public sealed class MapperConfigurationBuilder
         }
         catch (ReflectionTypeLoadException ex)
         {
-            // Some types may fail to load (e.g., missing dependencies in plugin assemblies).
-            // Fall back to the types that did load successfully.
             types = ex.Types.Where(t => t != null).ToArray()!;
         }
+
+        var registeredTypes = new HashSet<Type>(_profiles.Select(p => p.GetType()));
 
         var profileTypes = types
             .Where(t => t.IsSubclassOf(typeof(Profile))
@@ -63,17 +104,12 @@ public sealed class MapperConfigurationBuilder
                       && !t.IsGenericTypeDefinition
                       && !t.ContainsGenericParameters
                       && t.GetConstructor(Type.EmptyTypes) != null);
-        foreach (var type in profileTypes)
-            _profiles.Add((Profile)Activator.CreateInstance(type)!);
-        return this;
-    }
 
-    /// <summary>
-    /// Scans the assembly containing <typeparamref name="T"/> for all concrete Profile subclasses.
-    /// </summary>
-    public MapperConfigurationBuilder AddProfilesFromAssemblyContaining<T>()
-    {
-        return AddProfilesFromAssembly(typeof(T).Assembly);
+        foreach (var type in profileTypes)
+        {
+            if (registeredTypes.Add(type))
+                _profiles.Add((Profile)Activator.CreateInstance(type)!);
+        }
     }
 
     /// <summary>
