@@ -18,7 +18,7 @@ dotnet add package DeltaMapper
 
 | AutoMapper | DeltaMapper | Notes |
 |---|---|---|
-| `Profile` | `MappingProfile` | Rename the base class; constructor and `CreateMap` calls are identical |
+| `Profile` | `Profile` | Same base class name — no rename needed |
 | `CreateMap<Src, Dst>()` | `CreateMap<Src, Dst>()` | Same signature |
 | `ForMember(d => d.P, o => o.MapFrom(...))` | `ForMember(d => d.P, o => o.MapFrom(...))` | Same signature |
 | `ForMember(d => d.P, o => o.Ignore())` | `ForMember(d => d.P, o => o.Ignore())` | Same signature |
@@ -79,7 +79,7 @@ Both methods skip abstract profiles and profiles without a parameterless constru
 
 ## Flattening and Unflattening
 
-AutoMapper flattens and unflattens nested objects automatically by convention. DeltaMapper v0.2 matches this behaviour — no `CreateMap` options are needed.
+AutoMapper flattens and unflattens nested objects automatically by convention. DeltaMapper v1.0.0-rc.2 matches this behaviour — no `CreateMap` options are needed.
 
 ```csharp
 // AutoMapper — works automatically
@@ -119,23 +119,11 @@ The converter is registered globally and applies to every map that has a propert
 
 ---
 
-## Profile rename script
+## Rename script
 
-The `Profile` base class rename and `MapperConfiguration` construction pattern are the two mechanical changes that affect every file. The following shell commands handle both in a typical project.
+Since DeltaMapper now uses the same `Profile` base class name as AutoMapper, the only mechanical changes are the `using` directives and the `MapperConfiguration` construction pattern. The following shell commands handle both in a typical project.
 
 > **Note:** The `sed -i` syntax differs between macOS (BSD) and Linux (GNU). The commands below show both variants. Use the one matching your platform, or use `dotnet format` / your IDE's find-and-replace for a portable alternative.
-
-Rename the base class in all `.cs` files:
-
-```bash
-# macOS (BSD sed)
-find . -name "*.cs" -not -path "*/obj/*" \
-  -exec sed -i '' 's/: Profile$/ : MappingProfile/g; s/: Profile {/ : MappingProfile {/g' {} +
-
-# Linux (GNU sed)
-find . -name "*.cs" -not -path "*/obj/*" \
-  -exec sed -i 's/: Profile$/ : MappingProfile/g; s/: Profile {/ : MappingProfile {/g' {} +
-```
 
 Update `using` directives (AutoMapper's namespace is `AutoMapper`; DeltaMapper types live in `DeltaMapper.*`):
 
@@ -165,11 +153,11 @@ Review the diff after running these scripts — edge cases (inline `Profile` sub
 
 ---
 
-## Feature status as of v0.2
+## Feature status as of v1.0.0-rc.2
 
-The following table summarises AutoMapper features relative to DeltaMapper v0.2.
+The following table summarises AutoMapper features relative to DeltaMapper v1.0.0-rc.2.
 
-| AutoMapper feature | DeltaMapper v0.2 status |
+| AutoMapper feature | DeltaMapper v1.0.0-rc.2 status |
 |---|---|
 | `AssertConfigurationIsValid()` | DM001/DM002 compile-time analyzer diagnostics via source generator |
 | `MappingDiff<T>` / change tracking | `Patch()` method returns structured change sets |
@@ -183,7 +171,7 @@ The following table summarises AutoMapper features relative to DeltaMapper v0.2.
 | `ProjectTo<T>()` for EF Core | Not planned — use Mapster |
 | `ValueConverter<Src, Dst>` | Not implemented — use `MapFrom` resolver |
 | `IValueResolver<Src, Dst, TMember>` | Not implemented — use `MapFrom` resolver |
-| `ConstructUsing(src => ...)` | Not needed — constructor injection is automatic for records and init-only types |
+| `ConstructUsing(src => ...)` | `ConstructUsing(src => ...)` — same signature |
 | `IMappingAction<Src, Dst>` | Use `BeforeMap` / `AfterMap` hooks |
 | Global `ForAllMaps` / `ForAllPropertyMaps` | Not supported |
 | Open generics mapping | Not supported |

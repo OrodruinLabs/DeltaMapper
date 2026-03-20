@@ -35,7 +35,7 @@ Requires .NET 10+.
 
 ```csharp
 // 1. Define a profile
-public class UserProfile : MappingProfile
+public class UserProfile : Profile
 {
     public UserProfile()
     {
@@ -134,7 +134,7 @@ var dto = mapper.Map<OrderRequest, OrderDto>(request);
 Skip a property mapping when a condition is not met — the destination property keeps its default or existing value.
 
 ```csharp
-public class OrderProfile : MappingProfile
+public class OrderProfile : Profile
 {
     public OrderProfile()
     {
@@ -166,7 +166,7 @@ DeltaMapper's source generator produces code as fast as hand-written — and on 
 
 | Guide | Description |
 |---|---|
-| [API Reference](docs/api-reference.md) | MapperConfiguration, MappingProfile, IMapper, conventions, flattening, assembly scanning, type converters, middleware, DI |
+| [API Reference](docs/api-reference.md) | MapperConfiguration, Profile, IMapper, conventions, flattening, assembly scanning, type converters, middleware, DI |
 | [Source Generator](docs/source-generator.md) | `[GenerateMap]`, direct calls, analyzer diagnostics |
 | [EF Core Integration](docs/efcore-integration.md) | Proxy detection, lazy loading safety |
 | [OpenTelemetry Tracing](docs/opentelemetry.md) | Activity spans, zero-overhead fast path |
