@@ -94,6 +94,8 @@ public sealed class MapperConfigurationBuilder
             types = ex.Types.Where(t => t != null).ToArray()!;
         }
 
+        var registeredTypes = new HashSet<Type>(_profiles.Select(p => p.GetType()));
+
         var profileTypes = types
             .Where(t => t.IsSubclassOf(typeof(Profile))
                       && !t.IsAbstract
@@ -103,7 +105,7 @@ public sealed class MapperConfigurationBuilder
 
         foreach (var type in profileTypes)
         {
-            if (!_profiles.Any(p => p.GetType() == type))
+            if (registeredTypes.Add(type))
                 _profiles.Add((Profile)Activator.CreateInstance(type)!);
         }
     }

@@ -218,9 +218,6 @@ public sealed class Mapper : IMapper
             return array;
         }
 
-        if (dstType.IsAssignableFrom(listType))
-            return list;
-
         return list;
     }
 }
