@@ -303,6 +303,19 @@ public sealed class MapperConfigurationBuilder
                     setter(dst, value);
                 });
             }
+            else if (IsSameValueTypeNullabilityDiff(srcPropCaptured.PropertyType, dstPropCaptured.PropertyType))
+            {
+                // Nullable<T> → T auto-coercion: assign value or default(T)
+                var getter = CompileGetter(srcPropCaptured);
+                var setter = CompileSetter(dstPropCaptured);
+                var underlyingType = Nullable.GetUnderlyingType(srcPropCaptured.PropertyType)!;
+                var defaultValue = Activator.CreateInstance(underlyingType);
+                assignments.Add((src, dst, ctx) =>
+                {
+                    var value = getter(src);
+                    setter(dst, value ?? defaultValue);
+                });
+            }
             else if (IsEnumMapping(srcPropCaptured.PropertyType, dstPropCaptured.PropertyType))
             {
                 // Cross-enum mapping by name (strict — rejects numeric strings)
@@ -578,6 +591,13 @@ public sealed class MapperConfigurationBuilder
                             return value;
                         }, condition, fallback));
                     }
+                    else if (IsSameValueTypeNullabilityDiff(capturedSrcProp.PropertyType, param.ParameterType))
+                    {
+                        var underlyingType = Nullable.GetUnderlyingType(capturedSrcProp.PropertyType)!;
+                        var defaultValue = Activator.CreateInstance(underlyingType);
+                        paramResolvers.Add(WrapParamWithCondition(
+                            (src, ctx) => compiledGetter(src) ?? defaultValue, condition, fallback));
+                    }
                     else if (IsEnumMapping(capturedSrcProp.PropertyType, param.ParameterType))
                     {
                         var dstEnumType = Nullable.GetUnderlyingType(param.ParameterType) ?? param.ParameterType;
@@ -665,6 +685,17 @@ public sealed class MapperConfigurationBuilder
                             throw new DeltaMapperException(
                                 $"Cannot map null enum value to non-nullable property '{capturedDst.Name}'.");
                         capturedDst.SetValue(dst, value);
+                    };
+                    initOnlyAssignments.Add(WrapWithCondition(assign, memberConfig?.ConditionPredicate));
+                }
+                else if (IsSameValueTypeNullabilityDiff(capturedSrc.PropertyType, capturedDst.PropertyType))
+                {
+                    var underlyingType = Nullable.GetUnderlyingType(capturedSrc.PropertyType)!;
+                    var defaultValue = Activator.CreateInstance(underlyingType);
+                    Action<object, object, MapperContext> assign = (src, dst, ctx) =>
+                    {
+                        var value = compiledGetter(src);
+                        capturedDst.SetValue(dst, value ?? defaultValue);
                     };
                     initOnlyAssignments.Add(WrapWithCondition(assign, memberConfig?.ConditionPredicate));
                 }
@@ -1100,6 +1131,13 @@ public sealed class MapperConfigurationBuilder
         var srcUnderlying = Nullable.GetUnderlyingType(srcType) ?? srcType;
         var dstUnderlying = Nullable.GetUnderlyingType(dstType) ?? dstType;
         return srcUnderlying.IsEnum && srcUnderlying == dstUnderlying && srcType != dstType;
+    }
+
+    private static bool IsSameValueTypeNullabilityDiff(Type srcType, Type dstType)
+    {
+        var srcUnderlying = Nullable.GetUnderlyingType(srcType);
+        if (srcUnderlying == null) return false; // source is not nullable
+        return srcUnderlying == dstType; // dest is the unwrapped type
     }
 
     private static bool IsEnumMapping(Type srcType, Type dstType)
