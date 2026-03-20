@@ -29,7 +29,7 @@ dotnet add package DeltaMapper.EFCore             # optional: EF Core proxy awar
 dotnet add package DeltaMapper.OpenTelemetry      # optional: Activity spans
 ```
 
-Requires .NET 8, 9, or 10.
+Requires .NET 8+ (currently ships net8.0, net9.0, and net10.0 assets).
 
 ## Quick Start
 
