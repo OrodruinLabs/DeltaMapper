@@ -172,4 +172,49 @@ public class AssemblyScanningTests
 
         act.Should().NotThrow();
     }
+
+    [Fact]
+    public void AddProfilesFromAssembly_WithIncludeReferenced_ScansReferencedAssemblies()
+    {
+        var config = MapperConfiguration.Create(cfg =>
+            cfg.AddProfilesFromAssembly(typeof(AssemblyScanningTests).Assembly, includeReferencedAssemblies: true));
+        var mapper = config.CreateMapper();
+
+        var result1 = mapper.Map<ScanSource, ScanDest>(new ScanSource { Id = 1, Name = "test" });
+        result1.Id.Should().Be(1);
+
+        var result2 = mapper.Map<ScanSource2, ScanDest2>(new ScanSource2 { Code = "ABC" });
+        result2.Code.Should().Be("ABC");
+    }
+
+    [Fact]
+    public void AddProfilesFromAssembly_DefaultFalse_DoesNotScanReferenced()
+    {
+        var config = MapperConfiguration.Create(cfg =>
+            cfg.AddProfilesFromAssembly(typeof(AssemblyScanningTests).Assembly));
+        var mapper = config.CreateMapper();
+
+        var result = mapper.Map<ScanSource, ScanDest>(new ScanSource { Id = 1, Name = "test" });
+        result.Id.Should().Be(1);
+    }
+
+    [Fact]
+    public void AddProfilesFromAssemblyContaining_WithIncludeReferenced_Works()
+    {
+        var config = MapperConfiguration.Create(cfg =>
+            cfg.AddProfilesFromAssemblyContaining<AssemblyScanningTests>(includeReferencedAssemblies: true));
+        var mapper = config.CreateMapper();
+
+        var result = mapper.Map<ScanSource, ScanDest>(new ScanSource { Id = 1, Name = "test" });
+        result.Id.Should().Be(1);
+    }
+
+    [Fact]
+    public void AddProfilesFromAssembly_WithIncludeReferenced_DeduplicatesProfiles()
+    {
+        var act = () => MapperConfiguration.Create(cfg =>
+            cfg.AddProfilesFromAssembly(typeof(AssemblyScanningTests).Assembly, includeReferencedAssemblies: true));
+
+        act.Should().NotThrow();
+    }
 }
