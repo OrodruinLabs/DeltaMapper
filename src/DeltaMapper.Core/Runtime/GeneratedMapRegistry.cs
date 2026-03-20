@@ -82,6 +82,15 @@ public static class GeneratedMapRegistry
     }
 
     /// <summary>
+    /// Checks whether a factory delegate is registered for the given type pair.
+    /// Used by smart collection detection in Mapper.Map&lt;TDest&gt;(object).
+    /// </summary>
+    public static bool HasFactory(Type srcType, Type dstType)
+    {
+        return _factoryRegistry.ContainsKey((srcType, dstType));
+    }
+
+    /// <summary>
     /// Removes all registered delegates. Intended for test isolation only.
     /// </summary>
     internal static void Clear()
