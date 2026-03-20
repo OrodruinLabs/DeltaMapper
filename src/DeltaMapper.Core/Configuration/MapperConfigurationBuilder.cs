@@ -509,7 +509,7 @@ public sealed class MapperConfigurationBuilder
             var dst = existingDst ?? (customFactory != null ? customFactory(src) : defaultFactory!());
 
             // Register for circular reference detection BEFORE property assignment
-            ctx.Register(src, dst);
+            ctx.Register(src, dstType, dst);
 
             // BeforeMap hook
             beforeMap?.Invoke(src, dst);
@@ -774,7 +774,7 @@ public sealed class MapperConfigurationBuilder
 
             var dst = ctor.Invoke(args);
 
-            ctx.Register(src, dst);
+            ctx.Register(src, dstType, dst);
 
             beforeMap?.Invoke(src, dst);
 

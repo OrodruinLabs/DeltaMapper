@@ -70,7 +70,7 @@ public sealed class MapperConfiguration
     private object ExecuteCore(object source, Type srcType, Type dstType, MapperContext ctx, object? existingDest)
     {
         // Check circular reference
-        if (ctx.TryGetMapped(source, out var cached))
+        if (ctx.TryGetMapped(source, dstType, out var cached))
             return cached!;
 
         // Compiled maps (with hooks/middleware) take precedence over source-generated delegates
@@ -83,7 +83,7 @@ public sealed class MapperConfiguration
         {
             var destination = existingDest ?? Activator.CreateInstance(dstType)
                 ?? throw new InvalidOperationException($"Cannot create an instance of '{dstType.FullName}'.");
-            ctx.Register(source, destination);
+            ctx.Register(source, dstType, destination);
             generatedDelegate!(source, destination);
             return destination;
         }
