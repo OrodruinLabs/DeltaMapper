@@ -28,11 +28,21 @@ public sealed class Mapper : IMapper
     {
         ArgumentNullException.ThrowIfNull(source);
 
+        // Try exact map first (e.g., a registered List<S> → List<D> map takes priority)
+        var srcType = source.GetType();
+        var dstType = typeof(TDestination);
+        if (_config.HasMap(srcType, dstType))
+        {
+            var ctx = new MapperContext(_config);
+            return (TDestination)_config.Execute(source, srcType, dstType, ctx);
+        }
+
+        // Then try smart collection detection
         if (TryMapCollection<TDestination>(source, out var collectionResult))
             return collectionResult;
 
-        var ctx = new MapperContext(_config);
-        return (TDestination)_config.Execute(source, source.GetType(), typeof(TDestination), ctx);
+        var ctx2 = new MapperContext(_config);
+        return (TDestination)_config.Execute(source, srcType, dstType, ctx2);
     }
 
     /// <inheritdoc />
@@ -130,8 +140,8 @@ public sealed class Mapper : IMapper
         result = default!;
         var dstType = typeof(TDestination);
 
-        // Skip string (implements IEnumerable<char>)
-        if (dstType == typeof(string))
+        // Skip string (implements IEnumerable<char>) — both source and destination
+        if (dstType == typeof(string) || source is string)
             return false;
 
         var dstElementType = GetEnumerableElementType(dstType);
