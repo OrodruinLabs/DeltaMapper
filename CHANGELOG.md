@@ -17,7 +17,7 @@ Migration friction release. Closes the top friction points discovered during a r
 
 ### Breaking Changes
 
-- **`MappingProfile` renamed to `Profile`** — matches AutoMapper convention, eliminates "class has same name as base class" static analysis warning. Update: `: MappingProfile` → `: Profile`
+- **`MappingProfile` renamed to `Profile`** — shorter base class name eliminates "class has same name as base class" static analysis warning. Update: `: MappingProfile` → `: Profile`
 - **`MapList` removed** — superseded by `Map<S,D>(IEnumerable<S>)` collection overload. Update: `mapper.MapList<S,D>(list)` → `mapper.Map<S,D>(list)`
 
 ### Added
