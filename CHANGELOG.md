@@ -11,6 +11,15 @@ DeltaMapper uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.0.0-rc.3] - 2026-03-20
+
+### Fixed
+
+- **Nested MapFrom resolution in `CompileConstructorMap`** — DTOs with `{ get; init; }` properties route through `CompileConstructorMap` which was missing the recursive type map check. `ForMember(d => d.Brand, o => o.MapFrom(s => s.InstrumentBrand))` now correctly applies the registered `InstrumentBrand → BasicEntityDto` map instead of throwing `ArgumentException`.
+- Extracted `NeedsRecursiveMapping()` shared helper — eliminates 3 inline copies of the same check across `CompileTypeMap` and `CompileConstructorMap`.
+
+---
+
 ## [1.0.0-rc.2] - 2026-03-20
 
 Migration friction release. Closes the top friction points discovered during a real-world migration to DeltaMapper.
@@ -223,7 +232,8 @@ Initial release.
 - On-demand benchmark workflow via `workflow_dispatch`
 - BenchmarkDotNet suite comparing against Mapperly, AutoMapper, and hand-written code
 
-[Unreleased]: https://github.com/OrodruinLabs/DeltaMapper/compare/v1.0.0-rc.2...HEAD
+[Unreleased]: https://github.com/OrodruinLabs/DeltaMapper/compare/v1.0.0-rc.3...HEAD
+[1.0.0-rc.3]: https://github.com/OrodruinLabs/DeltaMapper/compare/v1.0.0-rc.2...v1.0.0-rc.3
 [1.0.0-rc.2]: https://github.com/OrodruinLabs/DeltaMapper/compare/v1.0.0-rc.1...v1.0.0-rc.2
 [1.0.0-rc.1]: https://github.com/OrodruinLabs/DeltaMapper/compare/v0.2.0-alpha...v1.0.0-rc.1
 [0.2.0-alpha]: https://github.com/OrodruinLabs/DeltaMapper/compare/v0.1.0-alpha...v0.2.0-alpha

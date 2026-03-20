@@ -222,15 +222,8 @@ public sealed class MapperConfigurationBuilder
                     var resolverReturnType = memberConfig.ResolverReturnType;
                     var dstPropType = dstProp.PropertyType;
 
-                    // If the resolver's return type differs from the destination property type,
-                    // is not assignable to it, and is a complex type, route through recursive mapping
-                    var needsRecursiveMap = resolverReturnType != null
-                        && resolverReturnType != dstPropType
-                        && !dstPropType.IsAssignableFrom(resolverReturnType)
-                        && IsComplexType(resolverReturnType);
-
                     Action<object, object, MapperContext> assign;
-                    if (needsRecursiveMap)
+                    if (NeedsRecursiveMapping(resolverReturnType, dstPropType))
                     {
                         var srcMapType = resolverReturnType!;
                         assign = (src, dst, ctx) =>
@@ -628,8 +621,25 @@ public sealed class MapperConfigurationBuilder
             else if (memberConfig?.CustomResolver != null)
             {
                 var resolver = memberConfig.CustomResolver;
-                paramResolvers.Add(WrapParamWithCondition(
-                    (src, ctx) => resolver(src), condition, fallback));
+                var resolverReturnType = memberConfig.ResolverReturnType;
+                var paramType = param.ParameterType;
+
+                if (NeedsRecursiveMapping(resolverReturnType, paramType))
+                {
+                    var srcMapType = resolverReturnType!;
+                    paramResolvers.Add(WrapParamWithCondition(
+                        (src, ctx) =>
+                        {
+                            var value = resolver(src);
+                            if (value == null) return fallback;
+                            return ctx.Config.Execute(value, srcMapType, paramType, ctx);
+                        }, condition, fallback));
+                }
+                else
+                {
+                    paramResolvers.Add(WrapParamWithCondition(
+                        (src, ctx) => resolver(src), condition, fallback));
+                }
             }
             else if (memberConfig?.HasNullSubstitute == true)
             {
@@ -720,7 +730,24 @@ public sealed class MapperConfigurationBuilder
             {
                 var resolver = memberConfig.CustomResolver;
                 var setter = dstProp;
-                Action<object, object, MapperContext> assign = (src, dst, ctx) => setter.SetValue(dst, resolver(src));
+                var resolverReturnType = memberConfig.ResolverReturnType;
+                var dstPropType = dstProp.PropertyType;
+
+                Action<object, object, MapperContext> assign;
+                if (NeedsRecursiveMapping(resolverReturnType, dstPropType))
+                {
+                    var srcMapType = resolverReturnType!;
+                    assign = (src, dst, ctx) =>
+                    {
+                        var value = resolver(src);
+                        if (value == null) { setter.SetValue(dst, null); return; }
+                        setter.SetValue(dst, ctx.Config.Execute(value, srcMapType, dstPropType, ctx));
+                    };
+                }
+                else
+                {
+                    assign = (src, dst, ctx) => setter.SetValue(dst, resolver(src));
+                }
                 initOnlyAssignments.Add(WrapWithCondition(assign, memberConfig.ConditionPredicate));
                 continue;
             }
@@ -1298,6 +1325,18 @@ public sealed class MapperConfigurationBuilder
             && type != typeof(string)
             && type != typeof(decimal)
             && type.IsClass;
+    }
+
+    /// <summary>
+    /// Returns true when a MapFrom resolver's return type differs from the destination type
+    /// and needs recursive mapping through a registered type map.
+    /// </summary>
+    private static bool NeedsRecursiveMapping(Type? resolverReturnType, Type destinationType)
+    {
+        return resolverReturnType != null
+            && resolverReturnType != destinationType
+            && !destinationType.IsAssignableFrom(resolverReturnType)
+            && IsComplexType(resolverReturnType);
     }
 
     private static bool IsCollectionMapping(Type srcType, Type dstType, out Type? srcElement, out Type? dstElement)
