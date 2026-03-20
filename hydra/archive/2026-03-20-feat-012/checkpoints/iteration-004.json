@@ -1,0 +1,51 @@
+{
+  "iteration": 4,
+  "timestamp": "2026-03-18T16:02:01Z",
+  "mode": "hitl",
+  "active_task": {
+    "id": null,
+    "status": null,
+    "retry_count": 0,
+    "last_action": null,
+    "next_action": null,
+    "files_modified_this_iteration": []
+  },
+  "plan_snapshot": {
+    "total_tasks": 0,
+    "done": 0,
+    "approved": 0,
+    "ready": 0,
+    "in_progress": 0,
+    "in_review": 0,
+    "changes_requested": 0,
+    "blocked": 0,
+    "planned": 0
+  },
+  "git": {
+    "branch": "feat/enum-mapping",
+    "last_commit_sha": "1e865da",
+    "last_commit_message": "fix: null-safe enum for non-nullable dest, add mismatch test, remove internal files",
+    "uncommitted_changes": false
+  },
+  "branch": {
+    "feature": "feat/enum-mapping",
+    "base": "main",
+    "active_worktrees": 0
+  },
+  "reviewers": {
+    "active": [
+      "architect-reviewer",
+      "code-reviewer",
+      "security-reviewer",
+      "type-reviewer"
+    ],
+    "last_review_task": null,
+    "last_review_verdict": null
+  },
+  "context_health": {
+    "compactions_this_session": 0,
+    "iterations_since_last_compaction": 4,
+    "consecutive_failures": 4
+  },
+  "recovery_instructions": "Read hydra/plan.md Recovery Pointer. No active task — find first READY task in plan."
+}

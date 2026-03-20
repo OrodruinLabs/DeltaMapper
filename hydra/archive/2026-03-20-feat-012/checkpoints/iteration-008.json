@@ -1,0 +1,51 @@
+{
+  "iteration": 8,
+  "timestamp": "2026-03-18T13:20:15Z",
+  "mode": "hitl",
+  "active_task": {
+    "id": null,
+    "status": null,
+    "retry_count": 0,
+    "last_action": null,
+    "next_action": null,
+    "files_modified_this_iteration": []
+  },
+  "plan_snapshot": {
+    "total_tasks": 0,
+    "done": 0,
+    "approved": 0,
+    "ready": 0,
+    "in_progress": 0,
+    "in_review": 0,
+    "changes_requested": 0,
+    "blocked": 0,
+    "planned": 0
+  },
+  "git": {
+    "branch": "main",
+    "last_commit_sha": "39739de",
+    "last_commit_message": "chore: add hydra local mode to .gitignore",
+    "uncommitted_changes": false
+  },
+  "branch": {
+    "feature": null,
+    "base": null,
+    "active_worktrees": 0
+  },
+  "reviewers": {
+    "active": [
+      "architect-reviewer",
+      "code-reviewer",
+      "security-reviewer",
+      "type-reviewer"
+    ],
+    "last_review_task": null,
+    "last_review_verdict": null
+  },
+  "context_health": {
+    "compactions_this_session": 0,
+    "iterations_since_last_compaction": 8,
+    "consecutive_failures": 8
+  },
+  "recovery_instructions": "Read hydra/plan.md Recovery Pointer. No active task — find first READY task in plan."
+}
