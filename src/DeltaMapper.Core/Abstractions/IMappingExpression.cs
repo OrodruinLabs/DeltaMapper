@@ -25,6 +25,12 @@ public interface IMappingExpression<TSrc, TDst>
     IMappingExpression<TSrc, TDst> AfterMap(Action<TSrc, TDst> afterAction);
 
     /// <summary>
+    /// Specify a custom factory to construct the destination object.
+    /// Useful for DDD entities with private constructors and static factory methods.
+    /// </summary>
+    IMappingExpression<TSrc, TDst> ConstructUsing(Func<TSrc, TDst> factory);
+
+    /// <summary>
     /// Automatically register the reverse mapping (TDst to TSrc) using convention matching.
     /// </summary>
     IMappingExpression<TSrc, TDst> ReverseMap();

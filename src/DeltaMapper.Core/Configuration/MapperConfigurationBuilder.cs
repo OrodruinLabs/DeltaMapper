@@ -152,7 +152,11 @@ public sealed class MapperConfigurationBuilder
         var dstProps = dstType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
 
         // Check if destination type needs constructor injection (records or init-only properties)
-        if (NeedsConstructorInjection(dstType, dstProps))
+        if (tm.CustomFactory != null)
+        {
+            // User explicitly controls construction — fall through to property-assignment path
+        }
+        else if (NeedsConstructorInjection(dstType, dstProps))
         {
             return CompileConstructorMap(tm, srcType, dstType, srcProps, dstProps, typeConverters);
         }
@@ -211,6 +215,11 @@ public sealed class MapperConfigurationBuilder
                     continue;
                 }
             }
+
+            // When ConstructUsing is active, skip convention matching for properties
+            // without explicit ForMember configuration — the factory controls those values.
+            if (tm.CustomFactory != null && memberConfig == null)
+                continue;
 
             // Convention matching — find source property with same name (case-insensitive)
             var matchingSrcProp = FindSourceProperty(srcProps, dstProp.Name);
@@ -464,11 +473,12 @@ public sealed class MapperConfigurationBuilder
         // Build the combined delegate — this closure captures assignments, factory, and tm hooks
         var beforeMap = tm.BeforeMapAction;
         var afterMap = tm.AfterMapAction;
-        var factory = CompileFactory(dstType);
+        var customFactory = tm.CustomFactory;
+        var defaultFactory = customFactory == null ? CompileFactory(dstType) : null;
 
         Func<object, object?, MapperContext, object> mapFunc = (src, existingDst, ctx) =>
         {
-            var dst = existingDst ?? factory();
+            var dst = existingDst ?? (customFactory != null ? customFactory(src) : defaultFactory!());
 
             // Register for circular reference detection BEFORE property assignment
             ctx.Register(src, dst);

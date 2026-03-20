@@ -48,6 +48,13 @@ internal sealed class MappingExpression<TSrc, TDst> : IMappingExpression<TSrc, T
         return this;
     }
 
+    public IMappingExpression<TSrc, TDst> ConstructUsing(Func<TSrc, TDst> factory)
+    {
+        ArgumentNullException.ThrowIfNull(factory);
+        TypeMapConfig.CustomFactory = src => factory((TSrc)src)!;
+        return this;
+    }
+
     public IMappingExpression<TSrc, TDst> ReverseMap()
     {
         TypeMapConfig.HasReverseMap = true;

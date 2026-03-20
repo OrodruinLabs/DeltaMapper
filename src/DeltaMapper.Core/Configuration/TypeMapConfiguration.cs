@@ -10,5 +10,6 @@ internal sealed class TypeMapConfiguration
     public List<MemberConfiguration> MemberConfigurations { get; } = [];
     public Action<object, object>? BeforeMapAction { get; set; }
     public Action<object, object>? AfterMapAction { get; set; }
+    public Func<object, object>? CustomFactory { get; set; }
     public bool HasReverseMap { get; set; }
 }
