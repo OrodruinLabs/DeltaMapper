@@ -303,7 +303,7 @@ public class AnalyzerDiagnosticTests
             .Select(a => (MetadataReference)MetadataReference.CreateFromFile(a.Location))
             .ToList();
 
-        var coreLocation = typeof(DeltaMapper.Runtime.GeneratedMapRegistry).Assembly.Location;
+        var coreLocation = typeof(Runtime.GeneratedMapRegistry).Assembly.Location;
         if (!string.IsNullOrWhiteSpace(coreLocation))
             refs.Add(MetadataReference.CreateFromFile(coreLocation));
 

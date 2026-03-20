@@ -1,6 +1,6 @@
 namespace DeltaMapper.Benchmarks.Competitors;
 
-using DeltaMapper.Benchmarks.Models;
+using Models;
 using Riok.Mapperly.Abstractions;
 
 [Mapper]

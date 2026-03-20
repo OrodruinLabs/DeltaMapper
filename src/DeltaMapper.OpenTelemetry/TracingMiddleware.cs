@@ -1,8 +1,8 @@
 namespace DeltaMapper.OpenTelemetry;
 
 using System.Diagnostics;
-using DeltaMapper.Middleware;
-using DeltaMapper.Runtime;
+using Middleware;
+using Runtime;
 
 /// <summary>
 /// Middleware that emits <see cref="Activity"/> spans for every mapping operation,

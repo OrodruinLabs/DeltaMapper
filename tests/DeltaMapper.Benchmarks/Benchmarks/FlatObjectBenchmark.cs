@@ -2,11 +2,11 @@ namespace DeltaMapper.Benchmarks.Benchmarks;
 
 using BenchmarkDotNet.Attributes;
 using DeltaMapper;
-using DeltaMapper.Benchmarks.Competitors;
-using DeltaMapper.Benchmarks.Models;
+using Competitors;
+using Models;
 
 using AmMapper = AutoMapper.IMapper;
-using DmConfig = DeltaMapper.MapperConfiguration;
+using DmConfig = MapperConfiguration;
 
 [MemoryDiagnoser]
 public class FlatObjectBenchmark

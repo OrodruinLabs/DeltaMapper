@@ -59,7 +59,7 @@ internal static class DiffEngine
             var valueType = beforeValue.GetType();
             if (IsSimpleType(valueType))
             {
-                if (!object.Equals(beforeValue, afterValue))
+                if (!Equals(beforeValue, afterValue))
                     changes.Add(new PropertyChange(fullKey, beforeValue, afterValue, ChangeKind.Modified));
             }
             else if (beforeValue is IList beforeList && afterValue is IList afterList)
@@ -105,7 +105,7 @@ internal static class DiffEngine
 
             if (IsSimpleType(bItem.GetType()))
             {
-                if (!object.Equals(bItem, aItem))
+                if (!Equals(bItem, aItem))
                     changes.Add(new PropertyChange(path, bItem, aItem, ChangeKind.Modified));
             }
             else
