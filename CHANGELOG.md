@@ -18,7 +18,7 @@ First release candidate. Consolidates all features from 0.1.0-alpha and 0.2.0-al
 ### Core
 
 - `MapperConfiguration.Create()` — static factory; compiles all maps at startup into a `FrozenDictionary`
-- `IMapper` with `Map<T>()`, `Map<TSrc, TDst>()`, `MapList<>()`, and non-generic overloads
+- `IMapper` with `Map<T>()`, `Map<TSrc, TDst>()`, `Map<>(IEnumerable)`, and non-generic overloads
 - Fluent profile API — `CreateMap`, `ForMember`, `Ignore`, `NullSubstitute`, `BeforeMap`, `AfterMap`, `ReverseMap`
 - Convention matching — case-insensitive property name matching, numeric widening, collection mapping, recursive complex types
 - Records and init-only properties — automatic constructor injection
@@ -146,7 +146,7 @@ Initial release.
 ### Core
 
 - `MapperConfiguration.Create()` — static factory; compiles all maps at startup into a `FrozenDictionary`
-- `IMapper` with `Map<T>()`, `Map<TSrc, TDst>()`, `MapList<>()`, and non-generic overloads
+- `IMapper` with `Map<T>()`, `Map<TSrc, TDst>()`, `Map<>(IEnumerable)`, and non-generic overloads
 - Fluent profile API — `CreateMap`, `ForMember`, `Ignore`, `NullSubstitute`, `BeforeMap`, `AfterMap`, `ReverseMap`
 - Convention matching — case-insensitive property name matching, numeric widening, collection mapping, recursive complex types
 - Records and init-only properties — automatic constructor injection

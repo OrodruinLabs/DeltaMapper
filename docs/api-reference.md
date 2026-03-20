@@ -53,7 +53,7 @@ public class OrderProfile : MappingProfile
 TDestination Map<TDestination>(object source);
 TDestination Map<TSource, TDestination>(TSource source);
 TDestination Map<TSource, TDestination>(TSource source, TDestination destination);
-IReadOnlyList<TDestination> MapList<TSource, TDestination>(IEnumerable<TSource> source);
+List<TDestination> Map<TSource, TDestination>(IEnumerable<TSource> source);
 object Map(object source, Type sourceType, Type destinationType);
 MappingDiff<TDestination> Patch<TSource, TDestination>(TSource source, TDestination destination);
 ```
