@@ -7,6 +7,7 @@ internal sealed class MemberConfiguration
 {
     public string DestinationMemberName { get; init; } = null!;
     public Func<object, object?>? CustomResolver { get; set; }
+    public Type? ResolverReturnType { get; set; }
     public bool IsIgnored { get; set; }
     public object? NullSubstituteValue { get; set; }
     public bool HasNullSubstitute { get; set; }

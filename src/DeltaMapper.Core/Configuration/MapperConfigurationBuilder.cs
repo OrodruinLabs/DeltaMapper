@@ -183,11 +183,39 @@ public sealed class MapperConfigurationBuilder
                 {
                     var resolver = memberConfig.CustomResolver;
                     var compiledSetter = CompileSetter(dstProp);
-                    Action<object, object, MapperContext> assign = (src, dst, ctx) =>
+                    var resolverReturnType = memberConfig.ResolverReturnType;
+                    var dstPropType = dstProp.PropertyType;
+
+                    // If the resolver's return type differs from the destination property type
+                    // and is a complex type, route through recursive mapping
+                    var needsRecursiveMap = resolverReturnType != null
+                        && resolverReturnType != dstPropType
+                        && IsComplexType(resolverReturnType);
+
+                    Action<object, object, MapperContext> assign;
+                    if (needsRecursiveMap)
                     {
-                        var value = resolver(src);
-                        compiledSetter(dst, value);
-                    };
+                        var srcMapType = resolverReturnType!;
+                        assign = (src, dst, ctx) =>
+                        {
+                            var value = resolver(src);
+                            if (value == null)
+                            {
+                                compiledSetter(dst, null);
+                                return;
+                            }
+                            var mapped = ctx.Config.Execute(value, srcMapType, dstPropType, ctx);
+                            compiledSetter(dst, mapped);
+                        };
+                    }
+                    else
+                    {
+                        assign = (src, dst, ctx) =>
+                        {
+                            var value = resolver(src);
+                            compiledSetter(dst, value);
+                        };
+                    }
                     assignments.Add(WrapWithCondition(assign, memberConfig.ConditionPredicate));
                     continue;
                 }

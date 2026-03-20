@@ -6,6 +6,7 @@ namespace DeltaMapper.Configuration;
 internal sealed class MemberOptions<TSrc> : IMemberOptions<TSrc>
 {
     public Func<object, object?>? Resolver { get; private set; }
+    public Type? ResolverReturnType { get; private set; }
     public bool IsIgnored { get; private set; }
     public object? NullSubstituteValue { get; private set; }
     public bool HasNullSubstitute { get; private set; }
@@ -16,6 +17,7 @@ internal sealed class MemberOptions<TSrc> : IMemberOptions<TSrc>
         ArgumentNullException.ThrowIfNull(resolver);
         var compiled = resolver.Compile();
         Resolver = src => compiled((TSrc)src);
+        ResolverReturnType = typeof(TResult);
     }
 
     public void Ignore()

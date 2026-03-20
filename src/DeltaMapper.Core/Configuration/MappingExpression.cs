@@ -25,6 +25,7 @@ internal sealed class MappingExpression<TSrc, TDst> : IMappingExpression<TSrc, T
         {
             DestinationMemberName = memberName,
             CustomResolver = memberOptions.Resolver,
+            ResolverReturnType = memberOptions.ResolverReturnType,
             IsIgnored = memberOptions.IsIgnored,
             NullSubstituteValue = memberOptions.NullSubstituteValue,
             HasNullSubstitute = memberOptions.HasNullSubstitute,
