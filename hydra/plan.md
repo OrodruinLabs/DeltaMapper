@@ -8,24 +8,24 @@ Multi-target all production and test packages across net8.0, net9.0, and net10.0
 
 | Status | Count |
 |--------|-------|
-| READY  | 5     |
+| DONE   | 5     |
 | TOTAL  | 5     |
 
 ## Recovery Pointer
 
-**Next**: Start TASK-058 (Directory.Build.props + production multi-target)
-**State**: Fresh plan, no work started
+**Next**: Objective complete — all tasks done, PR pending
+**State**: 852 tests passing on all 3 TFMs, packages at v1.0.0-rc.4 with net8.0/net9.0/net10.0
 **Last updated**: 2026-03-20
 
 ## Tasks
 
 | ID | Title | Status | Wave | Depends On |
 |----|-------|--------|------|------------|
-| TASK-058 | Directory.Build.props + multi-target production packages | READY | 1 | -- |
-| TASK-059 | Multi-target test projects | READY | 1 | -- |
-| TASK-060 | Update CI/CD workflows for multi-TFM | READY | 2 | TASK-058, TASK-059 |
-| TASK-061 | Full validation — build, test, pack across all TFMs | READY | 3 | TASK-060 |
-| TASK-062 | Update docs + version bump for multi-target release | READY | 3 | TASK-061 |
+| TASK-058 | Directory.Build.props + multi-target production packages | DONE | 1 | -- |
+| TASK-059 | Multi-target test projects | DONE | 1 | -- |
+| TASK-060 | Update CI/CD workflows for multi-TFM | DONE | 2 | TASK-058, TASK-059 |
+| TASK-061 | Full validation — build, test, pack across all TFMs | DONE | 3 | TASK-060 |
+| TASK-062 | Update docs + version bump for multi-target release | DONE | 3 | TASK-061 |
 
 ## Wave Groups
 

@@ -1,0 +1,61 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index ce3f6cc..7b87a76 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -11,6 +11,20 @@ DeltaMapper uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+ 
+ ---
+ 
++## [1.0.0-rc.4] — 2026-03-20
++
++### Added
++- Multi-target support for .NET 8, .NET 9, and .NET 10 across all packages
++- `Directory.Build.props` for centralized build configuration
++- CI test matrix running full test suite on all three TFMs
++
++### Changed
++- Minimum supported framework lowered from .NET 10 to .NET 8 LTS
++- Conditional Microsoft.Extensions and EntityFrameworkCore package versions per TFM
++- GitHub Actions workflows install .NET 8, 9, and 10 SDKs
++
++---
++
+ ## [1.0.0-rc.3] - 2026-03-20
+ 
+ ### Fixed
+@@ -232,7 +246,8 @@ Initial release.
+ - On-demand benchmark workflow via `workflow_dispatch`
+ - BenchmarkDotNet suite comparing against Mapperly, AutoMapper, and hand-written code
+ 
+-[Unreleased]: https://github.com/OrodruinLabs/DeltaMapper/compare/v1.0.0-rc.3...HEAD
++[Unreleased]: https://github.com/OrodruinLabs/DeltaMapper/compare/v1.0.0-rc.4...HEAD
++[1.0.0-rc.4]: https://github.com/OrodruinLabs/DeltaMapper/compare/v1.0.0-rc.3...v1.0.0-rc.4
+ [1.0.0-rc.3]: https://github.com/OrodruinLabs/DeltaMapper/compare/v1.0.0-rc.2...v1.0.0-rc.3
+ [1.0.0-rc.2]: https://github.com/OrodruinLabs/DeltaMapper/compare/v1.0.0-rc.1...v1.0.0-rc.2
+ [1.0.0-rc.1]: https://github.com/OrodruinLabs/DeltaMapper/compare/v0.2.0-alpha...v1.0.0-rc.1
+diff --git a/NUGET_README.md b/NUGET_README.md
+index 4c3e34a..b8af442 100644
+--- a/NUGET_README.md
++++ b/NUGET_README.md
+@@ -18,7 +18,7 @@ dotnet add package DeltaMapper.EFCore             # optional: EF Core proxy awar
+ dotnet add package DeltaMapper.OpenTelemetry      # optional: Activity spans
+ ```
+ 
+-Requires .NET 10+.
++Requires .NET 8, 9, or 10.
+ 
+ ## Quick Start
+ 
+diff --git a/README.md b/README.md
+index b9c6424..a46c8aa 100644
+--- a/README.md
++++ b/README.md
+@@ -29,7 +29,7 @@ dotnet add package DeltaMapper.EFCore             # optional: EF Core proxy awar
+ dotnet add package DeltaMapper.OpenTelemetry      # optional: Activity spans
+ ```
+ 
+-Requires .NET 10+.
++Requires .NET 8, 9, or 10.
+ 
+ ## Quick Start
+ 

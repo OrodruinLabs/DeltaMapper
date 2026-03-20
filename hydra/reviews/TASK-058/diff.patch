@@ -1,0 +1,137 @@
+diff --git a/Directory.Build.props b/Directory.Build.props
+new file mode 100644
+index 0000000..1288425
+--- /dev/null
++++ b/Directory.Build.props
+@@ -0,0 +1,7 @@
++<Project>
++  <PropertyGroup>
++    <Nullable>enable</Nullable>
++    <ImplicitUsings>enable</ImplicitUsings>
++    <LangVersion>latest</LangVersion>
++  </PropertyGroup>
++</Project>
+diff --git a/src/DeltaMapper.Core/DeltaMapper.Core.csproj b/src/DeltaMapper.Core/DeltaMapper.Core.csproj
+index 4137246..0eee697 100644
+--- a/src/DeltaMapper.Core/DeltaMapper.Core.csproj
++++ b/src/DeltaMapper.Core/DeltaMapper.Core.csproj
+@@ -1,9 +1,6 @@
+ <Project Sdk="Microsoft.NET.Sdk">
+   <PropertyGroup>
+-    <TargetFramework>net10.0</TargetFramework>
+-    <Nullable>enable</Nullable>
+-    <ImplicitUsings>enable</ImplicitUsings>
+-    <LangVersion>latest</LangVersion>
++    <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+     <RootNamespace>DeltaMapper</RootNamespace>
+     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+ 
+@@ -12,7 +9,7 @@
+     <Version>1.0.0-rc.3</Version>
+     <Authors>Jose Mejia</Authors>
+     <Description>Fast, diff-aware .NET object mapper. Expression-compiled delegates, FrozenDictionary-backed lookup, fluent profile API, MappingDiff&lt;T&gt; / Patch support, source-generator integration, and DI extensions. MIT licensed.</Description>
+-    <PackageTags>mapper;object-mapper;dto;diff;patch;source-generator;net10;csharp</PackageTags>
++    <PackageTags>mapper;object-mapper;dto;diff;patch;source-generator;net8;net9;net10;csharp</PackageTags>
+     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+     <PackageProjectUrl>https://github.com/OrodruinLabs/DeltaMapper</PackageProjectUrl>
+     <RepositoryUrl>https://github.com/OrodruinLabs/DeltaMapper</RepositoryUrl>
+@@ -22,7 +19,13 @@
+     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+     <PackageReleaseNotes>v1.0.0-rc.3 — Bugfix: nested MapFrom type resolution now works in CompileConstructorMap (init-only properties). See CHANGELOG.md for details.</PackageReleaseNotes>
+   </PropertyGroup>
+-  <ItemGroup>
++  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
++    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.*" />
++  </ItemGroup>
++  <ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
++    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.*" />
++  </ItemGroup>
++  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
+     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.*" />
+   </ItemGroup>
+   <ItemGroup>
+diff --git a/src/DeltaMapper.EFCore/DeltaMapper.EFCore.csproj b/src/DeltaMapper.EFCore/DeltaMapper.EFCore.csproj
+index 569ba1c..1aaa28d 100644
+--- a/src/DeltaMapper.EFCore/DeltaMapper.EFCore.csproj
++++ b/src/DeltaMapper.EFCore/DeltaMapper.EFCore.csproj
+@@ -1,9 +1,6 @@
+ <Project Sdk="Microsoft.NET.Sdk">
+   <PropertyGroup>
+-    <TargetFramework>net10.0</TargetFramework>
+-    <Nullable>enable</Nullable>
+-    <ImplicitUsings>enable</ImplicitUsings>
+-    <LangVersion>latest</LangVersion>
++    <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+     <RootNamespace>DeltaMapper.EFCore</RootNamespace>
+     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+ 
+@@ -12,7 +9,7 @@
+     <Version>1.0.0-rc.3</Version>
+     <Authors>Jose Mejia</Authors>
+     <Description>EF Core proxy-aware middleware for DeltaMapper — detects proxy types and skips unloaded navigation properties</Description>
+-    <PackageTags>mapper;efcore;entity-framework;proxy;navigation;net10;csharp</PackageTags>
++    <PackageTags>mapper;efcore;entity-framework;proxy;navigation;net8;net9;net10;csharp</PackageTags>
+     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+     <PackageProjectUrl>https://github.com/OrodruinLabs/DeltaMapper</PackageProjectUrl>
+     <RepositoryUrl>https://github.com/OrodruinLabs/DeltaMapper</RepositoryUrl>
+@@ -24,7 +21,13 @@
+   <ItemGroup>
+     <ProjectReference Include="../DeltaMapper.Core/DeltaMapper.Core.csproj" />
+   </ItemGroup>
+-  <ItemGroup>
++  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
++    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.*" />
++  </ItemGroup>
++  <ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
++    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.*" />
++  </ItemGroup>
++  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
+     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.*" />
+   </ItemGroup>
+   <ItemGroup>
+diff --git a/src/DeltaMapper.OpenTelemetry/DeltaMapper.OpenTelemetry.csproj b/src/DeltaMapper.OpenTelemetry/DeltaMapper.OpenTelemetry.csproj
+index aa48d33..f3274de 100644
+--- a/src/DeltaMapper.OpenTelemetry/DeltaMapper.OpenTelemetry.csproj
++++ b/src/DeltaMapper.OpenTelemetry/DeltaMapper.OpenTelemetry.csproj
+@@ -1,9 +1,6 @@
+ <Project Sdk="Microsoft.NET.Sdk">
+   <PropertyGroup>
+-    <TargetFramework>net10.0</TargetFramework>
+-    <Nullable>enable</Nullable>
+-    <ImplicitUsings>enable</ImplicitUsings>
+-    <LangVersion>latest</LangVersion>
++    <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+     <RootNamespace>DeltaMapper.OpenTelemetry</RootNamespace>
+     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+ 
+@@ -12,7 +9,7 @@
+     <Version>1.0.0-rc.3</Version>
+     <Authors>Jose Mejia</Authors>
+     <Description>OpenTelemetry tracing middleware for DeltaMapper — emits Activity spans for every mapping operation</Description>
+-    <PackageTags>mapper;opentelemetry;tracing;activity;observability;net10;csharp</PackageTags>
++    <PackageTags>mapper;opentelemetry;tracing;activity;observability;net8;net9;net10;csharp</PackageTags>
+     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+     <PackageProjectUrl>https://github.com/OrodruinLabs/DeltaMapper</PackageProjectUrl>
+     <RepositoryUrl>https://github.com/OrodruinLabs/DeltaMapper</RepositoryUrl>
+diff --git a/src/DeltaMapper.SourceGen/DeltaMapper.SourceGen.csproj b/src/DeltaMapper.SourceGen/DeltaMapper.SourceGen.csproj
+index f105321..8f3eed6 100644
+--- a/src/DeltaMapper.SourceGen/DeltaMapper.SourceGen.csproj
++++ b/src/DeltaMapper.SourceGen/DeltaMapper.SourceGen.csproj
+@@ -1,8 +1,6 @@
+ <Project Sdk="Microsoft.NET.Sdk">
+   <PropertyGroup>
+     <TargetFramework>netstandard2.0</TargetFramework>
+-    <LangVersion>latest</LangVersion>
+-    <Nullable>enable</Nullable>
+     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+     <RootNamespace>DeltaMapper.SourceGen</RootNamespace>
+     <IsRoslynComponent>true</IsRoslynComponent>
+@@ -12,7 +10,7 @@
+     <Version>1.0.0-rc.3</Version>
+     <Authors>Jose Mejia</Authors>
+     <Description>Roslyn source generator for DeltaMapper. Attach [GenerateMap] to a profile class and get compile-time mapping delegates with zero reflection at runtime. Includes DM001/DM002 analyzer diagnostics. MIT licensed.</Description>
+-    <PackageTags>mapper;source-generator;roslyn;analyzer;dto;diff;patch;net10;csharp</PackageTags>
++    <PackageTags>mapper;source-generator;roslyn;analyzer;dto;diff;patch;net8;net9;net10;csharp</PackageTags>
+     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+     <PackageProjectUrl>https://github.com/OrodruinLabs/DeltaMapper</PackageProjectUrl>
+     <RepositoryUrl>https://github.com/OrodruinLabs/DeltaMapper</RepositoryUrl>

@@ -19,7 +19,7 @@
     }
   ],
   "max_iterations": 40,
-  "current_iteration": 0,
+  "current_iteration": 3,
   "paused": false,
   "completion_promise": "HYDRA_COMPLETE",
   "task_file": "hydra/plan.md",
@@ -160,14 +160,14 @@
     "require_tests_pass_before_review": true,
     "max_consecutive_failures": 5,
     "consecutive_failures": 0,
-    "_prev_done_count": 0
+    "_prev_done_count": 5
   },
   "branch": {
     "feature": "feat/FEAT-013-multi-target-net8-net9-net10",
     "base": "main",
     "main_worktree_path": "/Users/josemejia/Documents/Software Development/DeltaMapper",
     "worktree_dir": "/Users/josemejia/Documents/Software Development/DeltaMapper-hydra-worktrees",
-    "last_task_branch": null,
+    "last_task_branch": "feat/FEAT-013/TASK-058",
     "created_at": "2026-03-20T00:00:00Z",
     "auto_pr_on_complete": true,
     "sparse_paths": null

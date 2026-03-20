@@ -1,0 +1,86 @@
+diff --git a/.github/workflows/benchmarks.yml b/.github/workflows/benchmarks.yml
+index 2c05194..0a0993b 100644
+--- a/.github/workflows/benchmarks.yml
++++ b/.github/workflows/benchmarks.yml
+@@ -19,6 +19,16 @@ jobs:
+     steps:
+       - uses: actions/checkout@v4
+ 
++      - name: Setup .NET 8
++        uses: actions/setup-dotnet@v4
++        with:
++          dotnet-version: '8.0.x'
++
++      - name: Setup .NET 9
++        uses: actions/setup-dotnet@v4
++        with:
++          dotnet-version: '9.0.x'
++
+       - name: Setup .NET 10
+         uses: actions/setup-dotnet@v4
+         with:
+diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
+index 2eb6e43..688096a 100644
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -12,10 +12,23 @@ permissions:
+ jobs:
+   build-and-test:
+     runs-on: ubuntu-latest
++    strategy:
++      matrix:
++        tfm: [net8.0, net9.0, net10.0]
+ 
+     steps:
+       - uses: actions/checkout@v4
+ 
++      - name: Setup .NET 8
++        uses: actions/setup-dotnet@v4
++        with:
++          dotnet-version: '8.0.x'
++
++      - name: Setup .NET 9
++        uses: actions/setup-dotnet@v4
++        with:
++          dotnet-version: '9.0.x'
++
+       - name: Setup .NET 10
+         uses: actions/setup-dotnet@v4
+         with:
+@@ -28,12 +41,12 @@ jobs:
+       - name: Build
+         run: dotnet build -c Release --no-restore
+ 
+-      - name: Test
+-        run: dotnet test -c Release --no-build --logger trx --results-directory TestResults
++      - name: Test (${{ matrix.tfm }})
++        run: dotnet test -c Release --no-build --framework ${{ matrix.tfm }} --logger trx --results-directory TestResults
+ 
+       - name: Upload test results
+         uses: actions/upload-artifact@v4
+         if: always()
+         with:
+-          name: test-results
++          name: test-results-${{ matrix.tfm }}
+           path: TestResults/*.trx
+diff --git a/.github/workflows/publish.yml b/.github/workflows/publish.yml
+index c8fc2cb..5f47be6 100644
+--- a/.github/workflows/publish.yml
++++ b/.github/workflows/publish.yml
+@@ -14,6 +14,16 @@ jobs:
+     steps:
+       - uses: actions/checkout@v4
+ 
++      - name: Setup .NET 8
++        uses: actions/setup-dotnet@v4
++        with:
++          dotnet-version: '8.0.x'
++
++      - name: Setup .NET 9
++        uses: actions/setup-dotnet@v4
++        with:
++          dotnet-version: '9.0.x'
++
+       - name: Setup .NET 10
+         uses: actions/setup-dotnet@v4
+         with:
