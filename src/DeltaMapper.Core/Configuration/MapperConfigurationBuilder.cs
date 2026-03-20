@@ -628,8 +628,29 @@ public sealed class MapperConfigurationBuilder
             else if (memberConfig?.CustomResolver != null)
             {
                 var resolver = memberConfig.CustomResolver;
-                paramResolvers.Add(WrapParamWithCondition(
-                    (src, ctx) => resolver(src), condition, fallback));
+                var resolverReturnType = memberConfig.ResolverReturnType;
+                var paramType = param.ParameterType;
+                var needsRecursiveMap = resolverReturnType != null
+                    && resolverReturnType != paramType
+                    && !paramType.IsAssignableFrom(resolverReturnType)
+                    && IsComplexType(resolverReturnType);
+
+                if (needsRecursiveMap)
+                {
+                    var srcMapType = resolverReturnType!;
+                    paramResolvers.Add(WrapParamWithCondition(
+                        (src, ctx) =>
+                        {
+                            var value = resolver(src);
+                            if (value == null) return null;
+                            return ctx.Config.Execute(value, srcMapType, paramType, ctx);
+                        }, condition, fallback));
+                }
+                else
+                {
+                    paramResolvers.Add(WrapParamWithCondition(
+                        (src, ctx) => resolver(src), condition, fallback));
+                }
             }
             else if (memberConfig?.HasNullSubstitute == true)
             {
@@ -720,7 +741,28 @@ public sealed class MapperConfigurationBuilder
             {
                 var resolver = memberConfig.CustomResolver;
                 var setter = dstProp;
-                Action<object, object, MapperContext> assign = (src, dst, ctx) => setter.SetValue(dst, resolver(src));
+                var resolverReturnType = memberConfig.ResolverReturnType;
+                var dstPropType = dstProp.PropertyType;
+                var needsRecursiveMap = resolverReturnType != null
+                    && resolverReturnType != dstPropType
+                    && !dstPropType.IsAssignableFrom(resolverReturnType)
+                    && IsComplexType(resolverReturnType);
+
+                Action<object, object, MapperContext> assign;
+                if (needsRecursiveMap)
+                {
+                    var srcMapType = resolverReturnType!;
+                    assign = (src, dst, ctx) =>
+                    {
+                        var value = resolver(src);
+                        if (value == null) { setter.SetValue(dst, null); return; }
+                        setter.SetValue(dst, ctx.Config.Execute(value, srcMapType, dstPropType, ctx));
+                    };
+                }
+                else
+                {
+                    assign = (src, dst, ctx) => setter.SetValue(dst, resolver(src));
+                }
                 initOnlyAssignments.Add(WrapWithCondition(assign, memberConfig.ConditionPredicate));
                 continue;
             }

@@ -95,7 +95,7 @@ public class MapFromNonConventionTests
         }
     }
 
-    // Strumtry-style: multiple levels of nesting with non-convention names
+    // InitOnly-style: multiple levels of nesting with non-convention names
     private class Category { public Guid Id { get; set; } public string Label { get; set; } = ""; }
     private class Model { public Brand Brand { get; set; } = null!; public Category Category { get; set; } = null!; public string ModelName { get; set; } = ""; }
     private class CategoryDto { public Guid Id { get; set; } public string Label { get; set; } = ""; }
@@ -194,6 +194,108 @@ public class MapFromNonConventionTests
             CreateMap<Instrument, InstrumentDto>()
                 .ForMember(d => d.Brand, o => o.MapFrom(s => s.Model != null ? s.Model.Brand : null))
                 .ForMember(d => d.ModelName, o => o.MapFrom(s => s.Model != null ? s.Model.ModelName : null));
+        }
+    }
+
+    // === Init-only property tests (CompileConstructorMap path) ===
+
+    private class InitSummaryDto
+    {
+        public Guid Id { get; init; }
+        public string Name { get; init; } = "";
+    }
+
+    private class InitProductDto
+    {
+        public InitSummaryDto Brand { get; init; } = null!;
+        public string ProductName { get; init; } = "";
+    }
+
+    [Fact]
+    public void MapFrom_InitOnlyDest_ShouldAutoApplyTypeMap()
+    {
+        var config = MapperConfiguration.Create(cfg =>
+        {
+            cfg.AddProfile(new InitProfile());
+        });
+        var mapper = config.CreateMapper();
+        var source = new Product { Brand = new Brand { Id = Guid.NewGuid(), Name = "Fender" } };
+
+        var result = mapper.Map<Product, InitProductDto>(source);
+
+        Assert.NotNull(result.Brand);
+        Assert.Equal("Fender", result.Brand.Name);
+        Assert.Equal(source.Brand.Id, result.Brand.Id);
+    }
+
+    private class InitProfile : Profile
+    {
+        public InitProfile()
+        {
+            CreateMap<Brand, InitSummaryDto>();
+            CreateMap<Product, InitProductDto>()
+                .ForMember(d => d.Brand, o => o.MapFrom(s => s.Brand));
+        }
+    }
+
+    // Exact InitOnly reproduction with init properties
+    private class BasicEntityDto
+    {
+        public Guid Id { get; init; }
+        public string Name { get; init; } = "";
+    }
+
+    private class InstrumentBrand
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = "";
+    }
+
+    private class InstrumentModel2
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = "";
+        public InstrumentBrand InstrumentBrand { get; set; } = null!;
+    }
+
+    private class ModelDto2
+    {
+        public Guid Id { get; init; }
+        public string Name { get; init; } = "";
+        public BasicEntityDto? Brand { get; init; }
+    }
+
+    [Fact]
+    public void MapFrom_InitOnlyRepro_ShouldAutoApplyTypeMap()
+    {
+        var config = MapperConfiguration.Create(cfg =>
+        {
+            cfg.AddProfile(new InitOnlyReproProfile());
+        });
+        var mapper = config.CreateMapper();
+
+        var brand = new InstrumentBrand { Id = Guid.NewGuid(), Name = "Fender" };
+        var model = new InstrumentModel2
+        {
+            Id = Guid.NewGuid(),
+            Name = "Stratocaster",
+            InstrumentBrand = brand
+        };
+
+        var result = mapper.Map<InstrumentModel2, ModelDto2>(model);
+
+        Assert.NotNull(result.Brand);
+        Assert.Equal("Fender", result.Brand.Name);
+        Assert.Equal(brand.Id, result.Brand.Id);
+    }
+
+    private class InitOnlyReproProfile : Profile
+    {
+        public InitOnlyReproProfile()
+        {
+            CreateMap<InstrumentBrand, BasicEntityDto>();
+            CreateMap<InstrumentModel2, ModelDto2>()
+                .ForMember(d => d.Brand, o => o.MapFrom(s => s.InstrumentBrand));
         }
     }
 }
