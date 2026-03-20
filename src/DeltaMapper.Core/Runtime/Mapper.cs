@@ -82,6 +82,22 @@ public sealed class Mapper : IMapper
     }
 
     /// <inheritdoc />
+    public List<TDestination> Map<TSource, TDestination>(IEnumerable<TSource> source)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+        var ctx = new MapperContext(_config);
+        var sourceList = source as ICollection<TSource> ?? source.ToList();
+        var result = new List<TDestination>(sourceList.Count);
+        foreach (var item in sourceList)
+        {
+            if (item is null)
+                throw new ArgumentNullException(nameof(source), "Source enumerable contains a null element.");
+            result.Add((TDestination)_config.Execute(item, typeof(TSource), typeof(TDestination), ctx));
+        }
+        return result;
+    }
+
+    /// <inheritdoc />
     public object Map(object source, Type sourceType, Type destinationType)
     {
         ArgumentNullException.ThrowIfNull(source);

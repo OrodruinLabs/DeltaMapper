@@ -90,7 +90,7 @@ public class ErrorHandlingTests
             cfg.AddProfile<E04Profile>());
         var mapper = config.CreateMapper();
 
-        Action act = () => mapper.Map<User, UserDto>(null!);
+        Action act = () => mapper.Map<User, UserDto>((User)null!);
 
         act.Should().Throw<ArgumentNullException>();
     }

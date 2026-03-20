@@ -28,6 +28,12 @@ public interface IMapper
     IReadOnlyList<TDestination> MapList<TSource, TDestination>(IEnumerable<TSource> source);
 
     /// <summary>
+    /// Maps each element in the source enumerable to TDestination, returning a list.
+    /// Convenience overload matching AutoMapper's Map signature for collections.
+    /// </summary>
+    List<TDestination> Map<TSource, TDestination>(IEnumerable<TSource> source);
+
+    /// <summary>
     /// Maps the source object to the specified destination type. Non-generic overload for dynamic scenarios.
     /// </summary>
     object Map(object source, Type sourceType, Type destinationType);
