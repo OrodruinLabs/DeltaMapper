@@ -11,6 +11,33 @@ DeltaMapper uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.0.0-rc.2] - 2026-03-20
+
+Migration friction release. Closes the top friction points discovered during a real-world migration to DeltaMapper.
+
+### Breaking Changes
+
+- **`MappingProfile` renamed to `Profile`** — shorter base class name eliminates "class has same name as base class" static analysis warning. Update: `: MappingProfile` → `: Profile`
+- **`MapList` removed** — superseded by `Map<S,D>(IEnumerable<S>)` collection overload. Update: `mapper.MapList<S,D>(list)` → `mapper.Map<S,D>(list)`
+
+### Added
+
+- **`Map<S,D>(IEnumerable<S>)`** — collection mapping overload returning `List<D>`
+- **`ConstructUsing(Func<TSrc, TDst>)`** — custom factory construction for DDD entities with private constructors and static factory methods
+- **Nested type resolution in `MapFrom`** — `ForMember(d => d.Nav, o => o.MapFrom(s => s.Nav))` now auto-resolves registered type maps instead of assigning raw source type
+- **`Nullable<T>` → `T` auto-coercion** — assigns `default(T)` instead of skipping (e.g., `Guid?` → `Guid.Empty`)
+- **Smart single-generic collection mapping** — `mapper.Map<IEnumerable<Dest>>(list)` auto-detects collection intent and routes to element-wise mapping
+- **`AddProfilesFromAssembly(assembly, includeReferencedAssemblies: true)`** — opt-in scanning of referenced assemblies for Profile subclasses
+
+### Fixed
+
+- Circular reference cache now keys on `(source, destType)` instead of just source — fixes incorrect cache hits when same source maps to different destination types
+- `ConstructUsing` preserves convention mapping — factory creates the object, then convention + ForMember mappings run on top
+- Null factory guard scoped to `ConstructUsing` path only
+- `IsAssignableFrom` check on nested `MapFrom` resolution prevents unnecessary recursive mapping for derived types
+
+---
+
 ## [1.0.0-rc.1] - 2026-03-19
 
 First release candidate. Consolidates all features from 0.1.0-alpha and 0.2.0-alpha.
@@ -196,7 +223,8 @@ Initial release.
 - On-demand benchmark workflow via `workflow_dispatch`
 - BenchmarkDotNet suite comparing against Mapperly, AutoMapper, and hand-written code
 
-[Unreleased]: https://github.com/OrodruinLabs/DeltaMapper/compare/v1.0.0-rc.1...HEAD
+[Unreleased]: https://github.com/OrodruinLabs/DeltaMapper/compare/v1.0.0-rc.2...HEAD
+[1.0.0-rc.2]: https://github.com/OrodruinLabs/DeltaMapper/compare/v1.0.0-rc.1...v1.0.0-rc.2
 [1.0.0-rc.1]: https://github.com/OrodruinLabs/DeltaMapper/compare/v0.2.0-alpha...v1.0.0-rc.1
 [0.2.0-alpha]: https://github.com/OrodruinLabs/DeltaMapper/compare/v0.1.0-alpha...v0.2.0-alpha
 [0.1.0-alpha]: https://github.com/OrodruinLabs/DeltaMapper/releases/tag/v0.1.0-alpha
