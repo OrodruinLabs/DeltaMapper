@@ -8,6 +8,7 @@
     <a href="https://www.nuget.org/packages/DeltaMapper"><img src="https://img.shields.io/nuget/dt/DeltaMapper.svg" alt="Downloads" /></a>
     <a href="https://github.com/OrodruinLabs/DeltaMapper/actions/workflows/ci.yml"><img src="https://github.com/OrodruinLabs/DeltaMapper/actions/workflows/ci.yml/badge.svg" alt="Build" /></a>
     <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT" /></a>
+    <img src="https://img.shields.io/badge/.NET-8.0%20%7C%209.0%20%7C%2010.0-512BD4" alt=".NET 8 | 9 | 10" />
   </p>
 </p>
 
