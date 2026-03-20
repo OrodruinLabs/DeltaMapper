@@ -1,9 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <LangVersion>latest</LangVersion>
+    <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
     <RootNamespace>DeltaMapper</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 
@@ -12,7 +9,7 @@
     <Version>1.0.0-rc.3</Version>
     <Authors>Jose Mejia</Authors>
     <Description>Fast, diff-aware .NET object mapper. Expression-compiled delegates, FrozenDictionary-backed lookup, fluent profile API, MappingDiff&lt;T&gt; / Patch support, source-generator integration, and DI extensions. MIT licensed.</Description>
-    <PackageTags>mapper;object-mapper;dto;diff;patch;source-generator;net10;csharp</PackageTags>
+    <PackageTags>mapper;object-mapper;dto;diff;patch;source-generator;net8;net9;net10;csharp</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/OrodruinLabs/DeltaMapper</PackageProjectUrl>
     <RepositoryUrl>https://github.com/OrodruinLabs/DeltaMapper</RepositoryUrl>
@@ -22,7 +19,13 @@
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>v1.0.0-rc.3 — Bugfix: nested MapFrom type resolution now works in CompileConstructorMap (init-only properties). See CHANGELOG.md for details.</PackageReleaseNotes>
   </PropertyGroup>
-  <ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.*" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.*" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.*" />
   </ItemGroup>
   <ItemGroup>
