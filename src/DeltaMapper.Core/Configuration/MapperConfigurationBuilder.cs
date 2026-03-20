@@ -502,9 +502,10 @@ public sealed class MapperConfigurationBuilder
 
         Func<object, object?, MapperContext, object> mapFunc = (src, existingDst, ctx) =>
         {
-            var dst = existingDst ?? (customFactory != null ? customFactory(src) : defaultFactory!());
+            var usedCustomFactory = existingDst is null && customFactory != null;
+            var dst = existingDst ?? (usedCustomFactory ? customFactory!(src) : defaultFactory!());
 
-            if (dst is null)
+            if (usedCustomFactory && dst is null)
                 throw new DeltaMapperException(
                     $"ConstructUsing factory returned null for mapping to '{dstType.Name}'.");
 
