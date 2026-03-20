@@ -87,6 +87,8 @@ public static class GeneratedMapRegistry
     /// </summary>
     public static bool HasFactory(Type srcType, Type dstType)
     {
+        ArgumentNullException.ThrowIfNull(srcType);
+        ArgumentNullException.ThrowIfNull(dstType);
         return _factoryRegistry.ContainsKey((srcType, dstType));
     }
 

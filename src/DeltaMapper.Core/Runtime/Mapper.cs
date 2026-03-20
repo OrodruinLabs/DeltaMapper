@@ -28,10 +28,7 @@ public sealed class Mapper : IMapper
     {
         ArgumentNullException.ThrowIfNull(source);
 
-        // Smart collection detection: if TDestination is IEnumerable<X> and source is IEnumerable<Y>
-        // with a registered Y→X map, auto-route to collection mapping.
-        var collectionResult = TryMapCollection<TDestination>(source);
-        if (collectionResult is not null)
+        if (TryMapCollection<TDestination>(source, out var collectionResult))
             return collectionResult;
 
         var ctx = new MapperContext(_config);
@@ -128,32 +125,34 @@ public sealed class Mapper : IMapper
         return new MappingDiff<TDestination> { Result = destination, Changes = changes };
     }
 
-    private TDestination? TryMapCollection<TDestination>(object source)
+    private bool TryMapCollection<TDestination>(object source, out TDestination result)
     {
+        result = default!;
         var dstType = typeof(TDestination);
 
         // Skip string (implements IEnumerable<char>)
         if (dstType == typeof(string))
-            return default;
+            return false;
 
         var dstElementType = GetEnumerableElementType(dstType);
         if (dstElementType == null)
-            return default;
+            return false;
 
         var srcElementType = GetEnumerableElementType(source.GetType());
         if (srcElementType == null)
-            return default;
+            return false;
 
-        // Same element type means no mapping needed — not our job
         if (srcElementType == dstElementType)
-            return default;
+            return false;
 
-        // Check if a map exists for element types
         if (!_config.HasMap(srcElementType, dstElementType)
             && !GeneratedMapRegistry.HasFactory(srcElementType, dstElementType))
-            return default;
+            return false;
 
-        // Map each element preserving order
+        // Only support collection types we can actually build
+        if (!CanBuildCollectionType(dstType, dstElementType))
+            return false;
+
         var ctx = new MapperContext(_config);
         var items = new List<object>();
         foreach (var item in (System.Collections.IEnumerable)source)
@@ -163,7 +162,23 @@ public sealed class Mapper : IMapper
             items.Add(_config.Execute(item, srcElementType, dstElementType, ctx));
         }
 
-        return (TDestination)BuildCollection(dstType, dstElementType, items);
+        result = (TDestination)BuildCollection(dstType, dstElementType, items);
+        return true;
+    }
+
+    private static bool CanBuildCollectionType(Type dstType, Type elementType)
+    {
+        // Arrays
+        if (dstType.IsArray)
+            return true;
+
+        // Check if List<T> is assignable to the destination type
+        // This covers: List<T>, IEnumerable<T>, IReadOnlyList<T>, ICollection<T>, IList<T>
+        var listType = typeof(List<>).MakeGenericType(elementType);
+        if (dstType.IsAssignableFrom(listType))
+            return true;
+
+        return false;
     }
 
     private static Type? GetEnumerableElementType(Type type)

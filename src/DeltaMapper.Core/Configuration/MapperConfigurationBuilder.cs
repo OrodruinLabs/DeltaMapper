@@ -58,9 +58,9 @@ public sealed class MapperConfigurationBuilder
                     var referenced = Assembly.Load(referencedName);
                     ScanAssembly(referenced, scanned);
                 }
-                catch
+                catch (Exception ex) when (ex is FileNotFoundException or FileLoadException or BadImageFormatException)
                 {
-                    // Skip assemblies that fail to load
+                    // Skip assemblies that fail to load (missing deps, wrong platform, etc.)
                 }
             }
         }
