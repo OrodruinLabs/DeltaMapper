@@ -18,12 +18,12 @@ IMapper mapper = config.CreateMapper();
 
 All compilation happens inside `Create()`. The internal registry is a `FrozenDictionary` — read access after construction has no locking overhead.
 
-## `MappingProfile`
+## `Profile`
 
-Subclass `MappingProfile` and configure maps in the constructor.
+Subclass `Profile` and configure maps in the constructor.
 
 ```csharp
-public class OrderProfile : MappingProfile
+public class OrderProfile : Profile
 {
     public OrderProfile()
     {
@@ -47,6 +47,30 @@ public class OrderProfile : MappingProfile
 | `AfterMap((src, dst) => ...)` | Hook runs after property assignment |
 | `ReverseMap()` | Registers convention-matched reverse map (`TDst -> TSrc`) |
 
+### Nested Type Resolution in MapFrom
+
+When `MapFrom` returns a type that differs from the destination property type and a registered type map exists, DeltaMapper auto-resolves it:
+
+```csharp
+CreateMap<CustomerEntity, CustomerDto>();
+CreateMap<OrderEntity, OrderDto>()
+    .ForMember(d => d.Customer, o => o.MapFrom(s => s.Customer));
+    // CustomerEntity → CustomerDto is resolved automatically
+```
+
+If `MapFrom` returns the destination type directly (inline construction), no double-mapping occurs.
+
+## ConstructUsing
+
+Specify a custom factory to construct the destination object. Useful for DDD entities with private constructors and static factory methods:
+
+```csharp
+CreateMap<OrderSource, Money>()
+    .ConstructUsing(src => Money.Create(src.Total, src.Currency));
+```
+
+The factory runs first, then convention matching and `ForMember` overrides apply on top. Read-only properties set by the factory are preserved.
+
 ## `IMapper`
 
 ```csharp
@@ -58,6 +82,14 @@ object Map(object source, Type sourceType, Type destinationType);
 MappingDiff<TDestination> Patch<TSource, TDestination>(TSource source, TDestination destination);
 ```
 
+The single-generic overload also supports collections. When `TDestination` is `IEnumerable<X>`, `List<X>`, `X[]`, or `IReadOnlyList<X>` and the source implements `IEnumerable<Y>` with a registered `Y → X` map, elements are mapped automatically:
+
+```csharp
+var dtos = mapper.Map<IEnumerable<StudentDto>>(students);  // works!
+var list = mapper.Map<List<StudentDto>>(students);          // works!
+var array = mapper.Map<StudentDto[]>(students);             // works!
+```
+
 ## Convention Matching
 
 Properties are matched by name (case-insensitive) without any configuration:
@@ -67,6 +99,14 @@ Properties are matched by name (case-insensitive) without any configuration:
 3. Same name + `IEnumerable<T>` on both sides — map each element, produce `List<T>` or `T[]`
 4. Same name + complex object type — recursive map lookup
 5. No direct match — attempt flattening (source) or unflattening (destination), then skip
+
+### Nullable Value Type Coercion
+
+When a source property is `Nullable<T>` and the destination is `T`, DeltaMapper assigns `default(T)` when the source is null:
+
+- `Guid?` → `Guid`: assigns `Guid.Empty`
+- `int?` → `int`: assigns `0`
+- `DateTime?` → `DateTime`: assigns `DateTime.MinValue`
 
 ## Flattening
 
@@ -136,7 +176,14 @@ cfg.AddProfilesFromAssembly(typeof(UserProfile).Assembly);
 cfg.AddProfilesFromAssemblyContaining<UserProfile>();
 ```
 
-The scanner discovers all concrete, non-generic `MappingProfile` subclasses that have a public parameterless constructor. Abstract profiles and profiles requiring constructor arguments are silently skipped. Scanning and explicit `AddProfile<T>()` calls can be combined.
+The scanner discovers all concrete, non-generic `Profile` subclasses that have a public parameterless constructor. Abstract profiles and profiles requiring constructor arguments are silently skipped. Scanning and explicit `AddProfile<T>()` calls can be combined.
+
+To also scan assemblies referenced by the given assembly, pass `includeReferencedAssemblies: true`:
+
+```csharp
+cfg.AddProfilesFromAssembly(typeof(Startup).Assembly, includeReferencedAssemblies: true);
+cfg.AddProfilesFromAssemblyContaining<Startup>(includeReferencedAssemblies: true);
+```
 
 ## Type Converters
 
@@ -213,5 +260,5 @@ When no mapping is registered `DeltaMapperException` is thrown with a clear, act
 
 ```text
 No mapping registered from 'User' to 'UserDto'.
-Register a mapping in a MappingProfile using CreateMap<User, UserDto>().
+Register a mapping in a Profile using CreateMap<User, UserDto>().
 ```

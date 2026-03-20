@@ -23,7 +23,7 @@ Requires .NET 10+.
 ## Quick Start
 
 ```csharp
-public class UserProfile : MappingProfile
+public class UserProfile : Profile
 {
     public UserProfile()
     {
