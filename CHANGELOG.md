@@ -22,7 +22,7 @@ Migration friction release. Closes the top friction points discovered during a r
 
 ### Added
 
-- **`Map<S,D>(IEnumerable<S>)`** — collection mapping overload returning `List<D>`, matching AutoMapper's API
+- **`Map<S,D>(IEnumerable<S>)`** — collection mapping overload returning `List<D>`
 - **`ConstructUsing(Func<TSrc, TDst>)`** — custom factory construction for DDD entities with private constructors and static factory methods
 - **Nested type resolution in `MapFrom`** — `ForMember(d => d.Nav, o => o.MapFrom(s => s.Nav))` now auto-resolves registered type maps instead of assigning raw source type
 - **`Nullable<T>` → `T` auto-coercion** — assigns `default(T)` instead of skipping (e.g., `Guid?` → `Guid.Empty`)
@@ -32,7 +32,7 @@ Migration friction release. Closes the top friction points discovered during a r
 ### Fixed
 
 - Circular reference cache now keys on `(source, destType)` instead of just source — fixes incorrect cache hits when same source maps to different destination types
-- `ConstructUsing` preserves convention mapping (matches AutoMapper behavior)
+- `ConstructUsing` preserves convention mapping — factory creates the object, then convention + ForMember mappings run on top
 - Null factory guard scoped to `ConstructUsing` path only
 - `IsAssignableFrom` check on nested `MapFrom` resolution prevents unnecessary recursive mapping for derived types
 
