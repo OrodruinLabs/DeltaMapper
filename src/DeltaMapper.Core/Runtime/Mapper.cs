@@ -178,8 +178,8 @@ public sealed class Mapper : IMapper
 
     private static bool CanBuildCollectionType(Type dstType, Type elementType)
     {
-        // Arrays
-        if (dstType.IsArray)
+        // Single-dimensional arrays only
+        if (dstType.IsArray && dstType.GetArrayRank() == 1)
             return true;
 
         // Check if List<T> is assignable to the destination type
