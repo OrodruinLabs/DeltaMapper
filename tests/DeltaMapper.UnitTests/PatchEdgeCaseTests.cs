@@ -1,5 +1,4 @@
 using System.Text.Json;
-using DeltaMapper;
 using DeltaMapper.UnitTests.TestModels;
 using FluentAssertions;
 using Xunit;

@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using DeltaMapper.SourceGen.Diagnostics;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;

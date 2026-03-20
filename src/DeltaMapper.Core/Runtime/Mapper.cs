@@ -1,7 +1,5 @@
 using System.Collections.Concurrent;
 using System.Reflection;
-using DeltaMapper;
-using DeltaMapper.Configuration;
 using DeltaMapper.Diff;
 
 namespace DeltaMapper.Runtime;

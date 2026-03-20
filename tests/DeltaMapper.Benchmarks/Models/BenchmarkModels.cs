@@ -1,5 +1,3 @@
-using DeltaMapper;
-
 namespace DeltaMapper.Benchmarks.Models;
 
 // ── Flat models ──────────────────────────────────────────────────────────────

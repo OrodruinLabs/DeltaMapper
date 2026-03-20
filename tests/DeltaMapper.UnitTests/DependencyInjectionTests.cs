@@ -1,5 +1,3 @@
-using DeltaMapper;
-using DeltaMapper.Runtime;
 using DeltaMapper.UnitTests.TestModels;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
