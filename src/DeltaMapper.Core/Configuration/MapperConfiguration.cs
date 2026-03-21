@@ -97,46 +97,72 @@ public sealed class MapperConfiguration
     internal bool HasMap(Type srcType, Type dstType) => _registry.ContainsKey((srcType, dstType));
 
     /// <summary>
-    /// Validates that all destination members (properties and constructor parameters) on every
-    /// registered type map are mapped. Throws DeltaMapperException listing any unmapped members.
+    /// Validates registered type maps according to each map's MemberList mode.
+    /// MemberList.Destination (default): all destination members must be mapped.
+    /// MemberList.Source: all source properties must be consumed.
+    /// MemberList.None: skip validation entirely.
+    /// Throws DeltaMapperException listing any unmapped members.
     /// </summary>
     public void AssertConfigurationIsValid()
     {
         var errors = new List<string>();
         foreach (var snap in _validationSnapshots)
         {
-            // Check writable properties — skip properties covered by constructor params to avoid double-reporting
-            var ctorParamSet = snap.UsesConstructorInjection
-                ? new HashSet<string>(snap.ConstructorParameterNames, StringComparer.OrdinalIgnoreCase)
-                : null;
-
-            var destProps = snap.DestinationType
-                .GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance)
-                .Where(p => p.CanWrite);
-
-            foreach (var prop in destProps)
+            switch (snap.MemberValidation)
             {
-                if (ctorParamSet?.Contains(prop.Name) == true)
-                    continue; // Validated in constructor param check below
+                case MemberList.None:
+                    continue; // Skip validation entirely
 
-                if (!snap.MappedMembers.Contains(prop.Name))
-                {
-                    errors.Add($"Unmapped property '{prop.Name}' on destination type " +
-                               $"'{snap.DestinationType.Name}' (source: '{snap.SourceType.Name}').");
-                }
-            }
-
-            // Check constructor parameters only for types that actually use constructor injection
-            if (snap.UsesConstructorInjection)
-            {
-                foreach (var paramName in snap.ConstructorParameterNames)
-                {
-                    if (!snap.MappedMembers.Contains(paramName))
+                case MemberList.Source:
+                    var srcProps = snap.SourceType
+                        .GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance)
+                        .Where(p => p.CanRead);
+                    foreach (var prop in srcProps)
                     {
-                        errors.Add($"Unmapped constructor parameter '{paramName}' on destination type " +
-                                   $"'{snap.DestinationType.Name}' (source: '{snap.SourceType.Name}').");
+                        if (!snap.MappedSourceMembers.Contains(prop.Name))
+                        {
+                            errors.Add($"Unconsumed source property '{prop.Name}' on source type " +
+                                       $"'{snap.SourceType.Name}' (destination: '{snap.DestinationType.Name}').");
+                        }
                     }
-                }
+                    break;
+
+                case MemberList.Destination:
+                default:
+                    // Check writable properties — skip properties covered by constructor params to avoid double-reporting
+                    var ctorParamSet = snap.UsesConstructorInjection
+                        ? new HashSet<string>(snap.ConstructorParameterNames, StringComparer.OrdinalIgnoreCase)
+                        : null;
+
+                    var destProps = snap.DestinationType
+                        .GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance)
+                        .Where(p => p.CanWrite);
+
+                    foreach (var prop in destProps)
+                    {
+                        if (ctorParamSet?.Contains(prop.Name) == true)
+                            continue; // Validated in constructor param check below
+
+                        if (!snap.MappedMembers.Contains(prop.Name))
+                        {
+                            errors.Add($"Unmapped property '{prop.Name}' on destination type " +
+                                       $"'{snap.DestinationType.Name}' (source: '{snap.SourceType.Name}').");
+                        }
+                    }
+
+                    // Check constructor parameters only for types that actually use constructor injection
+                    if (snap.UsesConstructorInjection)
+                    {
+                        foreach (var paramName in snap.ConstructorParameterNames)
+                        {
+                            if (!snap.MappedMembers.Contains(paramName))
+                            {
+                                errors.Add($"Unmapped constructor parameter '{paramName}' on destination type " +
+                                           $"'{snap.DestinationType.Name}' (source: '{snap.SourceType.Name}').");
+                            }
+                        }
+                    }
+                    break;
             }
         }
 
@@ -170,8 +196,10 @@ public sealed class MapperConfiguration
             tm.SourceType,
             tm.DestinationType,
             tm.MappedDestinationMembers.ToFrozenSet(StringComparer.OrdinalIgnoreCase),
+            tm.MappedSourceMembers.ToFrozenSet(StringComparer.OrdinalIgnoreCase),
             tm.UsesConstructorInjection,
-            tm.ConstructorParameterNames.AsReadOnly())).ToList();
+            tm.ConstructorParameterNames.AsReadOnly(),
+            tm.MemberValidation)).ToList();
         return new MapperConfiguration(frozen, new MappingPipeline(middlewares), middlewares.Count > 0, snapshots);
     }
 
@@ -182,6 +210,8 @@ public sealed class MapperConfiguration
         Type SourceType,
         Type DestinationType,
         FrozenSet<string> MappedMembers,
+        FrozenSet<string> MappedSourceMembers,
         bool UsesConstructorInjection,
-        IReadOnlyList<string> ConstructorParameterNames);
+        IReadOnlyList<string> ConstructorParameterNames,
+        MemberList MemberValidation);
 }
