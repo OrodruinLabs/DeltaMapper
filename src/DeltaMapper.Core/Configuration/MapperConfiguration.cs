@@ -122,17 +122,12 @@ public sealed class MapperConfiguration
             // Check constructor parameters only for types that actually use constructor injection
             if (snap.UsesConstructorInjection)
             {
-                var ctors = snap.DestinationType.GetConstructors(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
-                var bestCtor = ctors.OrderByDescending(c => c.GetParameters().Length).FirstOrDefault();
-                if (bestCtor != null && bestCtor.GetParameters().Length > 0)
+                foreach (var paramName in snap.ConstructorParameterNames)
                 {
-                    foreach (var param in bestCtor.GetParameters())
+                    if (!snap.MappedMembers.Contains(paramName))
                     {
-                        if (!snap.MappedMembers.Contains(param.Name!))
-                        {
-                            errors.Add($"Unmapped constructor parameter '{param.Name}' on destination type " +
-                                       $"'{snap.DestinationType.Name}' (source: '{snap.SourceType.Name}').");
-                        }
+                        errors.Add($"Unmapped constructor parameter '{paramName}' on destination type " +
+                                   $"'{snap.DestinationType.Name}' (source: '{snap.SourceType.Name}').");
                     }
                 }
             }
@@ -161,7 +156,8 @@ public sealed class MapperConfiguration
             tm.SourceType,
             tm.DestinationType,
             tm.MappedDestinationMembers.ToFrozenSet(StringComparer.OrdinalIgnoreCase),
-            tm.UsesConstructorInjection)).ToList();
+            tm.UsesConstructorInjection,
+            tm.ConstructorParameterNames.AsReadOnly())).ToList();
         return new MapperConfiguration(frozen, new MappingPipeline(middlewares), middlewares.Count > 0, snapshots);
     }
 
@@ -172,5 +168,6 @@ public sealed class MapperConfiguration
         Type SourceType,
         Type DestinationType,
         FrozenSet<string> MappedMembers,
-        bool UsesConstructorInjection);
+        bool UsesConstructorInjection,
+        IReadOnlyList<string> ConstructorParameterNames);
 }

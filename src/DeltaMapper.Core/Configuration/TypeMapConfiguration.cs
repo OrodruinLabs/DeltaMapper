@@ -24,4 +24,10 @@ internal sealed class TypeMapConfiguration
     /// Set by MapperConfigurationBuilder during compilation.
     /// </summary>
     public bool UsesConstructorInjection { get; set; }
+
+    /// <summary>
+    /// Constructor parameter names selected during compilation.
+    /// Only populated when UsesConstructorInjection is true.
+    /// </summary>
+    public List<string> ConstructorParameterNames { get; } = [];
 }

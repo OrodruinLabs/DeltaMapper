@@ -611,6 +611,9 @@ public sealed class MapperConfigurationBuilder
 
         var ctorParams = bestCtor.GetParameters();
 
+        // Record selected constructor param names for validation
+        tm.ConstructorParameterNames.AddRange(ctorParams.Select(p => p.Name!));
+
         // Build parameter resolvers
         List<Func<object, MapperContext, object?>> paramResolvers = [];
         foreach (var param in ctorParams)
@@ -627,6 +630,7 @@ public sealed class MapperConfigurationBuilder
             if (memberConfig?.IsIgnored == true)
             {
                 paramResolvers.Add((src, ctx) => fallback);
+                tm.MappedDestinationMembers.Add(param.Name!);
             }
             else if (memberConfig?.CustomResolver != null)
             {
@@ -650,6 +654,7 @@ public sealed class MapperConfigurationBuilder
                     paramResolvers.Add(WrapParamWithCondition(
                         (src, ctx) => resolver(src), condition, fallback));
                 }
+                tm.MappedDestinationMembers.Add(param.Name!);
             }
             else if (memberConfig?.HasNullSubstitute == true)
             {
@@ -666,6 +671,7 @@ public sealed class MapperConfigurationBuilder
                     paramResolvers.Add(WrapParamWithCondition(
                         (src, ctx) => substituteValue, condition, fallback));
                 }
+                tm.MappedDestinationMembers.Add(param.Name!);
             }
             else
             {
@@ -714,18 +720,14 @@ public sealed class MapperConfigurationBuilder
                         paramResolvers.Add(WrapParamWithCondition(
                             (src, ctx) => compiledGetter(src), condition, fallback));
                     }
+                    tm.MappedDestinationMembers.Add(param.Name!);
                 }
                 else
                 {
+                    // No source match — falls back to default value; NOT marked as mapped
                     paramResolvers.Add((src, ctx) => fallback);
                 }
             }
-        }
-
-        // Track constructor-resolved members for validation
-        foreach (var param in ctorParams)
-        {
-            tm.MappedDestinationMembers.Add(param.Name!);
         }
 
         // Find init-only properties NOT covered by constructor params
