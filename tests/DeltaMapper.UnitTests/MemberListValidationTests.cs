@@ -185,4 +185,29 @@ public class MemberListValidationTests
         act.Should().Throw<DeltaMapperException>()
             .WithMessage("*Extra*");
     }
+
+    // ── MLV-09 ───────────────────────────────────────────────────────────────
+    // MemberList.Source — property consumed via MapFrom is not flagged
+
+    private class MapFromSource { public int Id { get; set; } public string FirstName { get; set; } = string.Empty; public string LastName { get; set; } = string.Empty; }
+    private class MapFromDest { public int Id { get; set; } public string FullName { get; set; } = string.Empty; }
+
+    private class MLV09_Profile : Profile
+    {
+        public MLV09_Profile()
+        {
+            CreateMap<MapFromSource, MapFromDest>(MemberList.Source)
+                .ForMember(d => d.FullName, o => o.MapFrom(s => s.FirstName + " " + s.LastName));
+        }
+    }
+
+    [Fact]
+    public void Source_Validation_Passes_When_Properties_Used_Via_MapFrom()
+    {
+        var config = MapperConfiguration.Create(cfg => cfg.AddProfile<MLV09_Profile>());
+
+        var act = () => config.AssertConfigurationIsValid();
+
+        act.Should().NotThrow();
+    }
 }

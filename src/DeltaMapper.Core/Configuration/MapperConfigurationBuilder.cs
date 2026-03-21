@@ -251,6 +251,9 @@ public sealed class MapperConfigurationBuilder
                     }
                     assignments.Add(WrapWithCondition(assign, memberConfig.ConditionPredicate));
                     tm.MappedDestinationMembers.Add(dstProp.Name);
+                    // Track source members referenced by MapFrom expression
+                    foreach (var srcMember in memberConfig.ReferencedSourceMembers)
+                        tm.MappedSourceMembers.Add(srcMember);
                     continue;
                 }
 

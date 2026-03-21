@@ -116,15 +116,13 @@ public sealed class MapperConfiguration
                 case MemberList.Source:
                     var srcProps = snap.SourceType
                         .GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance)
-                        .Where(p => p.CanRead && p.GetIndexParameters().Length == 0);
+                        .Where(p => p.CanRead && p.GetGetMethod() != null && p.GetIndexParameters().Length == 0);
                     foreach (var prop in srcProps)
                     {
                         if (!snap.MappedSourceMembers.Contains(prop.Name))
                         {
                             errors.Add($"Unconsumed source property '{prop.Name}' on source type " +
-                                       $"'{snap.SourceType.Name}' (destination: '{snap.DestinationType.Name}'). " +
-                                       "Note: source validation tracks convention, flattening, and constructor matches; " +
-                                       "properties used only in MapFrom expressions may still be reported.");
+                                       $"'{snap.SourceType.Name}' (destination: '{snap.DestinationType.Name}').");
                         }
                     }
                     break;

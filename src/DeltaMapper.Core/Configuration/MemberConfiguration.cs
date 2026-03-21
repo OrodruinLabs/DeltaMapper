@@ -12,4 +12,5 @@ internal sealed class MemberConfiguration
     public object? NullSubstituteValue { get; set; }
     public bool HasNullSubstitute { get; set; }
     public Func<object, bool>? ConditionPredicate { get; set; }
+    public List<string> ReferencedSourceMembers { get; set; } = [];
 }
