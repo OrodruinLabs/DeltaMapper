@@ -14,9 +14,22 @@ MapperConfiguration config = MapperConfiguration.Create(cfg =>
 });
 
 IMapper mapper = config.CreateMapper();
+
+// Runtime validation — throws DeltaMapperException if any destination member is unmapped
+config.AssertConfigurationIsValid();
 ```
 
 All compilation happens inside `Create()`. The internal registry is a `FrozenDictionary` — read access after construction has no locking overhead.
+
+### `AssertConfigurationIsValid()`
+
+```csharp
+void AssertConfigurationIsValid()
+```
+
+Validates that every destination member across all registered maps — including both writable properties and constructor parameters (for record/init-only destinations) — is either mapped by convention, covered by a `ForMember` rule, or explicitly ignored. Throws `DeltaMapperException` with a detailed list of unmapped members if validation fails.
+
+Call this once at startup (after `Create()`, before serving requests) to surface misconfiguration early. Compile-time equivalents DM001 and DM002 are available via the `DeltaMapper.SourceGen` source generator.
 
 ## `Profile`
 
@@ -79,8 +92,15 @@ TDestination Map<TSource, TDestination>(TSource source);
 TDestination Map<TSource, TDestination>(TSource source, TDestination destination);
 List<TDestination> Map<TSource, TDestination>(IEnumerable<TSource> source);
 object Map(object source, Type sourceType, Type destinationType);
+object Map(object source, object destination);
+TDestination Map<TDestination>(object source, TDestination destination);
 MappingDiff<TDestination> Patch<TSource, TDestination>(TSource source, TDestination destination);
 ```
+
+The non-generic and semi-generic map-into-existing overloads both infer types at runtime from the concrete types of the provided instances:
+
+- `Map(object source, object destination)` — both source and destination types resolved at runtime; useful in generic or dynamic dispatch scenarios.
+- `Map<TDestination>(object source, TDestination destination)` — destination type known at compile time, source type inferred at runtime.
 
 The single-generic overload also supports collections. When `TDestination` is `IEnumerable<X>`, `List<X>`, `X[]`, or `IReadOnlyList<X>` and the source implements `IEnumerable<Y>` with a registered `Y → X` map, elements are mapped automatically:
 

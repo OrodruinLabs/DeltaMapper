@@ -110,6 +110,24 @@ public sealed class Mapper : IMapper
     }
 
     /// <inheritdoc />
+    public object Map(object source, object destination)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(destination);
+        var ctx = new MapperContext(_config);
+        return _config.Execute(source, source.GetType(), destination.GetType(), ctx, destination);
+    }
+
+    /// <inheritdoc />
+    public TDestination Map<TDestination>(object source, TDestination destination)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(destination);
+        var ctx = new MapperContext(_config);
+        return (TDestination)_config.Execute(source, source.GetType(), typeof(TDestination), ctx, destination);
+    }
+
+    /// <inheritdoc />
     public MappingDiff<TDestination> Patch<TSource, TDestination>(TSource source, TDestination destination)
     {
         ArgumentNullException.ThrowIfNull(source);

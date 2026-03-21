@@ -12,4 +12,22 @@ internal sealed class TypeMapConfiguration
     public Action<object, object>? AfterMapAction { get; set; }
     public Func<object, object>? CustomFactory { get; set; }
     public bool HasReverseMap { get; set; }
+
+    /// <summary>
+    /// Destination member names resolved during compilation.
+    /// Populated by MapperConfigurationBuilder at Build() time.
+    /// </summary>
+    public HashSet<string> MappedDestinationMembers { get; } = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// Whether this type map uses constructor injection (records/init-only) vs property assignment.
+    /// Set by MapperConfigurationBuilder during compilation.
+    /// </summary>
+    public bool UsesConstructorInjection { get; set; }
+
+    /// <summary>
+    /// Constructor parameter names selected during compilation.
+    /// Only populated when UsesConstructorInjection is true.
+    /// </summary>
+    public List<string> ConstructorParameterNames { get; } = [];
 }

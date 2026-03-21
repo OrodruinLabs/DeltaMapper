@@ -174,7 +174,7 @@ public sealed class MapperConfigurationBuilder
             compiled[key] = CompileTypeMap(tm, _typeConverters);
         }
 
-        return MapperConfiguration.CreateFromBuilder(compiled, _middlewares);
+        return MapperConfiguration.CreateFromBuilder(compiled, _middlewares, allTypeMaps);
     }
 
     private static CompiledMap CompileTypeMap(
@@ -193,6 +193,7 @@ public sealed class MapperConfigurationBuilder
         }
         else if (NeedsConstructorInjection(dstType, dstProps))
         {
+            tm.UsesConstructorInjection = true;
             return CompileConstructorMap(tm, srcType, dstType, srcProps, dstProps, typeConverters);
         }
 
@@ -212,7 +213,10 @@ public sealed class MapperConfigurationBuilder
             if (memberConfig != null)
             {
                 if (memberConfig.IsIgnored)
+                {
+                    tm.MappedDestinationMembers.Add(dstProp.Name);
                     continue;
+                }
 
                 if (memberConfig.CustomResolver != null)
                 {
@@ -246,6 +250,7 @@ public sealed class MapperConfigurationBuilder
                         };
                     }
                     assignments.Add(WrapWithCondition(assign, memberConfig.ConditionPredicate));
+                    tm.MappedDestinationMembers.Add(dstProp.Name);
                     continue;
                 }
 
@@ -269,6 +274,7 @@ public sealed class MapperConfigurationBuilder
                         assign = (src, dst, ctx) => compiledSetter(dst, substituteValue);
                     }
                     assignments.Add(WrapWithCondition(assign, memberConfig.ConditionPredicate));
+                    tm.MappedDestinationMembers.Add(dstProp.Name);
                     continue;
                 }
             }
@@ -297,6 +303,7 @@ public sealed class MapperConfigurationBuilder
                         if (value == null && isNonNullableValueType) return;
                         setter(dst, value);
                     });
+                    tm.MappedDestinationMembers.Add(dstProp.Name);
                 }
                 else if (IsComplexType(dstProp.PropertyType))
                 {
@@ -314,6 +321,7 @@ public sealed class MapperConfigurationBuilder
                                 assign(src, nested);
                             dstPropSetter(dst, nested);
                         });
+                        tm.MappedDestinationMembers.Add(dstProp.Name);
                     }
                 }
                 continue;
@@ -520,6 +528,9 @@ public sealed class MapperConfigurationBuilder
             {
                 assignments[^1] = WrapWithCondition(assignments[^1], memberConfig.ConditionPredicate);
             }
+
+            if (assignments.Count > assignmentCountBefore)
+                tm.MappedDestinationMembers.Add(dstProp.Name);
         }
 
         // Build the combined delegate — this closure captures assignments, factory, and tm hooks
@@ -600,6 +611,9 @@ public sealed class MapperConfigurationBuilder
 
         var ctorParams = bestCtor.GetParameters();
 
+        // Record selected constructor param names for validation
+        tm.ConstructorParameterNames.AddRange(ctorParams.Select(p => p.Name!));
+
         // Build parameter resolvers
         List<Func<object, MapperContext, object?>> paramResolvers = [];
         foreach (var param in ctorParams)
@@ -616,6 +630,7 @@ public sealed class MapperConfigurationBuilder
             if (memberConfig?.IsIgnored == true)
             {
                 paramResolvers.Add((src, ctx) => fallback);
+                tm.MappedDestinationMembers.Add(param.Name!);
             }
             else if (memberConfig?.CustomResolver != null)
             {
@@ -639,6 +654,7 @@ public sealed class MapperConfigurationBuilder
                     paramResolvers.Add(WrapParamWithCondition(
                         (src, ctx) => resolver(src), condition, fallback));
                 }
+                tm.MappedDestinationMembers.Add(param.Name!);
             }
             else if (memberConfig?.HasNullSubstitute == true)
             {
@@ -655,6 +671,7 @@ public sealed class MapperConfigurationBuilder
                     paramResolvers.Add(WrapParamWithCondition(
                         (src, ctx) => substituteValue, condition, fallback));
                 }
+                tm.MappedDestinationMembers.Add(param.Name!);
             }
             else
             {
@@ -703,9 +720,11 @@ public sealed class MapperConfigurationBuilder
                         paramResolvers.Add(WrapParamWithCondition(
                             (src, ctx) => compiledGetter(src), condition, fallback));
                     }
+                    tm.MappedDestinationMembers.Add(param.Name!);
                 }
                 else
                 {
+                    // No source match — falls back to default value; NOT marked as mapped
                     paramResolvers.Add((src, ctx) => fallback);
                 }
             }
@@ -723,7 +742,13 @@ public sealed class MapperConfigurationBuilder
             var memberConfig = tm.MemberConfigurations
                 .FirstOrDefault(mc => mc.DestinationMemberName.Equals(dstProp.Name, StringComparison.OrdinalIgnoreCase));
 
-            if (memberConfig?.IsIgnored == true) continue;
+            if (memberConfig?.IsIgnored == true)
+            {
+                tm.MappedDestinationMembers.Add(dstProp.Name);
+                continue;
+            }
+
+            var initOnlyCountBefore = initOnlyAssignments.Count;
 
             if (memberConfig?.CustomResolver != null)
             {
@@ -748,6 +773,7 @@ public sealed class MapperConfigurationBuilder
                     assign = (src, dst, ctx) => setter.SetValue(dst, resolver(src));
                 }
                 initOnlyAssignments.Add(WrapWithCondition(assign, memberConfig.ConditionPredicate));
+                tm.MappedDestinationMembers.Add(dstProp.Name);
                 continue;
             }
 
@@ -766,6 +792,7 @@ public sealed class MapperConfigurationBuilder
                     assign = (src, dst, ctx) => setter.SetValue(dst, substituteValue);
                 }
                 initOnlyAssignments.Add(WrapWithCondition(assign, memberConfig.ConditionPredicate));
+                tm.MappedDestinationMembers.Add(dstProp.Name);
                 continue;
             }
 
@@ -818,6 +845,9 @@ public sealed class MapperConfigurationBuilder
                     initOnlyAssignments.Add(WrapWithCondition(assign, memberConfig?.ConditionPredicate));
                 }
             }
+
+            if (initOnlyAssignments.Count > initOnlyCountBefore)
+                tm.MappedDestinationMembers.Add(dstProp.Name);
         }
 
         var beforeMap = tm.BeforeMapAction;
