@@ -268,6 +268,7 @@ public sealed class MapperConfigurationBuilder
                             var value = compiledGetter(src);
                             compiledSetter(dst, value ?? substituteValue);
                         };
+                        tm.MappedSourceMembers.Add(srcProp.Name);
                     }
                     else
                     {
@@ -304,6 +305,15 @@ public sealed class MapperConfigurationBuilder
                         setter(dst, value);
                     });
                     tm.MappedDestinationMembers.Add(dstProp.Name);
+                    // Track root source property consumed by flattening
+                    foreach (var sp in srcProps)
+                    {
+                        if (dstProp.Name.StartsWith(sp.Name, StringComparison.OrdinalIgnoreCase) && sp.Name.Length < dstProp.Name.Length)
+                        {
+                            tm.MappedSourceMembers.Add(sp.Name);
+                            break;
+                        }
+                    }
                 }
                 else if (IsComplexType(dstProp.PropertyType))
                 {
@@ -530,7 +540,12 @@ public sealed class MapperConfigurationBuilder
             }
 
             if (assignments.Count > assignmentCountBefore)
+            {
                 tm.MappedDestinationMembers.Add(dstProp.Name);
+                // Track consumed source members for MemberList.Source validation
+                if (matchingSrcProp != null)
+                    tm.MappedSourceMembers.Add(matchingSrcProp.Name);
+            }
         }
 
         // Build the combined delegate — this closure captures assignments, factory, and tm hooks
@@ -721,6 +736,7 @@ public sealed class MapperConfigurationBuilder
                             (src, ctx) => compiledGetter(src), condition, fallback));
                     }
                     tm.MappedDestinationMembers.Add(param.Name!);
+                    tm.MappedSourceMembers.Add(srcProp.Name);
                 }
                 else
                 {
@@ -786,6 +802,7 @@ public sealed class MapperConfigurationBuilder
                 if (srcProp2 != null)
                 {
                     assign = (src, dst, ctx) => setter.SetValue(dst, srcProp2.GetValue(src) ?? substituteValue);
+                    tm.MappedSourceMembers.Add(srcProp2.Name);
                 }
                 else
                 {
@@ -847,7 +864,12 @@ public sealed class MapperConfigurationBuilder
             }
 
             if (initOnlyAssignments.Count > initOnlyCountBefore)
+            {
                 tm.MappedDestinationMembers.Add(dstProp.Name);
+                // Track consumed source members for MemberList.Source validation
+                if (srcProp != null)
+                    tm.MappedSourceMembers.Add(srcProp.Name);
+            }
         }
 
         var beforeMap = tm.BeforeMapAction;

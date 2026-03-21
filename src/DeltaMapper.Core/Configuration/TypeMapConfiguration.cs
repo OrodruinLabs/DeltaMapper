@@ -20,6 +20,12 @@ internal sealed class TypeMapConfiguration
     public HashSet<string> MappedDestinationMembers { get; } = new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
+    /// Source property names consumed during compilation (convention match, flattening, constructor params).
+    /// Populated by MapperConfigurationBuilder at Build() time for MemberList.Source validation.
+    /// </summary>
+    public HashSet<string> MappedSourceMembers { get; } = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>
     /// Whether this type map uses constructor injection (records/init-only) vs property assignment.
     /// Set by MapperConfigurationBuilder during compilation.
     /// </summary>
