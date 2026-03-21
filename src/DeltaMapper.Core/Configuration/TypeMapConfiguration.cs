@@ -12,4 +12,10 @@ internal sealed class TypeMapConfiguration
     public Action<object, object>? AfterMapAction { get; set; }
     public Func<object, object>? CustomFactory { get; set; }
     public bool HasReverseMap { get; set; }
+
+    /// <summary>
+    /// Destination member names resolved during compilation.
+    /// Populated by MapperConfigurationBuilder at Build() time.
+    /// </summary>
+    public HashSet<string> MappedDestinationMembers { get; } = new(StringComparer.OrdinalIgnoreCase);
 }

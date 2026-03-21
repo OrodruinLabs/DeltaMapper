@@ -13,15 +13,18 @@ public sealed class MapperConfiguration
     private readonly FrozenDictionary<(Type, Type), CompiledMap> _registry;
     private readonly MappingPipeline _pipeline;
     private readonly bool _hasMiddleware;
+    private readonly IReadOnlyList<TypeMapConfiguration> _typeMaps;
 
     private MapperConfiguration(
         FrozenDictionary<(Type, Type), CompiledMap> registry,
         MappingPipeline pipeline,
-        bool hasMiddleware)
+        bool hasMiddleware,
+        IReadOnlyList<TypeMapConfiguration> typeMaps)
     {
         _registry = registry;
         _pipeline = pipeline;
         _hasMiddleware = hasMiddleware;
+        _typeMaps = typeMaps;
     }
 
     /// <summary>
@@ -33,6 +36,7 @@ public sealed class MapperConfiguration
         _registry = new Dictionary<(Type, Type), CompiledMap>().ToFrozenDictionary();
         _pipeline = new MappingPipeline([]);
         _hasMiddleware = false;
+        _typeMaps = [];
     }
 
     /// <summary>
@@ -93,13 +97,62 @@ public sealed class MapperConfiguration
     internal bool HasMap(Type srcType, Type dstType) => _registry.ContainsKey((srcType, dstType));
 
     /// <summary>
+    /// Validates that all destination members on every registered type map are mapped.
+    /// Throws DeltaMapperException listing any unmapped members.
+    /// </summary>
+    public void AssertConfigurationIsValid()
+    {
+        var errors = new List<string>();
+        foreach (var tm in _typeMaps)
+        {
+            // Check writable properties
+            var destProps = tm.DestinationType
+                .GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance)
+                .Where(p => p.CanWrite);
+
+            foreach (var prop in destProps)
+            {
+                if (!tm.MappedDestinationMembers.Contains(prop.Name))
+                {
+                    errors.Add($"Unmapped property '{prop.Name}' on destination type " +
+                               $"'{tm.DestinationType.Name}' (source: '{tm.SourceType.Name}').");
+                }
+            }
+
+            // Check constructor parameters for types that use constructor injection
+            var ctors = tm.DestinationType.GetConstructors(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+            var bestCtor = ctors.OrderByDescending(c => c.GetParameters().Length).FirstOrDefault();
+            if (bestCtor != null && bestCtor.GetParameters().Length > 0)
+            {
+                foreach (var param in bestCtor.GetParameters())
+                {
+                    if (!tm.MappedDestinationMembers.Contains(param.Name!))
+                    {
+                        errors.Add($"Unmapped constructor parameter '{param.Name}' on destination type " +
+                                   $"'{tm.DestinationType.Name}' (source: '{tm.SourceType.Name}').");
+                    }
+                }
+            }
+        }
+
+        if (errors.Count > 0)
+        {
+            throw new DeltaMapperException(
+                $"Configuration validation failed with {errors.Count} unmapped " +
+                $"{(errors.Count == 1 ? "member" : "members")}:\n" +
+                string.Join("\n", errors));
+        }
+    }
+
+    /// <summary>
     /// Called by MapperConfigurationBuilder.Build() to create the final immutable configuration.
     /// </summary>
     internal static MapperConfiguration CreateFromBuilder(
         Dictionary<(Type, Type), CompiledMap> maps,
-        IReadOnlyList<IMappingMiddleware> middlewares)
+        IReadOnlyList<IMappingMiddleware> middlewares,
+        IReadOnlyList<TypeMapConfiguration> typeMaps)
     {
         var frozen = maps.ToFrozenDictionary();
-        return new MapperConfiguration(frozen, new MappingPipeline(middlewares), middlewares.Count > 0);
+        return new MapperConfiguration(frozen, new MappingPipeline(middlewares), middlewares.Count > 0, typeMaps);
     }
 }
