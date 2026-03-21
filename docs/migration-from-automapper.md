@@ -29,10 +29,10 @@ dotnet add package DeltaMapper
 | `MapperConfiguration` (ctor) | `MapperConfiguration.Create(cfg => ...)` | Static factory replaces `new MapperConfiguration(cfg => ...)` |
 | `cfg.AddProfile<P>()` | `cfg.AddProfile<P>()` | Same signature |
 | `cfg.AddMaps(assembly)` | `cfg.AddProfilesFromAssembly(assembly)` | See [Assembly Scanning](#assembly-scanning) below |
-| `cfg.AssertConfigurationIsValid()` | DM001/DM002 analyzer diagnostics (compile-time) | Remove the runtime call; the source generator emits DM001 (unmapped destination property) and DM002 (type not found) at compile time. Note: these cover common misconfiguration but are not a full equivalent of `AssertConfigurationIsValid()` |
+| `cfg.AssertConfigurationIsValid()` | `config.AssertConfigurationIsValid()` — runtime validation at startup | Throws `DeltaMapperException` with details if any destination property is unmapped. DM001/DM002 compile-time diagnostics are also available via source generator. |
 | `mapper.Map<T>(src)` | `mapper.Map<T>(src)` | Same signature |
 | `mapper.Map<Src, Dst>(src)` | `mapper.Map<Src, Dst>(src)` | Same signature |
-| `mapper.Map(src, dst)` | `mapper.Map<Src, Dst>(src, dst)` | DeltaMapper requires explicit type arguments |
+| `mapper.Map(src, dst)` | `mapper.Map(src, dst)` | Source and destination types inferred at runtime. Semi-generic `mapper.Map<TDest>(src, dst)` also available when source type inference is desired. |
 | `mapper.Map(src, srcType, dstType)` | `mapper.Map(src, srcType, dstType)` | Same signature |
 | `IMapper.ProjectTo<T>(query)` | Not supported | Use Mapster for EF Core LINQ projections |
 
@@ -159,7 +159,7 @@ The following table summarises AutoMapper features relative to DeltaMapper v1.0.
 
 | AutoMapper feature | DeltaMapper v1.0.0-rc.2 status |
 |---|---|
-| `AssertConfigurationIsValid()` | DM001/DM002 compile-time analyzer diagnostics via source generator |
+| `AssertConfigurationIsValid()` | `config.AssertConfigurationIsValid()` — runtime validation at startup; DM001/DM002 compile-time diagnostics also available via source generator |
 | `MappingDiff<T>` / change tracking | `Patch()` method returns structured change sets |
 | Source generator / zero-overhead path | `[GenerateMap]` attribute via `DeltaMapper.SourceGen` |
 | EF Core proxy awareness | `AddEFCoreSupport()` via `DeltaMapper.EFCore` |

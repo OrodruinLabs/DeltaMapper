@@ -11,6 +11,15 @@ DeltaMapper uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.0.0-rc.6] — 2026-03-21
+
+### Added
+- `IMapper.Map(object source, object destination)` — non-generic map-into-existing overload
+- `IMapper.Map<TDest>(object source, TDest destination)` — semi-generic map-into-existing overload
+- `MapperConfiguration.AssertConfigurationIsValid()` — runtime configuration validation
+
+---
+
 ## [1.0.0-rc.5] — 2026-03-20
 
 ### Changed
@@ -258,7 +267,9 @@ Initial release.
 - On-demand benchmark workflow via `workflow_dispatch`
 - BenchmarkDotNet suite comparing against Mapperly, AutoMapper, and hand-written code
 
-[Unreleased]: https://github.com/OrodruinLabs/DeltaMapper/compare/v1.0.0-rc.4...HEAD
+[Unreleased]: https://github.com/OrodruinLabs/DeltaMapper/compare/v1.0.0-rc.6...HEAD
+[1.0.0-rc.6]: https://github.com/OrodruinLabs/DeltaMapper/compare/v1.0.0-rc.5...v1.0.0-rc.6
+[1.0.0-rc.5]: https://github.com/OrodruinLabs/DeltaMapper/compare/v1.0.0-rc.4...v1.0.0-rc.5
 [1.0.0-rc.4]: https://github.com/OrodruinLabs/DeltaMapper/compare/v1.0.0-rc.3...v1.0.0-rc.4
 [1.0.0-rc.3]: https://github.com/OrodruinLabs/DeltaMapper/compare/v1.0.0-rc.2...v1.0.0-rc.3
 [1.0.0-rc.2]: https://github.com/OrodruinLabs/DeltaMapper/compare/v1.0.0-rc.1...v1.0.0-rc.2
