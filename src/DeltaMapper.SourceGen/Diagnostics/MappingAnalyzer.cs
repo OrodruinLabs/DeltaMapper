@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.CodeAnalysis;
 
 namespace DeltaMapper.SourceGen.Diagnostics
@@ -34,7 +32,7 @@ namespace DeltaMapper.SourceGen.Diagnostics
                     continue;
 
                 bool hasMatch = srcReadableProps.Any(srcProp =>
-                    string.Equals(srcProp.Name, dstProp.Name, System.StringComparison.OrdinalIgnoreCase) &&
+                    string.Equals(srcProp.Name, dstProp.Name, StringComparison.OrdinalIgnoreCase) &&
                     SymbolEqualityComparer.Default.Equals(srcProp.Type, dstProp.Type));
 
                 if (!hasMatch)

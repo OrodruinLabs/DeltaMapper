@@ -1,4 +1,4 @@
-namespace DeltaMapper.Diff;
+namespace DeltaMapper;
 
 /// <summary>
 /// Represents a single property-level change observed during a mapping diff operation.

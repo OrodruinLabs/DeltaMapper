@@ -1,6 +1,6 @@
 namespace DeltaMapper.Benchmarks.Competitors;
 
-using DeltaMapper.Benchmarks.Models;
+using Models;
 
 /// <summary>
 /// Baseline hand-written mapper — direct property assignment with no abstraction overhead.

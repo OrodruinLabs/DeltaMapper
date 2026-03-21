@@ -19,7 +19,7 @@ public static class GeneratorTestHelper
             .ToList();
 
         // Explicitly include DeltaMapper.Core so generated code can reference DeltaMapper.Runtime
-        var coreLocation = typeof(DeltaMapper.Runtime.GeneratedMapRegistry).Assembly.Location;
+        var coreLocation = typeof(Runtime.GeneratedMapRegistry).Assembly.Location;
         if (!string.IsNullOrWhiteSpace(coreLocation))
             refs.Add(MetadataReference.CreateFromFile(coreLocation));
 

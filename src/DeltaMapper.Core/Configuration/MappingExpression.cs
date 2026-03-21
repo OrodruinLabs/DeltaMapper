@@ -1,5 +1,4 @@
 using System.Linq.Expressions;
-using DeltaMapper.Abstractions;
 
 namespace DeltaMapper.Configuration;
 

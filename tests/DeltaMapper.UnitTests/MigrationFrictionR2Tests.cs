@@ -1,4 +1,3 @@
-using DeltaMapper.Configuration;
 using FluentAssertions;
 using Xunit;
 

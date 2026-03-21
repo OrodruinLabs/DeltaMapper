@@ -47,7 +47,7 @@ public class MapperGeneratorFlatTests
         var result = GeneratorTestHelper.RunGenerator(FlatPocoSource);
 
         result.GeneratedTrees
-            .Select(t => System.IO.Path.GetFileName(t.FilePath))
+            .Select(t => Path.GetFileName(t.FilePath))
             .Should().Contain("GenerateMapAttribute.g.cs");
     }
 
@@ -57,7 +57,7 @@ public class MapperGeneratorFlatTests
         var result = GeneratorTestHelper.RunGenerator(FlatPocoSource);
 
         result.GeneratedTrees
-            .Select(t => System.IO.Path.GetFileName(t.FilePath))
+            .Select(t => Path.GetFileName(t.FilePath))
             .Should().Contain("UserProfile.User_To_UserDto.g.cs");
     }
 
@@ -182,7 +182,7 @@ public class MapperGeneratorFlatTests
             "one attribute file plus one map file per [GenerateMap] attribute plus one factory file per [GenerateMap] attribute plus one ModuleInitializer file per profile");
 
         result.GeneratedTrees
-            .Select(t => System.IO.Path.GetFileName(t.FilePath))
+            .Select(t => Path.GetFileName(t.FilePath))
             .Should().Contain("MultiProfile.A_To_B.g.cs")
             .And.Contain("MultiProfile.A_To_C.g.cs");
     }

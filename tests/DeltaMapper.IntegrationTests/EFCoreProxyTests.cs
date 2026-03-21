@@ -1,4 +1,3 @@
-using DeltaMapper.Configuration;
 using DeltaMapper.EFCore;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;

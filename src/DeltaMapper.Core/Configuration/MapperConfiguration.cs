@@ -1,10 +1,9 @@
 using System.Collections.Frozen;
-using DeltaMapper.Abstractions;
-using DeltaMapper.Exceptions;
+using DeltaMapper.Configuration;
 using DeltaMapper.Middleware;
 using DeltaMapper.Runtime;
 
-namespace DeltaMapper.Configuration;
+namespace DeltaMapper;
 
 /// <summary>
 /// Holds compiled mapping configuration. Created at startup, immutable after construction.

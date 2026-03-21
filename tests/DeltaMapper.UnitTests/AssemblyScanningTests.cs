@@ -1,6 +1,4 @@
 using System.Reflection;
-using DeltaMapper.Abstractions;
-using DeltaMapper.Configuration;
 using FluentAssertions;
 using Xunit;
 
@@ -182,8 +180,8 @@ public class AssemblyScanningTests
         var mapper = config.CreateMapper();
 
         // This map is ONLY registered in FixtureProfile (in the referenced assembly)
-        var result = mapper.Map<DeltaMapper.TestFixtures.FixtureSource, DeltaMapper.TestFixtures.FixtureDest>(
-            new DeltaMapper.TestFixtures.FixtureSource { Id = 42, Value = "cross-assembly" });
+        var result = mapper.Map<TestFixtures.FixtureSource, TestFixtures.FixtureDest>(
+            new TestFixtures.FixtureSource { Id = 42, Value = "cross-assembly" });
 
         result.Id.Should().Be(42);
         result.Value.Should().Be("cross-assembly");
@@ -198,10 +196,10 @@ public class AssemblyScanningTests
         var mapper = config.CreateMapper();
 
         // FixtureSource → FixtureDest map should NOT exist
-        var act = () => mapper.Map<DeltaMapper.TestFixtures.FixtureSource, DeltaMapper.TestFixtures.FixtureDest>(
-            new DeltaMapper.TestFixtures.FixtureSource { Id = 1, Value = "test" });
+        var act = () => mapper.Map<TestFixtures.FixtureSource, TestFixtures.FixtureDest>(
+            new TestFixtures.FixtureSource { Id = 1, Value = "test" });
 
-        act.Should().Throw<DeltaMapper.Exceptions.DeltaMapperException>();
+        act.Should().Throw<DeltaMapperException>();
     }
 
     [Fact]

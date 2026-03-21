@@ -1,4 +1,4 @@
-namespace DeltaMapper.Diff;
+namespace DeltaMapper;
 
 /// <summary>
 /// Describes the kind of change that occurred on a mapped property.

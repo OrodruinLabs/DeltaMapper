@@ -11,6 +11,18 @@ DeltaMapper uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.0.0-rc.5] — 2026-03-20
+
+### Changed
+- **BREAKING:** Consolidated consumer-facing types into root `DeltaMapper` namespace
+  - `IMapper`, `Profile`, `MapperConfiguration` — previously in `DeltaMapper.Abstractions` / `DeltaMapper.Configuration`
+  - `MappingDiff<T>`, `PropertyChange`, `ChangeKind` — previously in `DeltaMapper.Diff`
+  - `DeltaMapperException` — previously in `DeltaMapper.Exceptions`
+  - `AddDeltaMapper()` — previously in `DeltaMapper.Extensions`
+- Migration: replace all old `using` statements with single `using DeltaMapper;`
+
+---
+
 ## [1.0.0-rc.4] — 2026-03-20
 
 ### Added

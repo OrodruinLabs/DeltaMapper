@@ -35,7 +35,7 @@ public class ModuleInitializerEmitTests
         var result = GeneratorTestHelper.RunGenerator(FlatPocoSource);
 
         result.GeneratedTrees
-            .Select(t => System.IO.Path.GetFileName(t.FilePath))
+            .Select(t => Path.GetFileName(t.FilePath))
             .Should().Contain("UserProfile.ModuleInit.g.cs",
                 "the generator must emit a ModuleInitializer file for each profile class");
     }

@@ -1,6 +1,6 @@
 using System.Linq.Expressions;
 
-namespace DeltaMapper.Abstractions;
+namespace DeltaMapper;
 
 /// <summary>
 /// Fluent interface for configuring a mapping between TSrc and TDst.

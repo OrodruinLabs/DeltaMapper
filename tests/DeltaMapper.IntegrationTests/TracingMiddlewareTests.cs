@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using DeltaMapper.Configuration;
 using DeltaMapper.OpenTelemetry;
 using FluentAssertions;
 using Xunit;

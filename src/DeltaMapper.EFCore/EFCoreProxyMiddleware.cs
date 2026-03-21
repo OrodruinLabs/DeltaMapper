@@ -1,7 +1,7 @@
 namespace DeltaMapper.EFCore;
 
-using DeltaMapper.Middleware;
-using DeltaMapper.Runtime;
+using Middleware;
+using Runtime;
 
 /// <summary>
 /// Middleware that detects EF Core Castle.Core proxy entities and skips all collection-typed

@@ -1,7 +1,7 @@
 namespace DeltaMapper.Benchmarks.Competitors;
 
 using AutoMapper;
-using DeltaMapper.Benchmarks.Models;
+using Models;
 
 public static class AutoMapperSetup
 {

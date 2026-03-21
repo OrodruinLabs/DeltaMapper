@@ -51,7 +51,7 @@ builder.Services.AddAutoMapper(typeof(UserProfile).Assembly);
 
 ```csharp
 // Program.cs
-using DeltaMapper.Extensions;
+using DeltaMapper;
 
 builder.Services.AddDeltaMapper(cfg =>
 {
@@ -125,16 +125,16 @@ Since DeltaMapper now uses the same `Profile` base class name as AutoMapper, the
 
 > **Note:** The `sed -i` syntax differs between macOS (BSD) and Linux (GNU). The commands below show both variants. Use the one matching your platform, or use `dotnet format` / your IDE's find-and-replace for a portable alternative.
 
-Update `using` directives (AutoMapper's namespace is `AutoMapper`; DeltaMapper types live in `DeltaMapper.*`):
+Update `using` directives (AutoMapper's namespace is `AutoMapper`; all DeltaMapper consumer types live in `DeltaMapper`):
 
 ```bash
 # macOS (BSD sed)
 find . -name "*.cs" -not -path "*/obj/*" \
-  -exec sed -i '' 's/using AutoMapper;/using DeltaMapper.Abstractions;\nusing DeltaMapper.Configuration;/g' {} +
+  -exec sed -i '' 's/using AutoMapper;/using DeltaMapper;/g' {} +
 
 # Linux (GNU sed)
 find . -name "*.cs" -not -path "*/obj/*" \
-  -exec sed -i 's/using AutoMapper;/using DeltaMapper.Abstractions;\nusing DeltaMapper.Configuration;/g' {} +
+  -exec sed -i 's/using AutoMapper;/using DeltaMapper;/g' {} +
 ```
 
 Update the configuration construction pattern:

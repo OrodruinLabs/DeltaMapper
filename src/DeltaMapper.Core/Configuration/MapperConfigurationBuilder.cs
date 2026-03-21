@@ -2,7 +2,6 @@ using System.Collections.Concurrent;
 using System.Collections.Frozen;
 using System.Linq.Expressions;
 using System.Reflection;
-using DeltaMapper.Exceptions;
 using DeltaMapper.Middleware;
 using DeltaMapper.Runtime;
 

@@ -1,5 +1,3 @@
-using DeltaMapper.Configuration;
-using DeltaMapper.Diff;
 using DeltaMapper.UnitTests.TestModels;
 using FluentAssertions;
 using Xunit;

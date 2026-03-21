@@ -1,6 +1,4 @@
-using System;
-
-namespace DeltaMapper.Exceptions;
+namespace DeltaMapper;
 
 /// <summary>
 /// Exception thrown when a mapping operation fails.

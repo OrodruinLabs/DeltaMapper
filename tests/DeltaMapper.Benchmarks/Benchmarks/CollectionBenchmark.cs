@@ -1,12 +1,12 @@
 namespace DeltaMapper.Benchmarks.Benchmarks;
 
 using BenchmarkDotNet.Attributes;
-using DeltaMapper.Abstractions;
-using DeltaMapper.Benchmarks.Competitors;
-using DeltaMapper.Benchmarks.Models;
+using DeltaMapper;
+using Competitors;
+using Models;
 
 using AmMapper = AutoMapper.IMapper;
-using DmConfig = DeltaMapper.Configuration.MapperConfiguration;
+using DmConfig = MapperConfiguration;
 
 [MemoryDiagnoser]
 public class CollectionBenchmark
@@ -57,7 +57,7 @@ public class CollectionBenchmark
 }
 
 /// <summary>Runtime-only profile for the collection benchmark.</summary>
-public class CollectionRuntimeProfile : DeltaMapper.Configuration.Profile
+public class CollectionRuntimeProfile : Profile
 {
     public CollectionRuntimeProfile()
     {

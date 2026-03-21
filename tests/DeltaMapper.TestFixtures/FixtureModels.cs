@@ -1,5 +1,3 @@
-using DeltaMapper.Configuration;
-
 namespace DeltaMapper.TestFixtures;
 
 public class FixtureSource

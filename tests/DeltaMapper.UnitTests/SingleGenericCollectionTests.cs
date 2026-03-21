@@ -1,4 +1,3 @@
-using DeltaMapper.Configuration;
 using FluentAssertions;
 using Xunit;
 
@@ -17,7 +16,7 @@ public class SingleGenericCollectionTests
         }
     }
 
-    private static Abstractions.IMapper CreateMapper() =>
+    private static IMapper CreateMapper() =>
         MapperConfiguration.Create(cfg => cfg.AddProfile<TestProfile>()).CreateMapper();
 
     [Fact]
@@ -113,6 +112,6 @@ public class SingleGenericCollectionTests
 
         // No map from Student → string, so collection detection skips and normal error fires
         var act = () => mapper.Map<List<string>>(students);
-        act.Should().Throw<DeltaMapper.Exceptions.DeltaMapperException>();
+        act.Should().Throw<DeltaMapperException>();
     }
 }
