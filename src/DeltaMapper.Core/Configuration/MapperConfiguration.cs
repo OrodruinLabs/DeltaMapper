@@ -122,7 +122,9 @@ public sealed class MapperConfiguration
                         if (!snap.MappedSourceMembers.Contains(prop.Name))
                         {
                             errors.Add($"Unconsumed source property '{prop.Name}' on source type " +
-                                       $"'{snap.SourceType.Name}' (destination: '{snap.DestinationType.Name}').");
+                                       $"'{snap.SourceType.Name}' (destination: '{snap.DestinationType.Name}'). " +
+                                       "Note: source validation tracks convention, flattening, and constructor matches; " +
+                                       "properties used only in MapFrom expressions may still be reported.");
                         }
                     }
                     break;
@@ -143,7 +145,7 @@ public sealed class MapperConfiguration
                         if (ctorParamSet?.Contains(prop.Name) == true)
                             continue; // Validated in constructor param check below
 
-                        if (!snap.MappedMembers.Contains(prop.Name))
+                        if (!snap.MappedDestinationMembers.Contains(prop.Name))
                         {
                             errors.Add($"Unmapped property '{prop.Name}' on destination type " +
                                        $"'{snap.DestinationType.Name}' (source: '{snap.SourceType.Name}').");
@@ -155,7 +157,7 @@ public sealed class MapperConfiguration
                     {
                         foreach (var paramName in snap.ConstructorParameterNames)
                         {
-                            if (!snap.MappedMembers.Contains(paramName))
+                            if (!snap.MappedDestinationMembers.Contains(paramName))
                             {
                                 errors.Add($"Unmapped constructor parameter '{paramName}' on destination type " +
                                            $"'{snap.DestinationType.Name}' (source: '{snap.SourceType.Name}').");
@@ -209,7 +211,7 @@ public sealed class MapperConfiguration
     internal sealed record ValidationSnapshot(
         Type SourceType,
         Type DestinationType,
-        FrozenSet<string> MappedMembers,
+        FrozenSet<string> MappedDestinationMembers,
         FrozenSet<string> MappedSourceMembers,
         bool UsesConstructorInjection,
         IReadOnlyList<string> ConstructorParameterNames,

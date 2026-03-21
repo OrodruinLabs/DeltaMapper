@@ -338,10 +338,19 @@ public sealed class MapperConfigurationBuilder
                             dstPropSetter(dst, nested);
                         });
                         tm.MappedDestinationMembers.Add(dstProp.Name);
-                        // Track source properties consumed by unflattening (e.g., CustomerName, CustomerEmail → Customer)
+                        // Track only source properties actually consumed by unflattening
+                        // (suffix must match a nested property on the destination complex type)
+                        var nestedPropNames = new HashSet<string>(
+                            dstProp.PropertyType
+                                .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                                .Select(np => np.Name),
+                            StringComparer.OrdinalIgnoreCase);
                         foreach (var sp in srcProps)
                         {
-                            if (sp.Name.StartsWith(dstProp.Name, StringComparison.OrdinalIgnoreCase))
+                            if (!sp.Name.StartsWith(dstProp.Name, StringComparison.OrdinalIgnoreCase))
+                                continue;
+                            var suffix = sp.Name[dstProp.Name.Length..];
+                            if (suffix.Length > 0 && nestedPropNames.Contains(suffix))
                                 tm.MappedSourceMembers.Add(sp.Name);
                         }
                     }
