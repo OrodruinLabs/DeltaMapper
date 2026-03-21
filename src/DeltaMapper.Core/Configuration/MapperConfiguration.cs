@@ -105,13 +105,20 @@ public sealed class MapperConfiguration
         var errors = new List<string>();
         foreach (var snap in _validationSnapshots)
         {
-            // Check writable properties
+            // Check writable properties — skip properties covered by constructor params to avoid double-reporting
+            var ctorParamSet = snap.UsesConstructorInjection
+                ? new HashSet<string>(snap.ConstructorParameterNames, StringComparer.OrdinalIgnoreCase)
+                : null;
+
             var destProps = snap.DestinationType
                 .GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance)
                 .Where(p => p.CanWrite);
 
             foreach (var prop in destProps)
             {
+                if (ctorParamSet?.Contains(prop.Name) == true)
+                    continue; // Validated in constructor param check below
+
                 if (!snap.MappedMembers.Contains(prop.Name))
                 {
                     errors.Add($"Unmapped property '{prop.Name}' on destination type " +
@@ -151,8 +158,15 @@ public sealed class MapperConfiguration
         IReadOnlyList<TypeMapConfiguration> typeMaps)
     {
         var frozen = maps.ToFrozenDictionary();
+
+        // Deduplicate type maps by (SourceType, DestinationType), keeping the last registration.
+        // This matches the compiled registry behavior where later maps overwrite earlier ones.
+        var latestTypeMaps = new Dictionary<(Type, Type), TypeMapConfiguration>();
+        foreach (var tm in typeMaps)
+            latestTypeMaps[(tm.SourceType, tm.DestinationType)] = tm;
+
         // Create lightweight validation snapshots — avoids retaining full TypeMapConfiguration (delegates, resolvers)
-        var snapshots = typeMaps.Select(tm => new ValidationSnapshot(
+        var snapshots = latestTypeMaps.Values.Select(tm => new ValidationSnapshot(
             tm.SourceType,
             tm.DestinationType,
             tm.MappedDestinationMembers.ToFrozenSet(StringComparer.OrdinalIgnoreCase),
