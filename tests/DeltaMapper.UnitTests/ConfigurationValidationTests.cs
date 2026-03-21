@@ -212,7 +212,7 @@ public class ConfigurationValidationTests
         var act = () => config.AssertConfigurationIsValid();
 
         act.Should().Throw<DeltaMapperException>()
-            .WithMessage("*2 unmapped members*");
+            .WithMessage("*2 errors*");
     }
 
     // ── CV-08 ────────────────────────────────────────────────────────────────
@@ -310,7 +310,7 @@ public class ConfigurationValidationTests
         var act = () => config.AssertConfigurationIsValid();
 
         act.Should().Throw<DeltaMapperException>()
-            .WithMessage("*1 unmapped member:*")
+            .WithMessage("*1 error*")
             .And.Message.Should().Contain("OnlyOne");
     }
 }

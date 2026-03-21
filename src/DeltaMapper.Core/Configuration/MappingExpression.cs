@@ -4,11 +4,19 @@ namespace DeltaMapper.Configuration;
 
 internal sealed class MappingExpression<TSrc, TDst> : IMappingExpression<TSrc, TDst>
 {
-    internal TypeMapConfiguration TypeMapConfig { get; } = new()
+    internal TypeMapConfiguration TypeMapConfig { get; }
+
+    internal MappingExpression() : this(MemberList.Destination) { }
+
+    internal MappingExpression(MemberList memberList)
     {
-        SourceType = typeof(TSrc),
-        DestinationType = typeof(TDst)
-    };
+        TypeMapConfig = new TypeMapConfiguration
+        {
+            SourceType = typeof(TSrc),
+            DestinationType = typeof(TDst),
+            MemberValidation = memberList
+        };
+    }
 
     public IMappingExpression<TSrc, TDst> ForMember<TMember>(
         Expression<Func<TDst, TMember>> destinationMember,
@@ -28,7 +36,8 @@ internal sealed class MappingExpression<TSrc, TDst> : IMappingExpression<TSrc, T
             IsIgnored = memberOptions.IsIgnored,
             NullSubstituteValue = memberOptions.NullSubstituteValue,
             HasNullSubstitute = memberOptions.HasNullSubstitute,
-            ConditionPredicate = memberOptions.ConditionPredicate
+            ConditionPredicate = memberOptions.ConditionPredicate,
+            ReferencedSourceMembers = memberOptions.ReferencedSourceMembers
         });
 
         return this;

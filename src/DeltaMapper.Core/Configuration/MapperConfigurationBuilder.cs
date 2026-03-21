@@ -251,6 +251,9 @@ public sealed class MapperConfigurationBuilder
                     }
                     assignments.Add(WrapWithCondition(assign, memberConfig.ConditionPredicate));
                     tm.MappedDestinationMembers.Add(dstProp.Name);
+                    // Track source members referenced by MapFrom expression
+                    foreach (var srcMember in memberConfig.ReferencedSourceMembers)
+                        tm.MappedSourceMembers.Add(srcMember);
                     continue;
                 }
 
@@ -268,6 +271,7 @@ public sealed class MapperConfigurationBuilder
                             var value = compiledGetter(src);
                             compiledSetter(dst, value ?? substituteValue);
                         };
+                        tm.MappedSourceMembers.Add(srcProp.Name);
                     }
                     else
                     {
@@ -304,6 +308,21 @@ public sealed class MapperConfigurationBuilder
                         setter(dst, value);
                     });
                     tm.MappedDestinationMembers.Add(dstProp.Name);
+                    // Track root source property consumed by flattening (longest prefix match)
+                    string? rootSourceName = null;
+                    var maxPrefixLength = 0;
+                    foreach (var sp in srcProps)
+                    {
+                        if (dstProp.Name.StartsWith(sp.Name, StringComparison.OrdinalIgnoreCase)
+                            && sp.Name.Length < dstProp.Name.Length
+                            && sp.Name.Length > maxPrefixLength)
+                        {
+                            rootSourceName = sp.Name;
+                            maxPrefixLength = sp.Name.Length;
+                        }
+                    }
+                    if (rootSourceName is not null)
+                        tm.MappedSourceMembers.Add(rootSourceName);
                 }
                 else if (IsComplexType(dstProp.PropertyType))
                 {
@@ -322,6 +341,21 @@ public sealed class MapperConfigurationBuilder
                             dstPropSetter(dst, nested);
                         });
                         tm.MappedDestinationMembers.Add(dstProp.Name);
+                        // Track only source properties actually consumed by unflattening
+                        // (suffix must match a nested property on the destination complex type)
+                        var nestedPropNames = new HashSet<string>(
+                            dstProp.PropertyType
+                                .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                                .Select(np => np.Name),
+                            StringComparer.OrdinalIgnoreCase);
+                        foreach (var sp in srcProps)
+                        {
+                            if (!sp.Name.StartsWith(dstProp.Name, StringComparison.OrdinalIgnoreCase))
+                                continue;
+                            var suffix = sp.Name[dstProp.Name.Length..];
+                            if (suffix.Length > 0 && nestedPropNames.Contains(suffix))
+                                tm.MappedSourceMembers.Add(sp.Name);
+                        }
                     }
                 }
                 continue;
@@ -530,7 +564,12 @@ public sealed class MapperConfigurationBuilder
             }
 
             if (assignments.Count > assignmentCountBefore)
+            {
                 tm.MappedDestinationMembers.Add(dstProp.Name);
+                // Track consumed source members for MemberList.Source validation
+                if (matchingSrcProp != null)
+                    tm.MappedSourceMembers.Add(matchingSrcProp.Name);
+            }
         }
 
         // Build the combined delegate — this closure captures assignments, factory, and tm hooks
@@ -721,6 +760,7 @@ public sealed class MapperConfigurationBuilder
                             (src, ctx) => compiledGetter(src), condition, fallback));
                     }
                     tm.MappedDestinationMembers.Add(param.Name!);
+                    tm.MappedSourceMembers.Add(srcProp.Name);
                 }
                 else
                 {
@@ -786,6 +826,7 @@ public sealed class MapperConfigurationBuilder
                 if (srcProp2 != null)
                 {
                     assign = (src, dst, ctx) => setter.SetValue(dst, srcProp2.GetValue(src) ?? substituteValue);
+                    tm.MappedSourceMembers.Add(srcProp2.Name);
                 }
                 else
                 {
@@ -847,7 +888,12 @@ public sealed class MapperConfigurationBuilder
             }
 
             if (initOnlyAssignments.Count > initOnlyCountBefore)
+            {
                 tm.MappedDestinationMembers.Add(dstProp.Name);
+                // Track consumed source members for MemberList.Source validation
+                if (srcProp != null)
+                    tm.MappedSourceMembers.Add(srcProp.Name);
+            }
         }
 
         var beforeMap = tm.BeforeMapAction;
