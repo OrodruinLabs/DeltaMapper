@@ -116,7 +116,7 @@ public sealed class MapperConfiguration
                 case MemberList.Source:
                     var srcProps = snap.SourceType
                         .GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance)
-                        .Where(p => p.CanRead);
+                        .Where(p => p.CanRead && p.GetIndexParameters().Length == 0);
                     foreach (var prop in srcProps)
                     {
                         if (!snap.MappedSourceMembers.Contains(prop.Name))
@@ -169,8 +169,8 @@ public sealed class MapperConfiguration
         if (errors.Count > 0)
         {
             throw new DeltaMapperException(
-                $"Configuration validation failed with {errors.Count} unmapped " +
-                $"{(errors.Count == 1 ? "member" : "members")}:\n" +
+                $"Configuration validation failed with {errors.Count} " +
+                $"{(errors.Count == 1 ? "error" : "errors")}:\n" +
                 string.Join("\n", errors));
         }
     }

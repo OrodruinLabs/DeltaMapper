@@ -305,15 +305,21 @@ public sealed class MapperConfigurationBuilder
                         setter(dst, value);
                     });
                     tm.MappedDestinationMembers.Add(dstProp.Name);
-                    // Track root source property consumed by flattening
+                    // Track root source property consumed by flattening (longest prefix match)
+                    string? rootSourceName = null;
+                    var maxPrefixLength = 0;
                     foreach (var sp in srcProps)
                     {
-                        if (dstProp.Name.StartsWith(sp.Name, StringComparison.OrdinalIgnoreCase) && sp.Name.Length < dstProp.Name.Length)
+                        if (dstProp.Name.StartsWith(sp.Name, StringComparison.OrdinalIgnoreCase)
+                            && sp.Name.Length < dstProp.Name.Length
+                            && sp.Name.Length > maxPrefixLength)
                         {
-                            tm.MappedSourceMembers.Add(sp.Name);
-                            break;
+                            rootSourceName = sp.Name;
+                            maxPrefixLength = sp.Name.Length;
                         }
                     }
+                    if (rootSourceName is not null)
+                        tm.MappedSourceMembers.Add(rootSourceName);
                 }
                 else if (IsComplexType(dstProp.PropertyType))
                 {
@@ -332,6 +338,12 @@ public sealed class MapperConfigurationBuilder
                             dstPropSetter(dst, nested);
                         });
                         tm.MappedDestinationMembers.Add(dstProp.Name);
+                        // Track source properties consumed by unflattening (e.g., CustomerName, CustomerEmail → Customer)
+                        foreach (var sp in srcProps)
+                        {
+                            if (sp.Name.StartsWith(dstProp.Name, StringComparison.OrdinalIgnoreCase))
+                                tm.MappedSourceMembers.Add(sp.Name);
+                        }
                     }
                 }
                 continue;
