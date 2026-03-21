@@ -15,7 +15,7 @@ MapperConfiguration config = MapperConfiguration.Create(cfg =>
 
 IMapper mapper = config.CreateMapper();
 
-// Runtime validation — throws DeltaMapperException if any destination property is unmapped
+// Runtime validation — throws DeltaMapperException if any destination member is unmapped
 config.AssertConfigurationIsValid();
 ```
 
@@ -27,7 +27,7 @@ All compilation happens inside `Create()`. The internal registry is a `FrozenDic
 void AssertConfigurationIsValid()
 ```
 
-Validates that every destination property across all registered maps is either mapped by convention, covered by a `ForMember` rule, or explicitly ignored. Throws `DeltaMapperException` with a detailed list of unmapped properties if validation fails.
+Validates that every destination member across all registered maps — including both writable properties and constructor parameters (for record/init-only destinations) — is either mapped by convention, covered by a `ForMember` rule, or explicitly ignored. Throws `DeltaMapperException` with a detailed list of unmapped members if validation fails.
 
 Call this once at startup (after `Create()`, before serving requests) to surface misconfiguration early. Compile-time equivalents DM001 and DM002 are available via the `DeltaMapper.SourceGen` source generator.
 

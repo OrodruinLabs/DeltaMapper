@@ -193,6 +193,7 @@ public sealed class MapperConfigurationBuilder
         }
         else if (NeedsConstructorInjection(dstType, dstProps))
         {
+            tm.UsesConstructorInjection = true;
             return CompileConstructorMap(tm, srcType, dstType, srcProps, dstProps, typeConverters);
         }
 

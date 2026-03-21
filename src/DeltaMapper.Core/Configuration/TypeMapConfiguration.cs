@@ -18,4 +18,10 @@ internal sealed class TypeMapConfiguration
     /// Populated by MapperConfigurationBuilder at Build() time.
     /// </summary>
     public HashSet<string> MappedDestinationMembers { get; } = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// Whether this type map uses constructor injection (records/init-only) vs property assignment.
+    /// Set by MapperConfigurationBuilder during compilation.
+    /// </summary>
+    public bool UsesConstructorInjection { get; set; }
 }

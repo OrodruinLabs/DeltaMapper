@@ -32,11 +32,13 @@ public interface IMapper
 
     /// <summary>
     /// Maps the source object onto an existing destination instance. Both types are inferred at runtime.
+    /// For record/init-only destinations, a new instance may be returned instead of updating in place.
     /// </summary>
     object Map(object source, object destination);
 
     /// <summary>
     /// Maps the source object onto an existing TDestination instance. Source type is inferred at runtime.
+    /// For record/init-only destinations, a new instance may be returned instead of updating in place.
     /// </summary>
     TDestination Map<TDestination>(object source, TDestination destination);
 

@@ -29,7 +29,7 @@ dotnet add package DeltaMapper
 | `MapperConfiguration` (ctor) | `MapperConfiguration.Create(cfg => ...)` | Static factory replaces `new MapperConfiguration(cfg => ...)` |
 | `cfg.AddProfile<P>()` | `cfg.AddProfile<P>()` | Same signature |
 | `cfg.AddMaps(assembly)` | `cfg.AddProfilesFromAssembly(assembly)` | See [Assembly Scanning](#assembly-scanning) below |
-| `cfg.AssertConfigurationIsValid()` | `config.AssertConfigurationIsValid()` — runtime validation at startup | Throws `DeltaMapperException` with details if any destination property is unmapped. DM001/DM002 compile-time diagnostics are also available via source generator. |
+| `cfg.AssertConfigurationIsValid()` | `config.AssertConfigurationIsValid()` — runtime validation at startup | Throws `DeltaMapperException` with details if any destination property or constructor parameter (including record positional parameters) is unmapped. DM001/DM002 compile-time diagnostics are also available via source generator. |
 | `mapper.Map<T>(src)` | `mapper.Map<T>(src)` | Same signature |
 | `mapper.Map<Src, Dst>(src)` | `mapper.Map<Src, Dst>(src)` | Same signature |
 | `mapper.Map(src, dst)` | `mapper.Map(src, dst)` | Source and destination types inferred at runtime. Semi-generic `mapper.Map<TDest>(src, dst)` also available when source type inference is desired. |

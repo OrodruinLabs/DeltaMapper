@@ -13,18 +13,18 @@ public sealed class MapperConfiguration
     private readonly FrozenDictionary<(Type, Type), CompiledMap> _registry;
     private readonly MappingPipeline _pipeline;
     private readonly bool _hasMiddleware;
-    private readonly IReadOnlyList<TypeMapConfiguration> _typeMaps;
+    private readonly IReadOnlyList<ValidationSnapshot> _validationSnapshots;
 
     private MapperConfiguration(
         FrozenDictionary<(Type, Type), CompiledMap> registry,
         MappingPipeline pipeline,
         bool hasMiddleware,
-        IReadOnlyList<TypeMapConfiguration> typeMaps)
+        IReadOnlyList<ValidationSnapshot> validationSnapshots)
     {
         _registry = registry;
         _pipeline = pipeline;
         _hasMiddleware = hasMiddleware;
-        _typeMaps = typeMaps;
+        _validationSnapshots = validationSnapshots;
     }
 
     /// <summary>
@@ -36,7 +36,7 @@ public sealed class MapperConfiguration
         _registry = new Dictionary<(Type, Type), CompiledMap>().ToFrozenDictionary();
         _pipeline = new MappingPipeline([]);
         _hasMiddleware = false;
-        _typeMaps = [];
+        _validationSnapshots = [];
     }
 
     /// <summary>
@@ -97,39 +97,42 @@ public sealed class MapperConfiguration
     internal bool HasMap(Type srcType, Type dstType) => _registry.ContainsKey((srcType, dstType));
 
     /// <summary>
-    /// Validates that all destination members on every registered type map are mapped.
-    /// Throws DeltaMapperException listing any unmapped members.
+    /// Validates that all destination members (properties and constructor parameters) on every
+    /// registered type map are mapped. Throws DeltaMapperException listing any unmapped members.
     /// </summary>
     public void AssertConfigurationIsValid()
     {
         var errors = new List<string>();
-        foreach (var tm in _typeMaps)
+        foreach (var snap in _validationSnapshots)
         {
             // Check writable properties
-            var destProps = tm.DestinationType
+            var destProps = snap.DestinationType
                 .GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance)
                 .Where(p => p.CanWrite);
 
             foreach (var prop in destProps)
             {
-                if (!tm.MappedDestinationMembers.Contains(prop.Name))
+                if (!snap.MappedMembers.Contains(prop.Name))
                 {
                     errors.Add($"Unmapped property '{prop.Name}' on destination type " +
-                               $"'{tm.DestinationType.Name}' (source: '{tm.SourceType.Name}').");
+                               $"'{snap.DestinationType.Name}' (source: '{snap.SourceType.Name}').");
                 }
             }
 
-            // Check constructor parameters for types that use constructor injection
-            var ctors = tm.DestinationType.GetConstructors(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
-            var bestCtor = ctors.OrderByDescending(c => c.GetParameters().Length).FirstOrDefault();
-            if (bestCtor != null && bestCtor.GetParameters().Length > 0)
+            // Check constructor parameters only for types that actually use constructor injection
+            if (snap.UsesConstructorInjection)
             {
-                foreach (var param in bestCtor.GetParameters())
+                var ctors = snap.DestinationType.GetConstructors(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+                var bestCtor = ctors.OrderByDescending(c => c.GetParameters().Length).FirstOrDefault();
+                if (bestCtor != null && bestCtor.GetParameters().Length > 0)
                 {
-                    if (!tm.MappedDestinationMembers.Contains(param.Name!))
+                    foreach (var param in bestCtor.GetParameters())
                     {
-                        errors.Add($"Unmapped constructor parameter '{param.Name}' on destination type " +
-                                   $"'{tm.DestinationType.Name}' (source: '{tm.SourceType.Name}').");
+                        if (!snap.MappedMembers.Contains(param.Name!))
+                        {
+                            errors.Add($"Unmapped constructor parameter '{param.Name}' on destination type " +
+                                       $"'{snap.DestinationType.Name}' (source: '{snap.SourceType.Name}').");
+                        }
                     }
                 }
             }
@@ -153,6 +156,21 @@ public sealed class MapperConfiguration
         IReadOnlyList<TypeMapConfiguration> typeMaps)
     {
         var frozen = maps.ToFrozenDictionary();
-        return new MapperConfiguration(frozen, new MappingPipeline(middlewares), middlewares.Count > 0, typeMaps);
+        // Create lightweight validation snapshots — avoids retaining full TypeMapConfiguration (delegates, resolvers)
+        var snapshots = typeMaps.Select(tm => new ValidationSnapshot(
+            tm.SourceType,
+            tm.DestinationType,
+            tm.MappedDestinationMembers.ToFrozenSet(StringComparer.OrdinalIgnoreCase),
+            tm.UsesConstructorInjection)).ToList();
+        return new MapperConfiguration(frozen, new MappingPipeline(middlewares), middlewares.Count > 0, snapshots);
     }
+
+    /// <summary>
+    /// Immutable snapshot of type map metadata for runtime validation.
+    /// </summary>
+    internal sealed record ValidationSnapshot(
+        Type SourceType,
+        Type DestinationType,
+        FrozenSet<string> MappedMembers,
+        bool UsesConstructorInjection);
 }
