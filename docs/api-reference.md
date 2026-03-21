@@ -60,6 +60,24 @@ public class OrderProfile : Profile
 | `AfterMap((src, dst) => ...)` | Hook runs after property assignment |
 | `ReverseMap()` | Registers convention-matched reverse map (`TDst -> TSrc`) |
 
+### `MemberList` Enum
+
+```csharp
+public enum MemberList { Destination, Source, None }
+```
+
+Controls which members `AssertConfigurationIsValid()` checks for a given type map:
+- `Destination` (default) — all destination members must be mapped
+- `Source` — all source members must be consumed
+- `None` — skip validation for this map
+
+### `CreateMap<TSrc, TDst>(MemberList)`
+
+```csharp
+CreateMap<Order, OrderDto>(MemberList.None);       // skip validation
+CreateMap<Order, OrderDto>(MemberList.Source);      // validate source consumption
+```
+
 ### Nested Type Resolution in MapFrom
 
 When `MapFrom` returns a type that differs from the destination property type and a registered type map exists, DeltaMapper auto-resolves it:

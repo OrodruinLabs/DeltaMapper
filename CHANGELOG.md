@@ -11,6 +11,15 @@ DeltaMapper uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.0.0-rc.7] — 2026-03-21
+
+### Added
+- `MemberList` enum (`Destination`, `Source`, `None`) for per-map validation control
+- `CreateMap<TSrc, TDst>(MemberList)` overload on `Profile`
+- Source member consumption tracking for `MemberList.Source` validation
+
+---
+
 ## [1.0.0-rc.6] — 2026-03-21
 
 ### Added
@@ -267,7 +276,8 @@ Initial release.
 - On-demand benchmark workflow via `workflow_dispatch`
 - BenchmarkDotNet suite comparing against Mapperly, AutoMapper, and hand-written code
 
-[Unreleased]: https://github.com/OrodruinLabs/DeltaMapper/compare/v1.0.0-rc.6...HEAD
+[Unreleased]: https://github.com/OrodruinLabs/DeltaMapper/compare/v1.0.0-rc.7...HEAD
+[1.0.0-rc.7]: https://github.com/OrodruinLabs/DeltaMapper/compare/v1.0.0-rc.6...v1.0.0-rc.7
 [1.0.0-rc.6]: https://github.com/OrodruinLabs/DeltaMapper/compare/v1.0.0-rc.5...v1.0.0-rc.6
 [1.0.0-rc.5]: https://github.com/OrodruinLabs/DeltaMapper/compare/v1.0.0-rc.4...v1.0.0-rc.5
 [1.0.0-rc.4]: https://github.com/OrodruinLabs/DeltaMapper/compare/v1.0.0-rc.3...v1.0.0-rc.4

@@ -34,6 +34,7 @@ dotnet add package DeltaMapper
 | `mapper.Map<Src, Dst>(src)` | `mapper.Map<Src, Dst>(src)` | Same signature |
 | `mapper.Map(src, dst)` | `mapper.Map(src, dst)` | Source and destination types inferred at runtime. Semi-generic `mapper.Map<TDest>(src, dst)` also available when source type inference is desired. |
 | `mapper.Map(src, srcType, dstType)` | `mapper.Map(src, srcType, dstType)` | Same signature |
+| `CreateMap<S,D>(MemberList.None)` | `CreateMap<S,D>(MemberList.None)` | Same — `Destination` (default), `Source`, and `None` modes supported |
 | `IMapper.ProjectTo<T>(query)` | Not supported | Use Mapster for EF Core LINQ projections |
 
 ---
