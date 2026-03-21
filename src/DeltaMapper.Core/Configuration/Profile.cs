@@ -18,4 +18,14 @@ public abstract class Profile
         TypeMaps.Add(expression.TypeMapConfig);
         return expression;
     }
+
+    /// <summary>
+    /// Creates a mapping configuration from TSrc to TDst with the specified validation mode.
+    /// </summary>
+    protected IMappingExpression<TSrc, TDst> CreateMap<TSrc, TDst>(MemberList memberList)
+    {
+        var expression = new MappingExpression<TSrc, TDst>(memberList);
+        TypeMaps.Add(expression.TypeMapConfig);
+        return expression;
+    }
 }

@@ -30,4 +30,9 @@ internal sealed class TypeMapConfiguration
     /// Only populated when UsesConstructorInjection is true.
     /// </summary>
     public List<string> ConstructorParameterNames { get; } = [];
+
+    /// <summary>
+    /// Which members to validate for this type map. Defaults to Destination.
+    /// </summary>
+    public MemberList MemberValidation { get; set; } = MemberList.Destination;
 }
