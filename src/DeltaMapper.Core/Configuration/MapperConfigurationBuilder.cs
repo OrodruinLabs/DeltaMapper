@@ -228,7 +228,7 @@ public sealed class MapperConfigurationBuilder
                     Action<object, object, MapperContext> assign;
                     if (resolverReturnType != null
                         && IsCollectionMapping(resolverReturnType, dstPropType, out var rSrcElem, out var rDstElem)
-                        && !IsDirectlyAssignable(rSrcElem!, rDstElem!))
+                        && !IsDirectlyAssignable(resolverReturnType, dstPropType))
                     {
                         var se = rSrcElem!;
                         var de = rDstElem!;
@@ -664,7 +664,7 @@ public sealed class MapperConfigurationBuilder
 
                 if (resolverReturnType != null
                     && IsCollectionMapping(resolverReturnType, paramType, out var cpSrcElem, out var cpDstElem)
-                    && !IsDirectlyAssignable(cpSrcElem!, cpDstElem!))
+                    && !IsDirectlyAssignable(resolverReturnType, paramType))
                 {
                     var se = cpSrcElem!;
                     var de = cpDstElem!;
@@ -759,6 +759,8 @@ public sealed class MapperConfigurationBuilder
                         paramResolvers.Add(WrapParamWithCondition(
                             (src, ctx) =>
                             {
+                                if (ctx.IsProxyMapping)
+                                    return fallback;
                                 var srcColl = compiledGetter(src);
                                 return MapCollection(srcColl, se, de, dstCollType, ctx);
                             }, condition, fallback));
@@ -809,7 +811,7 @@ public sealed class MapperConfigurationBuilder
                 Action<object, object, MapperContext> assign;
                 if (resolverReturnType != null
                     && IsCollectionMapping(resolverReturnType, dstPropType, out var ioSrcElem, out var ioDstElem)
-                    && !IsDirectlyAssignable(ioSrcElem!, ioDstElem!))
+                    && !IsDirectlyAssignable(resolverReturnType, dstPropType))
                 {
                     var se = ioSrcElem!;
                     var de = ioDstElem!;

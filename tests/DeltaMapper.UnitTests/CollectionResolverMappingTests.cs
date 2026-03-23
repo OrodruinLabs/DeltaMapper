@@ -275,4 +275,46 @@ public class CollectionResolverMappingTests
         result.Items.Should().ContainSingle();
         result.Items[0].Name.Should().Be("Tube Screamer");
     }
+
+    // ── CR-09: Same-element container conversion via ForMember (List<string> → string[]) ─
+    private class CR09_Source
+    {
+        public string Name { get; set; } = "";
+        public List<string> Tags { get; set; } = new();
+    }
+
+    private class CR09_Dest
+    {
+        public string Name { get; set; } = "";
+        public string[] Tags { get; set; } = [];
+    }
+
+    private class CR09_Profile : Profile
+    {
+        public CR09_Profile()
+        {
+            CreateMap<CR09_Source, CR09_Dest>(MemberList.None)
+                .ForMember(d => d.Tags, o => o.MapFrom(s => s.Tags));
+        }
+    }
+
+    [Fact]
+    public void CR09_ForMember_same_element_different_container_maps_correctly()
+    {
+        var config = MapperConfiguration.Create(cfg => cfg.AddProfile<CR09_Profile>());
+        var mapper = config.CreateMapper();
+
+        var source = new CR09_Source
+        {
+            Name = "Guitar",
+            Tags = new List<string> { "electric", "6-string" }
+        };
+
+        var result = mapper.Map<CR09_Source, CR09_Dest>(source);
+
+        result.Tags.Should().BeOfType<string[]>();
+        result.Tags.Should().HaveCount(2);
+        result.Tags[0].Should().Be("electric");
+        result.Tags[1].Should().Be("6-string");
+    }
 }
