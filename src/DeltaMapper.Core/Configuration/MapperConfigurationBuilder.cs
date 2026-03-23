@@ -751,7 +751,8 @@ public sealed class MapperConfigurationBuilder
                             (src, ctx) => conv(compiledGetter(src)), condition, fallback));
                     }
                     else if (IsCollectionMapping(capturedSrcProp.PropertyType, param.ParameterType,
-                                 out var cpConvSrcElem, out var cpConvDstElem))
+                                 out var cpConvSrcElem, out var cpConvDstElem)
+                             && !IsDirectlyAssignable(capturedSrcProp.PropertyType, param.ParameterType))
                     {
                         var se = cpConvSrcElem!;
                         var de = cpConvDstElem!;
@@ -905,7 +906,8 @@ public sealed class MapperConfigurationBuilder
                     initOnlyAssignments.Add(WrapWithCondition(assign, memberConfig?.ConditionPredicate));
                 }
                 else if (IsCollectionMapping(capturedSrc.PropertyType, capturedDst.PropertyType,
-                             out var ioConvSrcElem, out var ioConvDstElem))
+                             out var ioConvSrcElem, out var ioConvDstElem)
+                         && !IsDirectlyAssignable(capturedSrc.PropertyType, capturedDst.PropertyType))
                 {
                     var se = ioConvSrcElem!;
                     var de = ioConvDstElem!;
