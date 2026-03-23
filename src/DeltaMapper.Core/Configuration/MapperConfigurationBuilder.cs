@@ -226,7 +226,20 @@ public sealed class MapperConfigurationBuilder
                     var dstPropType = dstProp.PropertyType;
 
                     Action<object, object, MapperContext> assign;
-                    if (NeedsRecursiveMapping(resolverReturnType, dstPropType))
+                    if (resolverReturnType != null
+                        && IsCollectionMapping(resolverReturnType, dstPropType, out var rSrcElem, out var rDstElem)
+                        && !IsDirectlyAssignable(resolverReturnType, dstPropType))
+                    {
+                        var se = rSrcElem!;
+                        var de = rDstElem!;
+                        var dstCollType = dstPropType;
+                        assign = (src, dst, ctx) =>
+                        {
+                            var value = resolver(src);
+                            compiledSetter(dst, MapCollection(value, se, de, dstCollType, ctx));
+                        };
+                    }
+                    else if (NeedsRecursiveMapping(resolverReturnType, dstPropType))
                     {
                         var srcMapType = resolverReturnType!;
                         assign = (src, dst, ctx) =>
@@ -489,39 +502,11 @@ public sealed class MapperConfigurationBuilder
                 var dstCollType = dstPropCaptured.PropertyType;
                 assignments.Add((src, dst, ctx) =>
                 {
-                    // Skip collection properties on EF Core proxy entities BEFORE
-                    // reading the getter, which would trigger lazy loading.
                     if (ctx.IsProxyMapping)
                         return;
 
                     var srcCollection = getter(src);
-                    if (srcCollection == null)
-                    {
-                        setter(dst, null);
-                        return;
-                    }
-
-                    var enumerable = (System.Collections.IEnumerable)srcCollection;
-                    List<object> items = [];
-                    foreach (var item in enumerable)
-                    {
-                        if (item == null)
-                        {
-                            items.Add(null!);
-                            continue;
-                        }
-                        if (IsDirectlyAssignable(srcElem, dstElem))
-                        {
-                            items.Add(item);
-                        }
-                        else
-                        {
-                            var mappedItem = ctx.Config.Execute(item, srcElem, dstElem, ctx);
-                            items.Add(mappedItem);
-                        }
-                    }
-
-                    var destCollection = CreateCollection(dstCollType, dstElem, items);
+                    var destCollection = MapCollection(srcCollection, srcElem, dstElem, dstCollType, ctx);
                     setter(dst, destCollection);
                 });
             }
@@ -677,7 +662,18 @@ public sealed class MapperConfigurationBuilder
                 var resolverReturnType = memberConfig.ResolverReturnType;
                 var paramType = param.ParameterType;
 
-                if (NeedsRecursiveMapping(resolverReturnType, paramType))
+                if (resolverReturnType != null
+                    && IsCollectionMapping(resolverReturnType, paramType, out var cpSrcElem, out var cpDstElem)
+                    && !IsDirectlyAssignable(resolverReturnType, paramType))
+                {
+                    var se = cpSrcElem!;
+                    var de = cpDstElem!;
+                    var dstCollType = paramType;
+                    paramResolvers.Add(WrapParamWithCondition(
+                        (src, ctx) => MapCollection(resolver(src), se, de, dstCollType, ctx),
+                        condition, fallback));
+                }
+                else if (NeedsRecursiveMapping(resolverReturnType, paramType))
                 {
                     var srcMapType = resolverReturnType!;
                     paramResolvers.Add(WrapParamWithCondition(
@@ -754,6 +750,22 @@ public sealed class MapperConfigurationBuilder
                         paramResolvers.Add(WrapParamWithCondition(
                             (src, ctx) => conv(compiledGetter(src)), condition, fallback));
                     }
+                    else if (IsCollectionMapping(capturedSrcProp.PropertyType, param.ParameterType,
+                                 out var cpConvSrcElem, out var cpConvDstElem)
+                             && !IsDirectlyAssignable(capturedSrcProp.PropertyType, param.ParameterType))
+                    {
+                        var se = cpConvSrcElem!;
+                        var de = cpConvDstElem!;
+                        var dstCollType = param.ParameterType;
+                        paramResolvers.Add(WrapParamWithCondition(
+                            (src, ctx) =>
+                            {
+                                if (ctx.IsProxyMapping)
+                                    return fallback;
+                                var srcColl = compiledGetter(src);
+                                return MapCollection(srcColl, se, de, dstCollType, ctx);
+                            }, condition, fallback));
+                    }
                     else
                     {
                         paramResolvers.Add(WrapParamWithCondition(
@@ -798,7 +810,20 @@ public sealed class MapperConfigurationBuilder
                 var dstPropType = dstProp.PropertyType;
 
                 Action<object, object, MapperContext> assign;
-                if (NeedsRecursiveMapping(resolverReturnType, dstPropType))
+                if (resolverReturnType != null
+                    && IsCollectionMapping(resolverReturnType, dstPropType, out var ioSrcElem, out var ioDstElem)
+                    && !IsDirectlyAssignable(resolverReturnType, dstPropType))
+                {
+                    var se = ioSrcElem!;
+                    var de = ioDstElem!;
+                    var dstCollType = dstPropType;
+                    assign = (src, dst, ctx) =>
+                    {
+                        var value = resolver(src);
+                        setter.SetValue(dst, MapCollection(value, se, de, dstCollType, ctx));
+                    };
+                }
+                else if (NeedsRecursiveMapping(resolverReturnType, dstPropType))
                 {
                     var srcMapType = resolverReturnType!;
                     assign = (src, dst, ctx) =>
@@ -877,6 +902,21 @@ public sealed class MapperConfigurationBuilder
                     {
                         var resolved = ResolveEnumValue(compiledGetter(src), nameMap, dstEnumType, dstIsNullable, capturedDst.Name);
                         capturedDst.SetValue(dst, resolved);
+                    };
+                    initOnlyAssignments.Add(WrapWithCondition(assign, memberConfig?.ConditionPredicate));
+                }
+                else if (IsCollectionMapping(capturedSrc.PropertyType, capturedDst.PropertyType,
+                             out var ioConvSrcElem, out var ioConvDstElem)
+                         && !IsDirectlyAssignable(capturedSrc.PropertyType, capturedDst.PropertyType))
+                {
+                    var se = ioConvSrcElem!;
+                    var de = ioConvDstElem!;
+                    var dstCollType = capturedDst.PropertyType;
+                    Action<object, object, MapperContext> assign = (src, dst, ctx) =>
+                    {
+                        if (ctx.IsProxyMapping) return;
+                        var srcCollection = compiledGetter(src);
+                        capturedDst.SetValue(dst, MapCollection(srcCollection, se, de, dstCollType, ctx));
                     };
                     initOnlyAssignments.Add(WrapWithCondition(assign, memberConfig?.ConditionPredicate));
                 }
@@ -1453,6 +1493,37 @@ public sealed class MapperConfigurationBuilder
         }
 
         return null;
+    }
+
+    /// <summary>
+    /// Maps a source collection to a destination collection, applying element-level mapping
+    /// when source and destination element types differ.
+    /// Returns null when sourceCollection is null.
+    /// </summary>
+    private static object? MapCollection(
+        object? sourceCollection,
+        Type srcElementType,
+        Type dstElementType,
+        Type dstCollectionType,
+        MapperContext ctx)
+    {
+        if (sourceCollection == null)
+            return null;
+
+        var enumerable = (System.Collections.IEnumerable)sourceCollection;
+        var directAssign = IsDirectlyAssignable(srcElementType, dstElementType);
+        var capacity = enumerable is System.Collections.ICollection c ? c.Count : 0;
+        List<object> items = new(capacity);
+        foreach (var item in enumerable)
+        {
+            if (item == null)
+            {
+                items.Add(null!);
+                continue;
+            }
+            items.Add(directAssign ? item : ctx.Config.Execute(item, srcElementType, dstElementType, ctx));
+        }
+        return CreateCollection(dstCollectionType, dstElementType, items);
     }
 
     private static object CreateCollection(Type destCollectionType, Type elementType, List<object> items)
