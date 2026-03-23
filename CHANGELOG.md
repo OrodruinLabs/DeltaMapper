@@ -11,6 +11,17 @@ DeltaMapper uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.0.0-rc.8] — 2026-03-23
+
+### Fixed
+- **Collection mapping in ForMember/MapFrom and init-only convention paths** — `List<TSrc>` → `IReadOnlyList<TDto>` (and other collection interface destinations) now correctly maps each element through the registered type map instead of throwing `DeltaMapperException`. Affects records with `{ get; init; }` properties and any explicit `.ForMember(d => d.Items, o => o.MapFrom(s => s.Items))` where source and destination element types differ.
+- Extracted shared `MapCollection` helper — eliminates duplicated collection iteration logic across 5 code paths (`CompileTypeMap` convention, `CompileTypeMap` ForMember, `CompileConstructorMap` ctor params, `CompileConstructorMap` init-only ForMember, and init-only convention).
+
+### Improved
+- Pre-sized intermediate collection in `MapCollection` when source implements `ICollection` — avoids list resizing for known-count collections.
+
+---
+
 ## [1.0.0-rc.7] — 2026-03-21
 
 ### Added
