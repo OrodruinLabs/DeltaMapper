@@ -1508,7 +1508,8 @@ public sealed class MapperConfigurationBuilder
 
         var enumerable = (System.Collections.IEnumerable)sourceCollection;
         var directAssign = IsDirectlyAssignable(srcElementType, dstElementType);
-        List<object> items = [];
+        var capacity = enumerable is System.Collections.ICollection c ? c.Count : 0;
+        List<object> items = new(capacity);
         foreach (var item in enumerable)
         {
             if (item == null)
