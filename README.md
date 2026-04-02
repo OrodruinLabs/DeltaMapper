@@ -14,7 +14,7 @@
 
 ---
 
-### Benchmarks at a Glance
+## Benchmarks at a Glance
 
 | Scenario | DeltaMapper | Mapperly | AutoMapper | Hand-written |
 |----------|------------:|---------:|-----------:|-------------:|
@@ -28,7 +28,7 @@
 
 ## Why DeltaMapper?
 
-- **Near-zero overhead** — source-generated direct calls run at 7 ns, same as hand-written code
+- **Near-zero overhead** — source-generated direct calls run at 7 ns, comparable to hand-written code
 - **`MappingDiff<T>`** — map _and_ get a structured change set in one call
 - **Source generator** — `[GenerateMap]` emits assignment code at build time, zero reflection
 - **Full IMapper pipeline** — DI, middleware, hooks, EF Core proxy detection, OpenTelemetry tracing
@@ -168,12 +168,12 @@ Conditions work alongside `MapFrom` and `NullSubstitute` — the condition is ev
 
 ## Performance
 
-DeltaMapper's source generator produces code as fast as hand-written — and on collections, faster than every competitor tested.
+DeltaMapper's source generator produces code comparable to hand-written — and on collections, faster than every competitor tested.
 
 | What's being mapped | DeltaMapper | vs Mapperly | vs AutoMapper |
 |---|---:|---|---|
-| Simple object (5 properties) | **7 ns** | Same speed | 7x faster |
-| Nested object (parent + child) | **24 ns** | Same speed, 33% less memory | 2x faster |
+| Simple object (5 properties) | **7 ns** | Comparable (7 ns vs 7 ns) | 7x faster |
+| Nested object (parent + child) | **24 ns** | Within 15%, 33% less memory | 2x faster |
 | Collection (10 items) | **22 ns** | 5x faster, 8x less memory | 8x faster |
 
 > .NET 10. Times are per single mapping operation.
