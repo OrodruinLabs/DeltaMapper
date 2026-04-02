@@ -14,25 +14,30 @@
 
 ---
 
+### Benchmarks at a Glance
+
+| Scenario | DeltaMapper | Mapperly | AutoMapper | Hand-written |
+|----------|------------:|---------:|-----------:|-------------:|
+| **Flat object** (5 props) | **7 ns** / 48 B | 7 ns / 48 B | 47 ns / 48 B | 7 ns / 48 B |
+| **Nested object** (2 levels) | **24 ns** / 80 B | 21 ns / 120 B | 55 ns / 120 B | 19 ns / 120 B |
+| **Collection** (10 items) | **22 ns** / 64 B | 101 ns / 520 B | 183 ns / 712 B | 121 ns / 592 B |
+
+> Source-generated `[GenerateMap]` direct calls. Full results in [BENCHMARKS.md](BENCHMARKS.md). Apple M1 Max, .NET 10.
+
+---
+
 ## Why DeltaMapper?
 
 - **Near-zero overhead** — source-generated direct calls run at 7 ns, same as hand-written code
-- **`MappingDiff<T>`** — map _and_ get a structured change set in one call
+- **`MappingDiff<T>`** — map _and_ get a structured change set in one call — no other mapper does this
 - **Source generator** — `[GenerateMap]` emits assignment code at build time, zero reflection
 - **Full IMapper pipeline** — DI, middleware, hooks, EF Core proxy detection, OpenTelemetry tracing
 
-## Install
+## Get Started
 
 ```bash
-dotnet add package DeltaMapper                    # core runtime
-dotnet add package DeltaMapper.SourceGen          # optional: compile-time codegen
-dotnet add package DeltaMapper.EFCore             # optional: EF Core proxy awareness
-dotnet add package DeltaMapper.OpenTelemetry      # optional: Activity spans
+dotnet add package DeltaMapper
 ```
-
-Requires .NET 8+ (currently ships net8.0, net9.0, and net10.0 assets).
-
-## Quick Start
 
 ```csharp
 // 1. Define a profile
@@ -52,6 +57,19 @@ var mapper = MapperConfiguration.Create(cfg => cfg.AddProfile<UserProfile>())
 
 var dto = mapper.Map<User, UserDto>(user);
 ```
+
+<details>
+<summary>Optional packages</summary>
+
+```bash
+dotnet add package DeltaMapper.SourceGen          # compile-time codegen
+dotnet add package DeltaMapper.EFCore             # EF Core proxy awareness
+dotnet add package DeltaMapper.OpenTelemetry      # Activity spans
+```
+
+</details>
+
+Requires .NET 8+ (ships net8.0, net9.0, and net10.0 assets).
 
 ## Built-in Change Tracking
 
