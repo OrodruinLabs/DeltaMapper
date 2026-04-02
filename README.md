@@ -29,7 +29,7 @@
 ## Why DeltaMapper?
 
 - **Near-zero overhead** — source-generated direct calls run at 7 ns, same as hand-written code
-- **`MappingDiff<T>`** — map _and_ get a structured change set in one call — a rare capability among .NET mappers
+- **`MappingDiff<T>`** — map _and_ get a structured change set in one call
 - **Source generator** — `[GenerateMap]` emits assignment code at build time, zero reflection
 - **Full IMapper pipeline** — DI, middleware, hooks, EF Core proxy detection, OpenTelemetry tracing
 
