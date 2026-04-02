@@ -11,6 +11,42 @@ DeltaMapper uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.0.0] — 2026-04-02
+
+First stable release of DeltaMapper — a fast, diff-aware .NET object mapper.
+
+### Highlights
+
+- **Expression-compiled mapping** — delegates compiled at startup, zero reflection at map time
+- **MappingDiff\<T\> and Patch** — map AND return structured change sets in one call
+- **Source generator** — `[GenerateMap]` emits compile-time mapping code at ~7 ns per call
+- **Fluent profile API** — `CreateMap`, `ForMember`, `Ignore`, `NullSubstitute`, `BeforeMap`, `AfterMap`, `ReverseMap`, `ConstructUsing`, `Condition`
+- **Convention matching** — case-insensitive names, numeric widening, collections, recursive types
+- **Flattening / unflattening** — automatic nested-to-flat and flat-to-nested by convention
+- **Records and init-only properties** — automatic constructor injection
+- **Assembly scanning** — bulk profile registration from assemblies
+- **Type converters** — global reusable type pair conversions
+- **Non-generic `Map(object, object)` overloads** — runtime type resolution
+- **`AssertConfigurationIsValid()`** — fail-fast configuration validation
+- **`MemberList` validation modes** — Destination, Source, or None per type map
+- **Multi-target** — .NET 8, .NET 9, and .NET 10
+- **EF Core integration** — proxy detection, lazy-loading safety (`DeltaMapper.EFCore`)
+- **OpenTelemetry tracing** — Activity spans with zero-overhead fast path (`DeltaMapper.OpenTelemetry`)
+- **DI support** — `AddDeltaMapper()` for ASP.NET Core / Generic Host
+
+### Packages
+
+| Package | Description |
+|---------|-------------|
+| `DeltaMapper` | Core runtime — profiles, configuration, mapping engine |
+| `DeltaMapper.SourceGen` | Roslyn incremental source generator with DM001/DM002 diagnostics |
+| `DeltaMapper.EFCore` | EF Core proxy-aware middleware |
+| `DeltaMapper.OpenTelemetry` | OpenTelemetry Activity span tracing |
+
+See individual RC entries below for detailed per-release changes (rc.1 through rc.8).
+
+---
+
 ## [1.0.0-rc.8] — 2026-03-23
 
 ### Fixed
@@ -287,7 +323,9 @@ Initial release.
 - On-demand benchmark workflow via `workflow_dispatch`
 - BenchmarkDotNet suite comparing against Mapperly, AutoMapper, and hand-written code
 
-[Unreleased]: https://github.com/OrodruinLabs/DeltaMapper/compare/v1.0.0-rc.7...HEAD
+[Unreleased]: https://github.com/OrodruinLabs/DeltaMapper/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/OrodruinLabs/DeltaMapper/compare/v1.0.0-rc.8...v1.0.0
+[1.0.0-rc.8]: https://github.com/OrodruinLabs/DeltaMapper/compare/v1.0.0-rc.7...v1.0.0-rc.8
 [1.0.0-rc.7]: https://github.com/OrodruinLabs/DeltaMapper/compare/v1.0.0-rc.6...v1.0.0-rc.7
 [1.0.0-rc.6]: https://github.com/OrodruinLabs/DeltaMapper/compare/v1.0.0-rc.5...v1.0.0-rc.6
 [1.0.0-rc.5]: https://github.com/OrodruinLabs/DeltaMapper/compare/v1.0.0-rc.4...v1.0.0-rc.5
