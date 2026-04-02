@@ -14,25 +14,30 @@
 
 ---
 
+## Benchmarks at a Glance
+
+| Scenario | DeltaMapper | Mapperly | AutoMapper | Hand-written |
+|----------|------------:|---------:|-----------:|-------------:|
+| **Flat object** (5 props) | **7 ns** / 48 B | 7 ns / 48 B | 47 ns / 48 B | 7 ns / 48 B |
+| **Nested object** (2 levels) | **24 ns** / 80 B | 21 ns / 120 B | 55 ns / 120 B | 19 ns / 120 B |
+| **Collection** (10 items) | **22 ns** / 64 B | 101 ns / 520 B | 183 ns / 712 B | 121 ns / 592 B |
+
+> Source-generated `[GenerateMap]` benchmarks: flat scenario uses direct calls; nested/collection use the `IMapper` source-gen path. Numbers are rounded from [BENCHMARKS.md](BENCHMARKS.md). Apple M1 Max, .NET 10.
+
+---
+
 ## Why DeltaMapper?
 
-- **Near-zero overhead** — source-generated direct calls run at 7 ns, same as hand-written code
+- **Near-zero overhead** — source-generated direct calls run at 7 ns, comparable to hand-written code
 - **`MappingDiff<T>`** — map _and_ get a structured change set in one call
 - **Source generator** — `[GenerateMap]` emits assignment code at build time, zero reflection
 - **Full IMapper pipeline** — DI, middleware, hooks, EF Core proxy detection, OpenTelemetry tracing
 
-## Install
+## Get Started
 
 ```bash
-dotnet add package DeltaMapper                    # core runtime
-dotnet add package DeltaMapper.SourceGen          # optional: compile-time codegen
-dotnet add package DeltaMapper.EFCore             # optional: EF Core proxy awareness
-dotnet add package DeltaMapper.OpenTelemetry      # optional: Activity spans
+dotnet add package DeltaMapper
 ```
-
-Requires .NET 8+ (currently ships net8.0, net9.0, and net10.0 assets).
-
-## Quick Start
 
 ```csharp
 // 1. Define a profile
@@ -52,6 +57,19 @@ var mapper = MapperConfiguration.Create(cfg => cfg.AddProfile<UserProfile>())
 
 var dto = mapper.Map<User, UserDto>(user);
 ```
+
+<details>
+<summary>Optional packages</summary>
+
+```bash
+dotnet add package DeltaMapper.SourceGen          # compile-time codegen
+dotnet add package DeltaMapper.EFCore             # EF Core proxy awareness
+dotnet add package DeltaMapper.OpenTelemetry      # Activity spans
+```
+
+</details>
+
+Requires .NET 8+ (ships net8.0, net9.0, and net10.0 assets).
 
 ## Built-in Change Tracking
 
@@ -150,12 +168,12 @@ Conditions work alongside `MapFrom` and `NullSubstitute` — the condition is ev
 
 ## Performance
 
-DeltaMapper's source generator produces code as fast as hand-written — and on collections, faster than every competitor tested.
+DeltaMapper's source generator produces code comparable to hand-written — and on collections, faster than every competitor tested.
 
 | What's being mapped | DeltaMapper | vs Mapperly | vs AutoMapper |
 |---|---:|---|---|
-| Simple object (5 properties) | **7 ns** | Same speed | 7x faster |
-| Nested object (parent + child) | **24 ns** | Same speed, 33% less memory | 2x faster |
+| Simple object (5 properties) | **7 ns** | Comparable (7 ns vs 7 ns) | 7x faster |
+| Nested object (parent + child) | **24 ns** | Within 15%, 33% less memory | 2x faster |
 | Collection (10 items) | **22 ns** | 5x faster, 8x less memory | 8x faster |
 
 > .NET 10. Times are per single mapping operation.
