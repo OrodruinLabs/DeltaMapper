@@ -22,14 +22,14 @@
 | **Nested object** (2 levels) | **24 ns** / 80 B | 21 ns / 120 B | 55 ns / 120 B | 19 ns / 120 B |
 | **Collection** (10 items) | **22 ns** / 64 B | 101 ns / 520 B | 183 ns / 712 B | 121 ns / 592 B |
 
-> Source-generated `[GenerateMap]` direct calls. Full results in [BENCHMARKS.md](BENCHMARKS.md). Apple M1 Max, .NET 10.
+> Source-generated `[GenerateMap]` benchmarks: flat scenario uses direct calls; nested/collection use the `IMapper` source-gen path. Numbers are rounded from [BENCHMARKS.md](BENCHMARKS.md). Apple M1 Max, .NET 10.
 
 ---
 
 ## Why DeltaMapper?
 
 - **Near-zero overhead** — source-generated direct calls run at 7 ns, same as hand-written code
-- **`MappingDiff<T>`** — map _and_ get a structured change set in one call — no other mapper does this
+- **`MappingDiff<T>`** — map _and_ get a structured change set in one call — a rare capability among .NET mappers
 - **Source generator** — `[GenerateMap]` emits assignment code at build time, zero reflection
 - **Full IMapper pipeline** — DI, middleware, hooks, EF Core proxy detection, OpenTelemetry tracing
 
