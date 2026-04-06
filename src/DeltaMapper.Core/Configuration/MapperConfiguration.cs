@@ -14,17 +14,20 @@ public sealed class MapperConfiguration
     private readonly MappingPipeline _pipeline;
     private readonly bool _hasMiddleware;
     private readonly IReadOnlyList<ValidationSnapshot> _validationSnapshots;
+    private readonly FrozenDictionary<(Type, Type), TypeMapConfiguration> _typeMaps;
 
     private MapperConfiguration(
         FrozenDictionary<(Type, Type), CompiledMap> registry,
         MappingPipeline pipeline,
         bool hasMiddleware,
-        IReadOnlyList<ValidationSnapshot> validationSnapshots)
+        IReadOnlyList<ValidationSnapshot> validationSnapshots,
+        FrozenDictionary<(Type, Type), TypeMapConfiguration> typeMaps)
     {
         _registry = registry;
         _pipeline = pipeline;
         _hasMiddleware = hasMiddleware;
         _validationSnapshots = validationSnapshots;
+        _typeMaps = typeMaps;
     }
 
     /// <summary>
@@ -37,6 +40,7 @@ public sealed class MapperConfiguration
         _pipeline = new MappingPipeline([]);
         _hasMiddleware = false;
         _validationSnapshots = [];
+        _typeMaps = new Dictionary<(Type, Type), TypeMapConfiguration>().ToFrozenDictionary();
     }
 
     /// <summary>
@@ -95,6 +99,16 @@ public sealed class MapperConfiguration
     }
 
     internal bool HasMap(Type srcType, Type dstType) => _registry.ContainsKey((srcType, dstType));
+
+    /// <summary>
+    /// Returns the TypeMapConfiguration for the given source/destination pair, or null if not registered.
+    /// Used by ProjectTo to access mapping expressions at projection time.
+    /// </summary>
+    internal TypeMapConfiguration? GetTypeMap(Type srcType, Type dstType)
+    {
+        _typeMaps.TryGetValue((srcType, dstType), out var typeMap);
+        return typeMap;
+    }
 
     /// <summary>
     /// Validates registered type maps according to each map's MemberList mode.
@@ -191,7 +205,8 @@ public sealed class MapperConfiguration
         foreach (var tm in typeMaps)
             latestTypeMaps[(tm.SourceType, tm.DestinationType)] = tm;
 
-        // Create lightweight validation snapshots — avoids retaining full TypeMapConfiguration (delegates, resolvers)
+        // Lightweight validation snapshots for AssertConfigurationIsValid() (subset of TypeMapConfiguration).
+        // Full TypeMapConfigurations are also retained in _typeMaps for ProjectTo expression building.
         var snapshots = latestTypeMaps.Values.Select(tm => new ValidationSnapshot(
             tm.SourceType,
             tm.DestinationType,
@@ -200,7 +215,8 @@ public sealed class MapperConfiguration
             tm.UsesConstructorInjection,
             tm.ConstructorParameterNames.AsReadOnly(),
             tm.MemberValidation)).ToList();
-        return new MapperConfiguration(frozen, new MappingPipeline(middlewares), middlewares.Count > 0, snapshots);
+        var frozenTypeMaps = latestTypeMaps.ToFrozenDictionary();
+        return new MapperConfiguration(frozen, new MappingPipeline(middlewares), middlewares.Count > 0, snapshots, frozenTypeMaps);
     }
 
     /// <summary>

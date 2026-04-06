@@ -1,3 +1,5 @@
+using System.Linq.Expressions;
+
 namespace DeltaMapper.Configuration;
 
 /// <summary>
@@ -13,4 +15,9 @@ internal sealed class MemberConfiguration
     public bool HasNullSubstitute { get; set; }
     public Func<object, bool>? ConditionPredicate { get; set; }
     public List<string> ReferencedSourceMembers { get; set; } = [];
+
+    /// <summary>
+    /// The original lambda expression from MapFrom(), preserved for ProjectTo expression tree rewriting.
+    /// </summary>
+    public LambdaExpression? SourceExpression { get; set; }
 }
