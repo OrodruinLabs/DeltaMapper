@@ -17,12 +17,18 @@ internal sealed class MemberOptions<TSrc> : IMemberOptions<TSrc>
     /// </summary>
     public List<string> ReferencedSourceMembers { get; } = [];
 
+    /// <summary>
+    /// The original lambda expression from MapFrom(), preserved for ProjectTo expression tree rewriting.
+    /// </summary>
+    public LambdaExpression? SourceExpression { get; private set; }
+
     public void MapFrom<TResult>(Expression<Func<TSrc, TResult>> resolver)
     {
         ArgumentNullException.ThrowIfNull(resolver);
         var compiled = resolver.Compile();
         Resolver = src => compiled((TSrc)src);
         ResolverReturnType = typeof(TResult);
+        SourceExpression = resolver;
         // Extract source member names from simple expression patterns (s => s.Prop, s => s.Prop.Sub)
         ExtractSourceMembers(resolver.Body);
     }

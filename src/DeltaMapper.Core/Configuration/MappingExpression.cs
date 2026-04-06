@@ -37,7 +37,8 @@ internal sealed class MappingExpression<TSrc, TDst> : IMappingExpression<TSrc, T
             NullSubstituteValue = memberOptions.NullSubstituteValue,
             HasNullSubstitute = memberOptions.HasNullSubstitute,
             ConditionPredicate = memberOptions.ConditionPredicate,
-            ReferencedSourceMembers = memberOptions.ReferencedSourceMembers
+            ReferencedSourceMembers = memberOptions.ReferencedSourceMembers,
+            SourceExpression = memberOptions.SourceExpression
         });
 
         return this;
