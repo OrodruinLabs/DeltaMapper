@@ -128,6 +128,31 @@ var list = mapper.Map<List<StudentDto>>(students);          // works!
 var array = mapper.Map<StudentDto[]>(students);             // works!
 ```
 
+## `QueryableExtensions` (DeltaMapper.EFCore)
+
+`ProjectTo<TDst>()` translates profile mapping configuration into an expression tree that EF Core converts to SQL. Requires the `DeltaMapper.EFCore` package.
+
+```csharp
+public static IQueryable<TDst> ProjectTo<TSrc, TDst>(
+    this IQueryable<TSrc> source, MapperConfiguration config);
+
+public static IQueryable<TDst> ProjectTo<TDst>(
+    this IQueryable source, MapperConfiguration config);
+```
+
+```csharp
+var config = MapperConfiguration.Create(cfg => cfg.AddProfile<OrderProfile>());
+
+var dtos = await dbContext.Orders
+    .Where(o => o.IsActive)
+    .ProjectTo<Order, OrderDto>(config)
+    .ToListAsync();
+```
+
+Supported in `ProjectTo`: convention matching, `ForMember`/`MapFrom`, `Ignore`, `NullSubstitute`, flattening, nested objects, collection navigations. Not supported (throws `DeltaMapperException`): `BeforeMap`, `AfterMap`, `ConstructUsing`, `Condition`.
+
+See [EF Core Integration](efcore-integration.md) for full details.
+
 ## Convention Matching
 
 Properties are matched by name (case-insensitive) without any configuration:

@@ -8,13 +8,14 @@ Fast, diff-aware .NET object mapper. MIT licensed. Minimal dependencies.
 - **`MappingDiff<T>`** — map and get a structured change set in one call
 - **Source generator** — `[GenerateMap]` emits assignment code at build time, zero reflection
 - **Full IMapper pipeline** — DI, middleware, hooks, EF Core proxy detection, OpenTelemetry tracing
+- **`ProjectTo<T>()`** — translate profile maps into EF Core-compatible SQL projections via `IQueryable`
 
 ## Install
 
 ```bash
 dotnet add package DeltaMapper                    # core runtime
 dotnet add package DeltaMapper.SourceGen          # optional: compile-time codegen
-dotnet add package DeltaMapper.EFCore             # optional: EF Core proxy awareness
+dotnet add package DeltaMapper.EFCore             # optional: EF Core proxy awareness + ProjectTo
 dotnet add package DeltaMapper.OpenTelemetry      # optional: Activity spans
 ```
 
@@ -46,6 +47,19 @@ var diff = mapper.Patch(updateDto, existingUser);
 
 if (diff.HasChanges)
     await auditLog.RecordAsync(userId, diff.Changes);
+```
+
+## EF Core ProjectTo
+
+Project directly from an `IQueryable` to a DTO — EF Core translates the mapping expression to SQL.
+
+```csharp
+var config = MapperConfiguration.Create(cfg => cfg.AddProfile<OrderProfile>());
+
+var dtos = await dbContext.Orders
+    .Where(o => o.IsActive)
+    .ProjectTo<Order, OrderDto>(config)
+    .ToListAsync();
 ```
 
 ## Flattening and Unflattening
@@ -99,6 +113,7 @@ CreateMap<Order, OrderDto>()
 
 - [GitHub](https://github.com/OrodruinLabs/DeltaMapper)
 - [API Reference](https://github.com/OrodruinLabs/DeltaMapper/blob/main/docs/api-reference.md)
+- [EF Core Integration](https://github.com/OrodruinLabs/DeltaMapper/blob/main/docs/efcore-integration.md)
 - [Source Generator Guide](https://github.com/OrodruinLabs/DeltaMapper/blob/main/docs/source-generator.md)
 - [Migration from AutoMapper](https://github.com/OrodruinLabs/DeltaMapper/blob/main/docs/migration-from-automapper.md)
 - [Benchmarks](https://github.com/OrodruinLabs/DeltaMapper/blob/main/BENCHMARKS.md)

@@ -11,6 +11,20 @@ DeltaMapper uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.1.0] — 2026-04-06
+
+### Added
+
+- **`ProjectTo<TDst>()` IQueryable projection** (`DeltaMapper.EFCore`) — translates profile mapping configurations into `Expression<Func<TSrc, TDst>>` trees that EF Core converts to SQL. Supports convention matching, `ForMember`/`MapFrom`, `Ignore`, `NullSubstitute` (null-coalesce), flattening, nested objects, and collection navigations (`.Select().ToList()`). (FEAT-016)
+- `QueryableExtensions.ProjectTo<TSrc, TDst>(IQueryable<TSrc>, MapperConfiguration)` — strongly-typed overload
+- `QueryableExtensions.ProjectTo<TDst>(IQueryable, MapperConfiguration)` — non-generic source overload for untyped `IQueryable`
+
+### Notes
+
+`BeforeMap`, `AfterMap`, `ConstructUsing`, and `Condition` are not supported in projection context and throw `DeltaMapperException` when encountered during expression tree building.
+
+---
+
 ## [1.0.0] — 2026-04-02
 
 First stable release of DeltaMapper — a fast, diff-aware .NET object mapper.
@@ -323,7 +337,8 @@ Initial release.
 - On-demand benchmark workflow via `workflow_dispatch`
 - BenchmarkDotNet suite comparing against Mapperly, AutoMapper, and hand-written code
 
-[Unreleased]: https://github.com/OrodruinLabs/DeltaMapper/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/OrodruinLabs/DeltaMapper/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/OrodruinLabs/DeltaMapper/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/OrodruinLabs/DeltaMapper/compare/v1.0.0-rc.8...v1.0.0
 [1.0.0-rc.8]: https://github.com/OrodruinLabs/DeltaMapper/compare/v1.0.0-rc.7...v1.0.0-rc.8
 [1.0.0-rc.7]: https://github.com/OrodruinLabs/DeltaMapper/compare/v1.0.0-rc.6...v1.0.0-rc.7

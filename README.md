@@ -32,6 +32,7 @@
 - **`MappingDiff<T>`** — map _and_ get a structured change set in one call
 - **Source generator** — `[GenerateMap]` emits assignment code at build time, zero reflection
 - **Full IMapper pipeline** — DI, middleware, hooks, EF Core proxy detection, OpenTelemetry tracing
+- **`ProjectTo<T>()`** — translate profile maps into EF Core-compatible SQL projections via `IQueryable`
 
 ## Get Started
 
@@ -63,7 +64,7 @@ var dto = mapper.Map<User, UserDto>(user);
 
 ```bash
 dotnet add package DeltaMapper.SourceGen          # compile-time codegen
-dotnet add package DeltaMapper.EFCore             # EF Core proxy awareness
+dotnet add package DeltaMapper.EFCore             # EF Core proxy awareness + ProjectTo
 dotnet add package DeltaMapper.OpenTelemetry      # Activity spans
 ```
 
@@ -81,6 +82,25 @@ if (diff.HasChanges)
 ```
 
 `diff.Changes` is `IReadOnlyList<PropertyChange>` — each entry has `PropertyName`, `From`, `To`, `ChangeKind`. Nested paths use dot-notation (`"Address.City"`).
+
+## EF Core ProjectTo
+
+Project directly from an `IQueryable` to a DTO using your existing profile — no separate projection configuration needed. The mapping expression is translated to SQL by EF Core.
+
+```bash
+dotnet add package DeltaMapper.EFCore
+```
+
+```csharp
+var config = MapperConfiguration.Create(cfg => cfg.AddProfile<OrderProfile>());
+
+var dtos = await dbContext.Orders
+    .Where(o => o.IsActive)
+    .ProjectTo<Order, OrderDto>(config)
+    .ToListAsync();
+```
+
+`ProjectTo` supports convention matching, `ForMember`/`MapFrom`, `Ignore`, `NullSubstitute`, flattening, nested objects, and collection navigations. `BeforeMap`, `AfterMap`, `ConstructUsing`, and `Condition` are not supported in projection context.
 
 ## Flattening and Unflattening
 
@@ -187,7 +207,7 @@ DeltaMapper's source generator produces code comparable to hand-written — and 
 |---|---|
 | [API Reference](docs/api-reference.md) | MapperConfiguration, Profile, IMapper, conventions, flattening, assembly scanning, type converters, middleware, DI |
 | [Source Generator](docs/source-generator.md) | `[GenerateMap]`, direct calls, analyzer diagnostics |
-| [EF Core Integration](docs/efcore-integration.md) | Proxy detection, lazy loading safety |
+| [EF Core Integration](docs/efcore-integration.md) | Proxy detection, lazy loading safety, `ProjectTo` |
 | [OpenTelemetry Tracing](docs/opentelemetry.md) | Activity spans, zero-overhead fast path |
 | [Migration from AutoMapper](docs/migration-from-automapper.md) | Concept mapping table, rename scripts |
 

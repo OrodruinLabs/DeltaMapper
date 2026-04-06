@@ -35,7 +35,7 @@ dotnet add package DeltaMapper
 | `mapper.Map(src, dst)` | `mapper.Map(src, dst)` | Source and destination types inferred at runtime. Semi-generic `mapper.Map<TDest>(src, dst)` also available when source type inference is desired. |
 | `mapper.Map(src, srcType, dstType)` | `mapper.Map(src, srcType, dstType)` | Same signature |
 | `CreateMap<S,D>(MemberList.None)` | `CreateMap<S,D>(MemberList.None)` | Same — `Destination` (default), `Source`, and `None` modes supported |
-| `IMapper.ProjectTo<T>(query)` | Not supported | Use Mapster for EF Core LINQ projections |
+| `IMapper.ProjectTo<T>(query)` | `query.ProjectTo<TSrc, T>(config)` via `DeltaMapper.EFCore` | See [EF Core ProjectTo](#ef-core-projectto) below |
 
 ---
 
@@ -120,6 +120,41 @@ The converter is registered globally and applies to every map that has a propert
 
 ---
 
+## EF Core ProjectTo
+
+AutoMapper's `IMapper.ProjectTo<T>(query)` is supported in DeltaMapper via `DeltaMapper.EFCore`:
+
+```bash
+dotnet add package DeltaMapper.EFCore
+```
+
+**AutoMapper:**
+
+```csharp
+var dtos = await mapper.ProjectTo<OrderDto>(dbContext.Orders).ToListAsync();
+```
+
+**DeltaMapper:**
+
+```csharp
+var config = MapperConfiguration.Create(cfg => cfg.AddProfile<OrderProfile>());
+
+var dtos = await dbContext.Orders
+    .ProjectTo<Order, OrderDto>(config)
+    .ToListAsync();
+```
+
+The DeltaMapper overload takes `MapperConfiguration` directly rather than going through `IMapper`. A non-generic source overload is also available for untyped `IQueryable`:
+
+```csharp
+IQueryable query = dbContext.Orders;
+var dtos = await query.ProjectTo<OrderDto>(config).ToListAsync();
+```
+
+Supported features: convention matching, `ForMember`/`MapFrom`, `Ignore`, `NullSubstitute`, flattening, nested objects, collection navigations. `BeforeMap`, `AfterMap`, `ConstructUsing`, and `Condition` throw `DeltaMapperException` in projection context.
+
+---
+
 ## Rename script
 
 Since DeltaMapper now uses the same `Profile` base class name as AutoMapper, the only mechanical changes are the `using` directives and the `MapperConfiguration` construction pattern. The following shell commands handle both in a typical project.
@@ -154,11 +189,11 @@ Review the diff after running these scripts — edge cases (inline `Profile` sub
 
 ---
 
-## Feature status as of v1.0.0-rc.2
+## Feature status as of v1.1.0
 
-The following table summarises AutoMapper features relative to DeltaMapper v1.0.0-rc.2.
+The following table summarises AutoMapper features relative to DeltaMapper v1.1.0.
 
-| AutoMapper feature | DeltaMapper v1.0.0-rc.2 status |
+| AutoMapper feature | DeltaMapper v1.1.0 status |
 |---|---|
 | `AssertConfigurationIsValid()` | `config.AssertConfigurationIsValid()` — runtime validation at startup; DM001/DM002 compile-time diagnostics also available via source generator |
 | `MappingDiff<T>` / change tracking | `Patch()` method returns structured change sets |
@@ -169,7 +204,7 @@ The following table summarises AutoMapper features relative to DeltaMapper v1.0.
 | Unflattening (`CustomerName` → `Customer.Name`) | Supported — automatic by convention |
 | Assembly scanning (`cfg.AddMaps(assembly)`) | `cfg.AddProfilesFromAssembly(assembly)` / `cfg.AddProfilesFromAssemblyContaining<T>()` |
 | `TypeConverter<Src, Dst>` | `cfg.CreateTypeConverter<Src, Dst>(converter)` inline lambda |
-| `ProjectTo<T>()` for EF Core | Not planned — use Mapster |
+| `ProjectTo<T>()` for EF Core | `query.ProjectTo<TSrc, T>(config)` via `DeltaMapper.EFCore` — see [EF Core ProjectTo](#ef-core-projectto) |
 | `ValueConverter<Src, Dst>` | Not implemented — use `MapFrom` resolver |
 | `IValueResolver<Src, Dst, TMember>` | Not implemented — use `MapFrom` resolver |
 | `ConstructUsing(src => ...)` | `ConstructUsing(src => ...)` — same signature |
