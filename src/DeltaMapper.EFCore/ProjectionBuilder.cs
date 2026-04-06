@@ -78,19 +78,23 @@ internal static class ProjectionBuilder
                 if (srcProp != null)
                 {
                     var access = Expression.Property(srcExpr, srcProp);
-                    Expression valueExpr = access;
-                    // Coerce to destination type when needed.
-                    if (access.Type != dstProp.PropertyType)
-                        valueExpr = Expression.Convert(access, dstProp.PropertyType);
-                    var substitute = Expression.Constant(memberConfig.NullSubstituteValue, dstProp.PropertyType);
                     // Coalesce only makes sense when the source can actually be null.
                     if (!access.Type.IsValueType || Nullable.GetUnderlyingType(access.Type) != null)
                     {
-                        bindings.Add(Expression.Bind(dstProp, Expression.Coalesce(valueExpr, substitute)));
+                        // Build coalesce on the raw (nullable) access, then convert the result if needed.
+                        var substituteType = access.Type;
+                        var substitute = Expression.Constant(memberConfig.NullSubstituteValue, substituteType);
+                        Expression coalesced = Expression.Coalesce(access, substitute);
+                        if (coalesced.Type != dstProp.PropertyType)
+                            coalesced = Expression.Convert(coalesced, dstProp.PropertyType);
+                        bindings.Add(Expression.Bind(dstProp, coalesced));
                     }
                     else
                     {
                         // Non-nullable value type — source can never be null, bind directly.
+                        Expression valueExpr = access;
+                        if (access.Type != dstProp.PropertyType)
+                            valueExpr = Expression.Convert(access, dstProp.PropertyType);
                         bindings.Add(Expression.Bind(dstProp, valueExpr));
                     }
                 }
@@ -162,6 +166,9 @@ internal static class ProjectionBuilder
                         bindings.Add(Expression.Bind(dstProp, toListCall));
                         continue;
                     }
+                    // Collection of complex types without a registered type map — skip to avoid
+                    // invalid Expression.Convert that would produce a cryptic runtime error.
+                    continue;
                 }
 
                 // Direct assignment (same type or implicitly convertible)
