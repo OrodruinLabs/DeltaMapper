@@ -31,6 +31,30 @@ public class SourceExpressionTests
         memberConfig.SourceExpression.Should().NotBeNull();
     }
 
+    [Fact]
+    public void MapperConfiguration_GetTypeMap_returns_config_for_registered_pair()
+    {
+        var config = MapperConfiguration.Create(cfg =>
+            cfg.AddProfile(new TestProfile()));
+
+        var typeMap = config.GetTypeMap(typeof(Source), typeof(Dest));
+
+        typeMap.Should().NotBeNull();
+        typeMap!.SourceType.Should().Be(typeof(Source));
+        typeMap.DestinationType.Should().Be(typeof(Dest));
+    }
+
+    [Fact]
+    public void MapperConfiguration_GetTypeMap_returns_null_for_unregistered_pair()
+    {
+        var config = MapperConfiguration.Create(cfg =>
+            cfg.AddProfile(new TestProfile()));
+
+        var typeMap = config.GetTypeMap(typeof(Dest), typeof(Source));
+
+        typeMap.Should().BeNull();
+    }
+
     private class TestProfile : Profile
     {
         public TestProfile()
