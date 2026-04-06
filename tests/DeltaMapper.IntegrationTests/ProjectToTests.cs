@@ -516,4 +516,109 @@ public class ProjectToTests
         result[0].Title.Should().Be("Hello World");
         result[0].AuthorName.Should().Be("Alice");
     }
+
+    // ── NullSubstitute with nullable value types ──
+
+    public class ProductEntity
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = "";
+        public int? Stock { get; set; }
+        public decimal? Price { get; set; }
+    }
+
+    public class ProductDto
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = "";
+        public int Stock { get; set; }
+        public decimal Price { get; set; }
+    }
+
+    public class ProductNullSubProfile : Profile
+    {
+        public ProductNullSubProfile()
+        {
+            CreateMap<ProductEntity, ProductDto>()
+                .ForMember(d => d.Stock, o => o.NullSubstitute(0))
+                .ForMember(d => d.Price, o => o.NullSubstitute(0m));
+        }
+    }
+
+    [Fact]
+    public void ProjectTo_NullSubstitute_with_nullable_value_type_source()
+    {
+        var config = MapperConfiguration.Create(cfg => cfg.AddProfile<ProductNullSubProfile>());
+        var products = new List<ProductEntity>
+        {
+            new() { Id = 1, Name = "Widget", Stock = null, Price = null },
+            new() { Id = 2, Name = "Gadget", Stock = 5, Price = 19.99m }
+        }.AsQueryable();
+
+        var result = products.ProjectTo<ProductEntity, ProductDto>(config).ToList();
+
+        result[0].Stock.Should().Be(0);
+        result[0].Price.Should().Be(0m);
+        result[1].Stock.Should().Be(5);
+        result[1].Price.Should().Be(19.99m);
+    }
+
+    // ── Collection with unregistered element type map ──
+
+    public class DepartmentEntity
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = "";
+        public List<EmployeeEntity> Employees { get; set; } = [];
+    }
+
+    public class EmployeeEntity
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = "";
+    }
+
+    public class DepartmentDto
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = "";
+        public List<EmployeeDto> Employees { get; set; } = [];
+    }
+
+    public class EmployeeDto
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = "";
+    }
+
+    public class DepartmentOnlyProfile : Profile
+    {
+        public DepartmentOnlyProfile()
+        {
+            // Deliberately omit CreateMap<EmployeeEntity, EmployeeDto>
+            CreateMap<DepartmentEntity, DepartmentDto>();
+        }
+    }
+
+    [Fact]
+    public void ProjectTo_skips_collection_with_no_element_type_map()
+    {
+        var config = MapperConfiguration.Create(cfg => cfg.AddProfile<DepartmentOnlyProfile>());
+        var departments = new List<DepartmentEntity>
+        {
+            new()
+            {
+                Id = 1,
+                Name = "Engineering",
+                Employees = [new() { Id = 1, Name = "Alice" }]
+            }
+        }.AsQueryable();
+
+        var result = departments.ProjectTo<DepartmentEntity, DepartmentDto>(config).ToList();
+
+        result[0].Id.Should().Be(1);
+        result[0].Name.Should().Be("Engineering");
+        // Employees should be default (empty list from initializer) — no type map registered
+        result[0].Employees.Should().BeEmpty();
+    }
 }
