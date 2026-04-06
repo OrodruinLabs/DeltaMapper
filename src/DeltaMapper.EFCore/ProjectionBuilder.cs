@@ -137,13 +137,19 @@ internal static class ProjectionBuilder
                 if (IsCollectionNavigation(conventionSrcProp.PropertyType, dstProp.PropertyType,
                     out var srcElem, out var dstElem))
                 {
+                    var elemPair = (srcElem!, dstElem!);
+                    if (visited.Contains(elemPair))
+                        continue; // Self-referential collection (e.g., Node.Children: List<Node>) — skip
+
                     var nestedTypeMap = config.GetTypeMap(srcElem!, dstElem!);
                     if (nestedTypeMap != null)
                     {
                         ValidateNestedTypeMap(nestedTypeMap, srcElem!, dstElem!);
+                        visited.Add(elemPair);
                         var elemParam = Expression.Parameter(srcElem!, "e");
                         var elemBindings = BuildMemberBindings(
                             elemParam, srcElem!, dstElem!, nestedTypeMap, config, visited);
+                        visited.Remove(elemPair);
                         var elemInit = Expression.MemberInit(Expression.New(dstElem!), elemBindings);
                         var selectLambda = Expression.Lambda(elemInit, elemParam);
 

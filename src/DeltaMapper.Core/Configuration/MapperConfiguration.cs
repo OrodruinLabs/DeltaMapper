@@ -205,7 +205,8 @@ public sealed class MapperConfiguration
         foreach (var tm in typeMaps)
             latestTypeMaps[(tm.SourceType, tm.DestinationType)] = tm;
 
-        // Create lightweight validation snapshots — avoids retaining full TypeMapConfiguration (delegates, resolvers)
+        // Lightweight validation snapshots for AssertConfigurationIsValid() (subset of TypeMapConfiguration).
+        // Full TypeMapConfigurations are also retained in _typeMaps for ProjectTo expression building.
         var snapshots = latestTypeMaps.Values.Select(tm => new ValidationSnapshot(
             tm.SourceType,
             tm.DestinationType,

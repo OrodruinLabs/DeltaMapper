@@ -66,7 +66,8 @@ public static class QueryableExtensions
                 m.GetGenericArguments().Length == 2 &&
                 m.GetParameters().Length == 2 &&
                 m.GetParameters()[1].ParameterType.IsGenericType &&
-                m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(System.Linq.Expressions.Expression<>))
+                m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(System.Linq.Expressions.Expression<>) &&
+                m.GetParameters()[1].ParameterType.GetGenericArguments()[0].GetGenericTypeDefinition() == typeof(Func<,>))
             .MakeGenericMethod(srcType, dstType);
         return (IQueryable<TDst>)selectMethod.Invoke(null, [source, projection])!;
     }
