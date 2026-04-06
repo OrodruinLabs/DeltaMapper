@@ -52,6 +52,12 @@ internal static class ProjectionBuilder
             if (memberConfig is { IsIgnored: true })
                 continue;
 
+            // Unsupported features — check before any early-continue binding paths
+            if (memberConfig?.ConditionPredicate != null)
+                throw new DeltaMapperException(
+                    $"ProjectTo does not support Condition() on member '{dstProp.Name}'. " +
+                    $"Remove the condition from the {srcType.Name} → {dstType.Name} map or use Map() instead.");
+
             // Custom MapFrom expression
             if (memberConfig?.SourceExpression is LambdaExpression sourceExpr)
             {
@@ -96,12 +102,6 @@ internal static class ProjectionBuilder
                 continue;
             }
 
-            // Unsupported features — throw clear errors
-            if (memberConfig?.ConditionPredicate != null)
-                throw new DeltaMapperException(
-                    $"ProjectTo does not support Condition() on member '{dstProp.Name}'. " +
-                    $"Remove the condition from the {srcType.Name} → {dstType.Name} map or use Map() instead.");
-
             // Convention matching — same name
             var conventionSrcProp = FindSourceProperty(srcProps, dstProp.Name);
             if (conventionSrcProp != null)
@@ -118,6 +118,7 @@ internal static class ProjectionBuilder
                     var nestedTypeMap = config.GetTypeMap(conventionSrcProp.PropertyType, dstProp.PropertyType);
                     if (nestedTypeMap != null)
                     {
+                        ValidateNestedTypeMap(nestedTypeMap, conventionSrcProp.PropertyType, dstProp.PropertyType);
                         visited.Add(nestedPair);
                         var nestedBindings = BuildMemberBindings(
                             access, conventionSrcProp.PropertyType, dstProp.PropertyType, nestedTypeMap, config, visited);
@@ -135,6 +136,7 @@ internal static class ProjectionBuilder
                     var nestedTypeMap = config.GetTypeMap(srcElem!, dstElem!);
                     if (nestedTypeMap != null)
                     {
+                        ValidateNestedTypeMap(nestedTypeMap, srcElem!, dstElem!);
                         var elemParam = Expression.Parameter(srcElem!, "e");
                         var elemBindings = BuildMemberBindings(
                             elemParam, srcElem!, dstElem!, nestedTypeMap, config, visited);
@@ -186,6 +188,27 @@ internal static class ProjectionBuilder
         }
 
         return bindings;
+    }
+
+    /// <summary>
+    /// Validates that a nested TypeMapConfiguration does not use features unsupported by ProjectTo.
+    /// </summary>
+    private static void ValidateNestedTypeMap(TypeMapConfiguration typeMap, Type srcType, Type dstType)
+    {
+        if (typeMap.BeforeMapAction != null)
+            throw new DeltaMapperException(
+                $"ProjectTo does not support BeforeMap on nested map {srcType.Name} → {dstType.Name}. " +
+                $"Remove BeforeMap from the map configuration or use Map() instead.");
+
+        if (typeMap.AfterMapAction != null)
+            throw new DeltaMapperException(
+                $"ProjectTo does not support AfterMap on nested map {srcType.Name} → {dstType.Name}. " +
+                $"Remove AfterMap from the map configuration or use Map() instead.");
+
+        if (typeMap.CustomFactory != null)
+            throw new DeltaMapperException(
+                $"ProjectTo does not support ConstructUsing on nested map {srcType.Name} → {dstType.Name}. " +
+                $"Remove ConstructUsing from the map configuration or use Map() instead.");
     }
 
     private static Expression? TryBuildFlattenedExpression(
