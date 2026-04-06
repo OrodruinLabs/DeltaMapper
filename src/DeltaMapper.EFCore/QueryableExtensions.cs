@@ -57,8 +57,16 @@ public static class QueryableExtensions
         var projection = buildMethod.Invoke(null, [typeMap, config])!;
 
         // Call source.Select(projection) via reflection
+        // Filter precisely to Select(IQueryable<T>, Expression<Func<T,TResult>>) — avoids
+        // the ambiguous overload that carries an index parameter.
         var selectMethod = typeof(Queryable).GetMethods()
-            .First(m => m.Name == "Select" && m.GetParameters().Length == 2)
+            .First(m =>
+                m.Name == "Select" &&
+                m.IsGenericMethodDefinition &&
+                m.GetGenericArguments().Length == 2 &&
+                m.GetParameters().Length == 2 &&
+                m.GetParameters()[1].ParameterType.IsGenericType &&
+                m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(System.Linq.Expressions.Expression<>))
             .MakeGenericMethod(srcType, dstType);
         return (IQueryable<TDst>)selectMethod.Invoke(null, [source, projection])!;
     }

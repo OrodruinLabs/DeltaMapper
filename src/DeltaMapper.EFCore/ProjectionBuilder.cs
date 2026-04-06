@@ -20,7 +20,9 @@ internal static class ProjectionBuilder
         var dstType = typeof(TDst);
         var srcParam = Expression.Parameter(srcType, "src");
 
-        var bindings = BuildMemberBindings(srcParam, srcType, dstType, typeMap, config);
+        // Seed the visited set with the root pair to detect self-referential cycles.
+        var visited = new HashSet<(Type, Type)> { (srcType, dstType) };
+        var bindings = BuildMemberBindings(srcParam, srcType, dstType, typeMap, config, visited);
 
         var body = Expression.MemberInit(Expression.New(dstType), bindings);
         return Expression.Lambda<Func<TSrc, TDst>>(body, srcParam);
@@ -31,7 +33,8 @@ internal static class ProjectionBuilder
         Type srcType,
         Type dstType,
         TypeMapConfiguration typeMap,
-        MapperConfiguration config)
+        MapperConfiguration config,
+        HashSet<(Type, Type)> visited)
     {
         var srcProps = srcType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
         var dstProps = dstType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
@@ -55,6 +58,9 @@ internal static class ProjectionBuilder
                 // Rewrite the parameter to use our srcParam
                 var rewritten = new ParameterRewriter(sourceExpr.Parameters[0], srcExpr)
                     .Visit(sourceExpr.Body);
+                // Ensure type compatibility — e.g. int → long requires an explicit Convert.
+                if (rewritten.Type != dstProp.PropertyType)
+                    rewritten = Expression.Convert(rewritten, dstProp.PropertyType);
                 bindings.Add(Expression.Bind(dstProp, rewritten));
                 continue;
             }
@@ -66,9 +72,21 @@ internal static class ProjectionBuilder
                 if (srcProp != null)
                 {
                     var access = Expression.Property(srcExpr, srcProp);
+                    Expression valueExpr = access;
+                    // Coerce to destination type when needed.
+                    if (access.Type != dstProp.PropertyType)
+                        valueExpr = Expression.Convert(access, dstProp.PropertyType);
                     var substitute = Expression.Constant(memberConfig.NullSubstituteValue, dstProp.PropertyType);
-                    var coalesce = Expression.Coalesce(access, substitute);
-                    bindings.Add(Expression.Bind(dstProp, coalesce));
+                    // Coalesce only makes sense when the source can actually be null.
+                    if (!access.Type.IsValueType || Nullable.GetUnderlyingType(access.Type) != null)
+                    {
+                        bindings.Add(Expression.Bind(dstProp, Expression.Coalesce(valueExpr, substitute)));
+                    }
+                    else
+                    {
+                        // Non-nullable value type — source can never be null, bind directly.
+                        bindings.Add(Expression.Bind(dstProp, valueExpr));
+                    }
                 }
                 else
                 {
@@ -93,11 +111,17 @@ internal static class ProjectionBuilder
                 // Nested complex type — build sub-projection
                 if (IsComplexType(conventionSrcProp.PropertyType) && IsComplexType(dstProp.PropertyType))
                 {
+                    var nestedPair = (conventionSrcProp.PropertyType, dstProp.PropertyType);
+                    if (visited.Contains(nestedPair))
+                        continue; // Self-referential — skip to avoid infinite recursion
+
                     var nestedTypeMap = config.GetTypeMap(conventionSrcProp.PropertyType, dstProp.PropertyType);
                     if (nestedTypeMap != null)
                     {
+                        visited.Add(nestedPair);
                         var nestedBindings = BuildMemberBindings(
-                            access, conventionSrcProp.PropertyType, dstProp.PropertyType, nestedTypeMap, config);
+                            access, conventionSrcProp.PropertyType, dstProp.PropertyType, nestedTypeMap, config, visited);
+                        visited.Remove(nestedPair);
                         var nestedInit = Expression.MemberInit(Expression.New(dstProp.PropertyType), nestedBindings);
                         bindings.Add(Expression.Bind(dstProp, nestedInit));
                         continue;
@@ -113,13 +137,18 @@ internal static class ProjectionBuilder
                     {
                         var elemParam = Expression.Parameter(srcElem!, "e");
                         var elemBindings = BuildMemberBindings(
-                            elemParam, srcElem!, dstElem!, nestedTypeMap, config);
+                            elemParam, srcElem!, dstElem!, nestedTypeMap, config, visited);
                         var elemInit = Expression.MemberInit(Expression.New(dstElem!), elemBindings);
                         var selectLambda = Expression.Lambda(elemInit, elemParam);
 
                         // .Select(e => new DstElem { ... })
+                        // Filter to Select(IEnumerable<T>, Func<T,TResult>) — avoids the indexed overload.
                         var selectMethod = typeof(Enumerable).GetMethods()
-                            .First(m => m.Name == "Select" && m.GetParameters().Length == 2)
+                            .First(m =>
+                                m.Name == "Select" &&
+                                m.GetParameters().Length == 2 &&
+                                m.GetParameters()[1].ParameterType.IsGenericType &&
+                                m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Func<,>))
                             .MakeGenericMethod(srcElem!, dstElem!);
                         var selectCall = Expression.Call(selectMethod, access, selectLambda);
 
@@ -199,6 +228,11 @@ internal static class ProjectionBuilder
 
     private static bool IsComplexType(Type type)
     {
+        // Unwrap Nullable<T> — nullable primitives/structs are not complex.
+        var underlying = Nullable.GetUnderlyingType(type);
+        if (underlying != null)
+            return IsComplexType(underlying);
+
         return !type.IsPrimitive
             && !type.IsEnum
             && type != typeof(string)
@@ -219,20 +253,26 @@ internal static class ProjectionBuilder
     private static bool IsCollectionNavigation(Type srcType, Type dstType,
         out Type? srcElem, out Type? dstElem)
     {
-        srcElem = null;
-        dstElem = null;
+        srcElem = GetEnumerableElementType(srcType);
+        dstElem = GetEnumerableElementType(dstType);
 
-        var srcEnumerable = srcType.GetInterfaces()
-            .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>));
-        var dstEnumerable = dstType.GetInterfaces()
-            .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>));
-
-        if (srcEnumerable == null || dstEnumerable == null) return false;
-
-        srcElem = srcEnumerable.GetGenericArguments()[0];
-        dstElem = dstEnumerable.GetGenericArguments()[0];
-
+        if (srcElem == null || dstElem == null) return false;
         return srcElem != dstElem && IsComplexType(srcElem) && IsComplexType(dstElem);
+    }
+
+    /// <summary>
+    /// Returns the element type of an IEnumerable&lt;T&gt;, checking whether the type itself
+    /// is IEnumerable&lt;T&gt; before scanning its interfaces (handles the case where the
+    /// property type is declared as IEnumerable&lt;T&gt; directly).
+    /// </summary>
+    private static Type? GetEnumerableElementType(Type type)
+    {
+        if (type == typeof(string)) return null;
+        if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+            return type.GetGenericArguments()[0];
+        return type.GetInterfaces()
+            .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+            ?.GetGenericArguments()[0];
     }
 
     private static bool IsTraversableType(Type type)
