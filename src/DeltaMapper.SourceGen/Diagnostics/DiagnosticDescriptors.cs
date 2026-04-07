@@ -26,16 +26,16 @@ namespace DeltaMapper.SourceGen.Diagnostics
             description: "A typeof() expression in [GenerateMap] could not be resolved to an INamedTypeSymbol. " +
                          "No mapping code will be generated for this attribute.");
 
-        // DM003 — IgnoreMember Property Not Found (Warning)
+        // DM003 — Attribute Property Not Found (Warning)
         public static readonly DiagnosticDescriptor IgnoreMemberPropertyNotFound = new DiagnosticDescriptor(
             id: "DM003",
-            title: "IgnoreMember property not found",
-            messageFormat: "[IgnoreMember] references property '{0}' which does not exist on destination type '{1}'",
+            title: "Attribute references non-existent property",
+            messageFormat: "Property '{0}' does not exist on type '{1}'. The attribute has no effect and is likely a typo.",
             category: "DeltaMapper",
             defaultSeverity: DiagnosticSeverity.Warning,
             isEnabledByDefault: true,
-            description: "A property name supplied to [IgnoreMember] could not be matched to any writable property on " +
-                         "the destination type. The attribute has no effect and is likely a typo.");
+            description: "A property name supplied to [IgnoreMember], [NullSubstitute], or [MapMember] could not be matched " +
+                         "to any property on the referenced type. The attribute has no effect and is likely a typo.");
 
         // DM004 — MapMember Type Incompatible (Warning)
         public static readonly DiagnosticDescriptor MapMemberTypeIncompatible = new DiagnosticDescriptor(
@@ -46,6 +46,6 @@ namespace DeltaMapper.SourceGen.Diagnostics
             defaultSeverity: DiagnosticSeverity.Warning,
             isEnabledByDefault: true,
             description: "The source and destination properties named in [MapMember] have types that cannot be assigned " +
-                         "to each other without an explicit conversion. The generated mapping may not compile.");
+                         "to each other without an explicit conversion. The property will be skipped in the generated mapping.");
     }
 }
