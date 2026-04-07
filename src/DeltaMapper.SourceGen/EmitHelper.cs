@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text;
 using Microsoft.CodeAnalysis;
 
@@ -512,7 +513,7 @@ using System.Linq;
             {
                 if (SymbolEqualityComparer.Default.Equals(ignore.SourceType, src) &&
                     SymbolEqualityComparer.Default.Equals(ignore.DestinationType, dst) &&
-                    string.Equals(ignore.MemberName, memberName, StringComparison.Ordinal))
+                    string.Equals(ignore.MemberName, memberName, StringComparison.OrdinalIgnoreCase))
                 {
                     return true;
                 }
@@ -534,7 +535,7 @@ using System.Linq;
             {
                 if (SymbolEqualityComparer.Default.Equals(ns.SourceType, src) &&
                     SymbolEqualityComparer.Default.Equals(ns.DestinationType, dst) &&
-                    string.Equals(ns.MemberName, memberName, StringComparison.Ordinal))
+                    string.Equals(ns.MemberName, memberName, StringComparison.OrdinalIgnoreCase))
                 {
                     return ns;
                 }
@@ -556,7 +557,7 @@ using System.Linq;
             {
                 if (SymbolEqualityComparer.Default.Equals(mm.SourceType, src) &&
                     SymbolEqualityComparer.Default.Equals(mm.DestinationType, dst) &&
-                    string.Equals(mm.DestinationMember, destinationMember, StringComparison.Ordinal))
+                    string.Equals(mm.DestinationMember, destinationMember, StringComparison.OrdinalIgnoreCase))
                 {
                     return mm;
                 }
@@ -583,13 +584,13 @@ using System.Linq;
                 return b ? "true" : "false";
 
             if (value is float f)
-                return f.ToString("R") + "f";
+                return f.ToString("R", CultureInfo.InvariantCulture) + "f";
 
             if (value is double d)
-                return d.ToString("R") + "d";
+                return d.ToString("R", CultureInfo.InvariantCulture) + "d";
 
             if (value is decimal dec)
-                return dec.ToString() + "m";
+                return dec.ToString(CultureInfo.InvariantCulture) + "m";
 
             if (value is long l)
                 return l.ToString() + "L";

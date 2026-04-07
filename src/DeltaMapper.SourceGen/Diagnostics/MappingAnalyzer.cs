@@ -49,7 +49,13 @@ namespace DeltaMapper.SourceGen.Diagnostics
                 if (SymbolEqualityComparer.Default.Equals(mapMember.SourceType, src) &&
                     SymbolEqualityComparer.Default.Equals(mapMember.DestinationType, dst))
                 {
-                    suppressedNames.Add(mapMember.DestinationMember);
+                    // Only suppress DM001 when the source property actually exists.
+                    // If the source is a typo, ReportIncompatibleMapMembers will emit DM003
+                    // and the destination property should still surface as unmapped (DM001).
+                    bool srcExists = srcReadableProps.Any(p =>
+                        string.Equals(p.Name, mapMember.SourceMember, StringComparison.OrdinalIgnoreCase));
+                    if (srcExists)
+                        suppressedNames.Add(mapMember.DestinationMember);
                 }
             }
 
@@ -161,8 +167,20 @@ namespace DeltaMapper.SourceGen.Diagnostics
                 var dstProp = dstProps.FirstOrDefault(p =>
                     string.Equals(p.Name, mapMember.DestinationMember, StringComparison.OrdinalIgnoreCase));
 
-                // Only check type compatibility when both properties actually exist
-                if (srcProp is null || dstProp is null)
+                // Report DM003 when the source property doesn't exist
+                if (srcProp is null)
+                {
+                    var diagnostic = Diagnostic.Create(
+                        DiagnosticDescriptors.IgnoreMemberPropertyNotFound,
+                        mapMember.Location,
+                        mapMember.SourceMember,
+                        src.Name);
+                    context.ReportDiagnostic(diagnostic);
+                    continue;
+                }
+
+                // Skip type-compatibility check when the destination property doesn't exist
+                if (dstProp is null)
                     continue;
 
                 if (!SymbolEqualityComparer.Default.Equals(srcProp.Type, dstProp.Type))
