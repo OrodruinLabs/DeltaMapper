@@ -168,11 +168,11 @@ namespace DeltaMapper.SourceGen
 
             foreach (var (src, dst) in pairs)
             {
-                var source = EmitHelper.EmitMapMethod(info.ProfileClass, src, dst, pairs);
+                var source = EmitHelper.EmitMapMethod(info.ProfileClass, src, dst, pairs, info.Config);
                 var hintName = EmitHelper.BuildFileName(info.ProfileClass, src, dst);
                 context.AddSource(hintName, source);
 
-                var factorySource = EmitHelper.EmitFactoryMethod(info.ProfileClass, src, dst, pairs);
+                var factorySource = EmitHelper.EmitFactoryMethod(info.ProfileClass, src, dst, pairs, info.Config);
                 var factoryHintName = EmitHelper.BuildFactoryFileName(info.ProfileClass, src, dst);
                 context.AddSource(factoryHintName, factorySource);
             }

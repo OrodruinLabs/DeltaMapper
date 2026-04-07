@@ -141,6 +141,7 @@ using System.Linq;
         /// <summary>
         /// Tries to build object initializer lines (Prop = src.Prop,) for simple flat types.
         /// Returns null if any property requires control flow (nested, collection, etc.).
+        /// attrConfig supplies [IgnoreMember]/[NullSubstitute]/[MapMember] overrides.
         /// </summary>
         private static string? TryBuildInitializerLines(
             INamedTypeSymbol src,
@@ -155,25 +156,70 @@ using System.Linq;
 
             foreach (var dstProp in dstProps)
             {
+                // Skip property-level [Ignore] attribute
                 if (IsIgnored(dstProp)) continue;
 
-                var srcProp = srcProps.FirstOrDefault(s =>
-                    string.Equals(s.Name, dstProp.Name, StringComparison.OrdinalIgnoreCase));
+                // [IgnoreMember] attribute config check
+                if (attrConfig is not null && IsAttrIgnored(attrConfig, src, dst, dstProp.Name))
+                    continue;
+
+                // [MapMember] remapping: find if this dst property is remapped to a different src property
+                var mapMember = attrConfig is not null
+                    ? FindMapMember(attrConfig, src, dst, dstProp.Name)
+                    : null;
+
+                (string Name, ITypeSymbol Type, IPropertySymbol Symbol) srcProp;
+                if (mapMember is not null)
+                {
+                    srcProp = srcProps.FirstOrDefault(s =>
+                        string.Equals(s.Name, mapMember.SourceMember, StringComparison.OrdinalIgnoreCase));
+                }
+                else
+                {
+                    srcProp = srcProps.FirstOrDefault(s =>
+                        string.Equals(s.Name, dstProp.Name, StringComparison.OrdinalIgnoreCase));
+                }
 
                 if (srcProp.Name is null) continue;
 
+                // [NullSubstitute] attribute config check
+                var nullSub = attrConfig is not null
+                    ? FindNullSubstitute(attrConfig, src, dst, dstProp.Name)
+                    : null;
+
+                if (nullSub is not null)
+                {
+                    // NullSubstitute requires same-type; complex/collection falls back to two-step.
+                    // Nullable<T> is permitted (valid ?? operand, same type, struct).
+                    if (!SymbolEqualityComparer.Default.Equals(srcProp.Type, dstProp.Type))
+                        return null;
+
+                    bool isNullableVt = dstProp.Type is INamedTypeSymbol ntNv
+                        && ntNv.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T;
+                    if (!isNullableVt && dstProp.Type is INamedTypeSymbol complexNs && IsComplexType(complexNs))
+                        return null;
+                    if (dstProp.Type is INamedTypeSymbol namedNs && IsListType(namedNs))
+                        return null;
+                    if (dstProp.Type is IArrayTypeSymbol)
+                        return null;
+
+                    var defaultLiteral = FormatConstantLiteral(nullSub.Value);
+                    lines.Add($"{dstProp.Name} = src.{srcProp.Name} ?? {defaultLiteral},");
+                    continue;
+                }
+
                 // Only support simple same-type assignments for initializer
                 if (!SymbolEqualityComparer.Default.Equals(srcProp.Type, dstProp.Type))
-                    return null; // Not simple — fall back to two-step
+                    return null; // Not simple -- fall back to two-step
 
                 if (dstProp.Type is INamedTypeSymbol complex && IsComplexType(complex))
-                    return null; // Nested type — needs control flow
+                    return null; // Nested type -- needs control flow
 
                 if (dstProp.Type is INamedTypeSymbol named && IsListType(named))
-                    return null; // Collection — needs control flow
+                    return null; // Collection -- needs control flow
 
                 if (dstProp.Type is IArrayTypeSymbol)
-                    return null; // Array — needs control flow
+                    return null; // Array -- needs control flow
 
                 lines.Add($"{dstProp.Name} = src.{srcProp.Name},");
             }
@@ -289,16 +335,61 @@ using System.Linq;
 
             foreach (var dstProp in dstProps)
             {
-                // Skip [Ignore] properties
+                // Skip property-level [Ignore] attribute
                 if (IsIgnored(dstProp))
                     continue;
 
-                // Find matching source property by name (case-insensitive)
-                var srcProp = srcProps.FirstOrDefault(s =>
-                    string.Equals(s.Name, dstProp.Name, StringComparison.OrdinalIgnoreCase));
+                // [IgnoreMember] attribute config check
+                if (attrConfig is not null && IsAttrIgnored(attrConfig, src, dst, dstProp.Name))
+                    continue;
+
+                // [MapMember] remapping: find if this dst property is remapped to a different src property
+                var mapMember = attrConfig is not null
+                    ? FindMapMember(attrConfig, src, dst, dstProp.Name)
+                    : null;
+
+                (string Name, ITypeSymbol Type, IPropertySymbol Symbol) srcProp;
+                if (mapMember is not null)
+                {
+                    srcProp = srcProps.FirstOrDefault(s =>
+                        string.Equals(s.Name, mapMember.SourceMember, StringComparison.OrdinalIgnoreCase));
+                }
+                else
+                {
+                    // Find matching source property by name (case-insensitive)
+                    srcProp = srcProps.FirstOrDefault(s =>
+                        string.Equals(s.Name, dstProp.Name, StringComparison.OrdinalIgnoreCase));
+                }
 
                 if (srcProp.Name is null)
                     continue;
+
+                // [NullSubstitute] attribute config check
+                var nullSub = attrConfig is not null
+                    ? FindNullSubstitute(attrConfig, src, dst, dstProp.Name)
+                    : null;
+
+                if (nullSub is not null)
+                {
+                    // Emit dst.Prop = src.Prop ?? defaultValue; for same-type non-collection properties.
+                    // Nullable<T> structs are permitted (same type, valid ?? operand).
+                    // Block only for arrays, list types, and non-nullable complex classes/structs.
+                    bool isNullableValueType = dstProp.Type is INamedTypeSymbol ntNullable
+                        && ntNullable.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T;
+                    bool isComplexNonNullable = !isNullableValueType
+                        && dstProp.Type is INamedTypeSymbol ntComplex
+                        && IsComplexType(ntComplex);
+
+                    if (SymbolEqualityComparer.Default.Equals(srcProp.Type, dstProp.Type)
+                        && !isComplexNonNullable
+                        && !(dstProp.Type is INamedTypeSymbol ntList && IsListType(ntList))
+                        && !(dstProp.Type is IArrayTypeSymbol))
+                    {
+                        var defaultLiteral = FormatConstantLiteral(nullSub.Value);
+                        lines.Add($"dst.{dstProp.Name} = src.{srcProp.Name} ?? {defaultLiteral};");
+                        continue;
+                    }
+                }
 
                 var line = BuildPropertyAssignment(srcProp, dstProp, knownPairs);
                 if (line is not null)
@@ -335,11 +426,11 @@ using System.Linq;
 
                 if (SymbolEqualityComparer.Default.Equals(srcElement, dstElement))
                 {
-                    // primitive/string elements — direct .ToArray()
+                    // primitive/string elements -- direct .ToArray()
                     return $"dst.{dstName} = src.{srcName}?.ToArray();";
                 }
 
-                // complex element — check if nested pair exists
+                // complex element -- check if nested pair exists
                 if (dstElement is INamedTypeSymbol dstElemNamedArr &&
                     srcElement is INamedTypeSymbol srcElemNamedArr &&
                     FindPair(knownPairs, srcElemNamedArr, dstElemNamedArr) is { } nestedPairArr)
@@ -394,7 +485,7 @@ using System.Linq;
                     return $"if (src.{srcName} is not null) {{ dst.{dstName} = new {dstFull}(); {nm}(src.{srcName}, dst.{dstName}); }}";
                 }
 
-                // No known pair — skip
+                // No known pair -- skip
                 return null;
             }
 
@@ -403,6 +494,114 @@ using System.Linq;
                 return $"dst.{dstName} = src.{srcName};";
 
             return null; // type mismatch
+        }
+
+        // ── attribute config helpers ─────────────────────────────────────────
+
+        /// <summary>
+        /// Returns true if the named destination property should be skipped for the given (src, dst) pair
+        /// due to an [IgnoreMember] attribute on the profile class.
+        /// </summary>
+        private static bool IsAttrIgnored(
+            AttributeConfig config,
+            INamedTypeSymbol src,
+            INamedTypeSymbol dst,
+            string memberName)
+        {
+            foreach (var ignore in config.Ignores)
+            {
+                if (SymbolEqualityComparer.Default.Equals(ignore.SourceType, src) &&
+                    SymbolEqualityComparer.Default.Equals(ignore.DestinationType, dst) &&
+                    string.Equals(ignore.MemberName, memberName, StringComparison.Ordinal))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Returns the first matching <see cref="NullSubstituteConfig"/> for the given (src, dst, member) triple,
+        /// or null if none is configured.
+        /// </summary>
+        private static NullSubstituteConfig? FindNullSubstitute(
+            AttributeConfig config,
+            INamedTypeSymbol src,
+            INamedTypeSymbol dst,
+            string memberName)
+        {
+            foreach (var ns in config.NullSubstitutes)
+            {
+                if (SymbolEqualityComparer.Default.Equals(ns.SourceType, src) &&
+                    SymbolEqualityComparer.Default.Equals(ns.DestinationType, dst) &&
+                    string.Equals(ns.MemberName, memberName, StringComparison.Ordinal))
+                {
+                    return ns;
+                }
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Returns the first matching <see cref="MapMemberConfig"/> for the given (src, dst, destinationMember) triple,
+        /// or null if none is configured.
+        /// </summary>
+        private static MapMemberConfig? FindMapMember(
+            AttributeConfig config,
+            INamedTypeSymbol src,
+            INamedTypeSymbol dst,
+            string destinationMember)
+        {
+            foreach (var mm in config.MapMembers)
+            {
+                if (SymbolEqualityComparer.Default.Equals(mm.SourceType, src) &&
+                    SymbolEqualityComparer.Default.Equals(mm.DestinationType, dst) &&
+                    string.Equals(mm.DestinationMember, destinationMember, StringComparison.Ordinal))
+                {
+                    return mm;
+                }
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Formats a constant value as a valid C# literal for use in generated code.
+        /// Strings get double quotes, chars get single quotes, null becomes "null".
+        /// </summary>
+        internal static string FormatConstantLiteral(object? value)
+        {
+            if (value is null)
+                return "null";
+
+            if (value is string s)
+                return "\"" + s.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\"";
+
+            if (value is char c)
+                return "'" + (c == '\'' ? "\\'" : c == '\\' ? "\\\\" : c.ToString()) + "'";
+
+            if (value is bool b)
+                return b ? "true" : "false";
+
+            if (value is float f)
+                return f.ToString("R") + "f";
+
+            if (value is double d)
+                return d.ToString("R") + "d";
+
+            if (value is decimal dec)
+                return dec.ToString() + "m";
+
+            if (value is long l)
+                return l.ToString() + "L";
+
+            if (value is ulong ul)
+                return ul.ToString() + "UL";
+
+            if (value is uint ui)
+                return ui.ToString() + "U";
+
+            // int, byte, sbyte, short, ushort -- all emit as plain number
+            return value.ToString() ?? "null";
         }
 
         // ── type-classification helpers ──────────────────────────────────────
