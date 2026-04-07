@@ -1,3 +1,4 @@
+using DeltaMapper.SourceGen.AttributeSources;
 using DeltaMapper.SourceGen.Diagnostics;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -13,9 +14,15 @@ namespace DeltaMapper.SourceGen
     {
         public void Initialize(IncrementalGeneratorInitializationContext context)
         {
-            // 1. Register the attribute source text
+            // 1. Register the attribute source texts
             context.RegisterPostInitializationOutput(ctx =>
                 ctx.AddSource(GenerateMapAttributeSource.HintName, GenerateMapAttributeSource.Source));
+            context.RegisterPostInitializationOutput(ctx =>
+                ctx.AddSource(IgnoreMemberAttributeSource.HintName, IgnoreMemberAttributeSource.Source));
+            context.RegisterPostInitializationOutput(ctx =>
+                ctx.AddSource(NullSubstituteAttributeSource.HintName, NullSubstituteAttributeSource.Source));
+            context.RegisterPostInitializationOutput(ctx =>
+                ctx.AddSource(MapMemberAttributeSource.HintName, MapMemberAttributeSource.Source));
 
             // 2. Create syntax provider that filters for classes with [GenerateMap]
             var classDeclarations = context.SyntaxProvider
