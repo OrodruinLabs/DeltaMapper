@@ -6,7 +6,7 @@
 
     <!-- NuGet package identity -->
     <PackageId>DeltaMapper</PackageId>
-    <Version>1.1.0</Version>
+    <Version>1.2.0</Version>
     <Authors>Jose Mejia</Authors>
     <Description>Fast, diff-aware .NET object mapper. Expression-compiled delegates, FrozenDictionary-backed lookup, fluent profile API, MappingDiff&lt;T&gt; / Patch support, source-generator integration, and DI extensions. MIT licensed.</Description>
     <PackageTags>mapper;object-mapper;dto;diff;patch;source-generator;net8;net9;net10;csharp</PackageTags>

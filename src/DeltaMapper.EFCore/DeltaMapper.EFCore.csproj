@@ -6,7 +6,7 @@
 
     <!-- NuGet package identity -->
     <PackageId>DeltaMapper.EFCore</PackageId>
-    <Version>1.1.0</Version>
+    <Version>1.2.0</Version>
     <Authors>Jose Mejia</Authors>
     <Description>EF Core integration for DeltaMapper — ProjectTo IQueryable projections and proxy-aware middleware</Description>
     <PackageTags>mapper;efcore;entity-framework;proxy;projectto;iqueryable;projection;net8;net9;net10;csharp</PackageTags>

@@ -30,7 +30,7 @@
 
 - **Near-zero overhead** — source-generated direct calls run at 7 ns, comparable to hand-written code
 - **`MappingDiff<T>`** — map _and_ get a structured change set in one call
-- **Source generator** — `[GenerateMap]` emits assignment code at build time, zero reflection
+- **Source generator** — `[GenerateMap]` emits assignment code at build time, zero reflection; `[IgnoreMember]`, `[MapMember]`, and `[NullSubstitute]` attributes customize maps without runtime Profiles
 - **Full IMapper pipeline** — DI, middleware, hooks, EF Core proxy detection, OpenTelemetry tracing
 - **`ProjectTo<T>()`** — translate profile maps into EF Core-compatible SQL projections via `IQueryable`
 
@@ -186,6 +186,37 @@ public class OrderProfile : Profile
 
 Conditions work alongside `MapFrom` and `NullSubstitute` — the condition is evaluated first, and if false the member option is skipped entirely. `Ignore` and `Condition` cannot be combined on the same member; use `Condition` alone to conditionally skip mapping.
 
+## Source Generator Attributes
+
+`DeltaMapper.SourceGen` attributes let you customize compile-time maps directly on the profile class — no runtime Profile or `ForMember` calls required.
+
+```bash
+dotnet add package DeltaMapper.SourceGen
+```
+
+```csharp
+[GenerateMap(typeof(User), typeof(UserDto))]
+[IgnoreMember(typeof(User), typeof(UserDto), nameof(UserDto.InternalId))]
+[MapMember(typeof(User), typeof(UserDto), nameof(UserDto.FullName), nameof(User.Name))]
+[NullSubstitute(typeof(User), typeof(UserDto), nameof(UserDto.DisplayName), "Anonymous")]
+public partial class UserMappingProfile { }
+```
+
+| Attribute | Effect |
+|---|---|
+| `[IgnoreMember(src, dst, member)]` | Exclude a destination member from the generated map |
+| `[MapMember(src, dst, dstMember, srcMember)]` | Rename: map a source member to a differently named destination member |
+| `[NullSubstitute(src, dst, member, value)]` | Use `value` when the source member is null |
+
+Each attribute takes explicit `(Type sourceType, Type destinationType, ...)` so a single profile class can carry attributes for multiple type pairs without ambiguity.
+
+New diagnostics added alongside these attributes:
+
+| Code | Severity | Description |
+|---|---|---|
+| DM003 | Warning | Attribute references a property that does not exist on the type |
+| DM004 | Warning | `[MapMember]` source and destination property types are incompatible |
+
 ## Performance
 
 DeltaMapper's source generator produces code comparable to hand-written — and on collections, faster than every competitor tested.
@@ -206,7 +237,7 @@ DeltaMapper's source generator produces code comparable to hand-written — and 
 | Guide | Description |
 |---|---|
 | [API Reference](docs/api-reference.md) | MapperConfiguration, Profile, IMapper, conventions, flattening, assembly scanning, type converters, middleware, DI |
-| [Source Generator](docs/source-generator.md) | `[GenerateMap]`, direct calls, analyzer diagnostics |
+| [Source Generator](docs/source-generator.md) | `[GenerateMap]`, source gen attributes, direct calls, analyzer diagnostics |
 | [EF Core Integration](docs/efcore-integration.md) | Proxy detection, lazy loading safety, `ProjectTo` |
 | [OpenTelemetry Tracing](docs/opentelemetry.md) | Activity spans, zero-overhead fast path |
 | [Migration from AutoMapper](docs/migration-from-automapper.md) | Concept mapping table, rename scripts |

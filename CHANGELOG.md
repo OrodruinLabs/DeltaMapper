@@ -11,6 +11,30 @@ DeltaMapper uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [1.2.0] — 2026-04-06
+
+### Added
+
+- **`[IgnoreMember]` attribute** (`DeltaMapper.SourceGen`) — exclude a destination member from a source-generated map without a runtime Profile. Applied directly to the `partial` profile class alongside `[GenerateMap]`. (FEAT-017)
+- **`[MapMember]` attribute** (`DeltaMapper.SourceGen`) — rename mapping: declare that a source member maps to a differently named destination member at compile time. (FEAT-017)
+- **`[NullSubstitute]` attribute** (`DeltaMapper.SourceGen`) — specify a substitute value to use when the source member is null, expressed at the attribute level for source-gen maps. (FEAT-017)
+- **DM003 diagnostic** (Warning) — emitted when an attribute references a property name that does not exist on the declared source or destination type. (FEAT-017)
+- **DM004 diagnostic** (Warning) — emitted when `[MapMember]` source and destination property types are incompatible. (FEAT-017)
+
+### Notes
+
+All three attributes accept explicit `(Type sourceType, Type destinationType, ...)` parameters, enabling a single `partial` class to carry attribute-based customizations for multiple type pairs without ambiguity.
+
+```csharp
+[GenerateMap(typeof(User), typeof(UserDto))]
+[IgnoreMember(typeof(User), typeof(UserDto), nameof(UserDto.InternalId))]
+[MapMember(typeof(User), typeof(UserDto), nameof(UserDto.FullName), nameof(User.Name))]
+[NullSubstitute(typeof(User), typeof(UserDto), nameof(UserDto.DisplayName), "Anonymous")]
+public partial class UserMappingProfile { }
+```
+
+---
+
 ## [1.1.0] — 2026-04-06
 
 ### Added
@@ -337,7 +361,8 @@ Initial release.
 - On-demand benchmark workflow via `workflow_dispatch`
 - BenchmarkDotNet suite comparing against Mapperly, AutoMapper, and hand-written code
 
-[Unreleased]: https://github.com/OrodruinLabs/DeltaMapper/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/OrodruinLabs/DeltaMapper/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/OrodruinLabs/DeltaMapper/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/OrodruinLabs/DeltaMapper/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/OrodruinLabs/DeltaMapper/compare/v1.0.0-rc.8...v1.0.0
 [1.0.0-rc.8]: https://github.com/OrodruinLabs/DeltaMapper/compare/v1.0.0-rc.7...v1.0.0-rc.8

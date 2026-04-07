@@ -153,6 +153,96 @@ Supported in `ProjectTo`: convention matching, `ForMember`/`MapFrom`, `Ignore`, 
 
 See [EF Core Integration](efcore-integration.md) for full details.
 
+## Source Generator Attributes (DeltaMapper.SourceGen)
+
+Attributes applied to `[GenerateMap]` partial classes that customize compile-time maps without requiring a runtime Profile.
+
+### `[IgnoreMember]`
+
+```csharp
+[AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
+public sealed class IgnoreMemberAttribute : Attribute
+{
+    public IgnoreMemberAttribute(
+        Type sourceType,
+        Type destinationType,
+        string memberName) { }
+}
+```
+
+Excludes `memberName` from the generated destination assignments. Equivalent to `.ForMember(d => d.Prop, o => o.Ignore())` in a runtime Profile.
+
+```csharp
+[GenerateMap(typeof(User), typeof(UserDto))]
+[IgnoreMember(typeof(User), typeof(UserDto), nameof(UserDto.InternalId))]
+public partial class UserMappingProfile { }
+```
+
+### `[MapMember]`
+
+```csharp
+[AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
+public sealed class MapMemberAttribute : Attribute
+{
+    public MapMemberAttribute(
+        Type sourceType,
+        Type destinationType,
+        string destinationMember,
+        string sourceMember) { }
+}
+```
+
+Renames the source member used to populate a destination member. Equivalent to `.ForMember(d => d.Dst, o => o.MapFrom(s => s.Src))` in a runtime Profile.
+
+```csharp
+[GenerateMap(typeof(User), typeof(UserDto))]
+[MapMember(typeof(User), typeof(UserDto), nameof(UserDto.FullName), nameof(User.Name))]
+public partial class UserMappingProfile { }
+```
+
+### `[NullSubstitute]`
+
+```csharp
+[AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
+public sealed class NullSubstituteAttribute : Attribute
+{
+    public NullSubstituteAttribute(
+        Type sourceType,
+        Type destinationType,
+        string memberName,
+        object value) { }
+}
+```
+
+Emits a null-coalesce in the generated assignment so that `value` is used when the source member is null. Equivalent to `.ForMember(d => d.Prop, o => o.NullSubstitute(value))` in a runtime Profile.
+
+```csharp
+[GenerateMap(typeof(User), typeof(UserDto))]
+[NullSubstitute(typeof(User), typeof(UserDto), nameof(UserDto.DisplayName), "Anonymous")]
+public partial class UserMappingProfile { }
+```
+
+### Combining attributes
+
+All three attributes are `AllowMultiple = true` and scope their effect via the explicit `(sourceType, destinationType)` pair, so a single profile class can customize multiple maps:
+
+```csharp
+[GenerateMap(typeof(User), typeof(UserDto))]
+[GenerateMap(typeof(Order), typeof(OrderDto))]
+[IgnoreMember(typeof(User), typeof(UserDto), nameof(UserDto.InternalId))]
+[MapMember(typeof(User), typeof(UserDto), nameof(UserDto.FullName), nameof(User.Name))]
+[NullSubstitute(typeof(User), typeof(UserDto), nameof(UserDto.DisplayName), "Anonymous")]
+[NullSubstitute(typeof(Order), typeof(OrderDto), nameof(OrderDto.Notes), "N/A")]
+public partial class AppMappingProfile { }
+```
+
+### Analyzer diagnostics for attributes
+
+| Code | Severity | Trigger |
+|---|---|---|
+| DM003 | Warning | Attribute references a property name that does not exist on the declared source or destination type |
+| DM004 | Warning | `[MapMember]` source and destination property types are incompatible |
+
 ## Convention Matching
 
 Properties are matched by name (case-insensitive) without any configuration:
