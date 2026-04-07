@@ -7,7 +7,7 @@
 
     <!-- NuGet package identity -->
     <PackageId>DeltaMapper.SourceGen</PackageId>
-    <Version>1.1.0</Version>
+    <Version>1.2.0</Version>
     <Authors>Jose Mejia</Authors>
     <Description>Roslyn source generator for DeltaMapper. Attach [GenerateMap] to a profile class and get compile-time mapping delegates with zero reflection at runtime. Includes DM001/DM002 analyzer diagnostics. MIT licensed.</Description>
     <PackageTags>mapper;source-generator;roslyn;analyzer;dto;diff;patch;net8;net9;net10;csharp</PackageTags>

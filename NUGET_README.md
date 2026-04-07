@@ -6,7 +6,7 @@ Fast, diff-aware .NET object mapper. MIT licensed. Minimal dependencies.
 
 - **Near-zero overhead** — source-generated direct calls run at 7 ns, same as hand-written code
 - **`MappingDiff<T>`** — map and get a structured change set in one call
-- **Source generator** — `[GenerateMap]` emits assignment code at build time, zero reflection
+- **Source generator** — `[GenerateMap]` emits assignment code at build time, zero reflection; `[IgnoreMember]`, `[MapMember]`, and `[NullSubstitute]` attributes customize maps without runtime Profiles
 - **Full IMapper pipeline** — DI, middleware, hooks, EF Core proxy detection, OpenTelemetry tracing
 - **`ProjectTo<T>()`** — translate profile maps into EF Core-compatible SQL projections via `IQueryable`
 
@@ -95,6 +95,26 @@ cfg.CreateTypeConverter<string, DateTime>(s => DateTime.Parse(s));
 CreateMap<Order, OrderDto>()
     .ForMember(d => d.Discount, o => o.Condition(s => s.IsPremiumCustomer));
 ```
+
+## Source Generator Attributes
+
+Customize compile-time maps with attributes on the `partial` profile class — no runtime Profile required.
+
+```csharp
+[GenerateMap(typeof(User), typeof(UserDto))]
+[IgnoreMember(typeof(User), typeof(UserDto), nameof(UserDto.InternalId))]
+[MapMember(typeof(User), typeof(UserDto), nameof(UserDto.FullName), nameof(User.Name))]
+[NullSubstitute(typeof(User), typeof(UserDto), nameof(UserDto.DisplayName), "Anonymous")]
+public partial class UserMappingProfile;
+```
+
+| Attribute | Effect |
+|---|---|
+| `[IgnoreMember(src, dst, member)]` | Exclude a destination member from the generated map |
+| `[MapMember(src, dst, dstMember, srcMember)]` | Map a source member to a differently named destination member |
+| `[NullSubstitute(src, dst, member, value)]` | Use `value` when the source member is null |
+
+Requires `DeltaMapper.SourceGen`.
 
 ## Performance
 
