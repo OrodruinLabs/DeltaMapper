@@ -204,6 +204,10 @@ using System.Linq;
                     if (dstProp.Type is IArrayTypeSymbol)
                         return null;
 
+                    // ?? requires the left operand to be nullable (reference type or Nullable<T>).
+                    if (!srcProp.Type.IsReferenceType && !isNullableVt)
+                        return null; // Non-nullable value type — fall back to two-step
+
                     var defaultLiteral = FormatConstantLiteral(nullSub.Value);
                     lines.Add($"{dstProp.Name} = src.{srcProp.Name} ?? {defaultLiteral},");
                     continue;
@@ -381,7 +385,11 @@ using System.Linq;
                         && dstProp.Type is INamedTypeSymbol ntComplex
                         && IsComplexType(ntComplex);
 
-                    if (SymbolEqualityComparer.Default.Equals(srcProp.Type, dstProp.Type)
+                    // ?? requires the left operand to be nullable (reference type or Nullable<T>).
+                    bool srcIsNullable = srcProp.Type.IsReferenceType || isNullableValueType;
+
+                    if (srcIsNullable
+                        && SymbolEqualityComparer.Default.Equals(srcProp.Type, dstProp.Type)
                         && !isComplexNonNullable
                         && !(dstProp.Type is INamedTypeSymbol ntList && IsListType(ntList))
                         && !(dstProp.Type is IArrayTypeSymbol))
