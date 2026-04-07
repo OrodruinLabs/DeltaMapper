@@ -1,6 +1,8 @@
+using DeltaMapper.SourceGen.AttributeSources;
 using DeltaMapper.SourceGen.Diagnostics;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Collections.Generic;
 
 namespace DeltaMapper.SourceGen
 {
@@ -13,9 +15,15 @@ namespace DeltaMapper.SourceGen
     {
         public void Initialize(IncrementalGeneratorInitializationContext context)
         {
-            // 1. Register the attribute source text
+            // 1. Register the attribute source texts
             context.RegisterPostInitializationOutput(ctx =>
                 ctx.AddSource(GenerateMapAttributeSource.HintName, GenerateMapAttributeSource.Source));
+            context.RegisterPostInitializationOutput(ctx =>
+                ctx.AddSource(IgnoreMemberAttributeSource.HintName, IgnoreMemberAttributeSource.Source));
+            context.RegisterPostInitializationOutput(ctx =>
+                ctx.AddSource(NullSubstituteAttributeSource.HintName, NullSubstituteAttributeSource.Source));
+            context.RegisterPostInitializationOutput(ctx =>
+                ctx.AddSource(MapMemberAttributeSource.HintName, MapMemberAttributeSource.Source));
 
             // 2. Create syntax provider that filters for classes with [GenerateMap]
             var classDeclarations = context.SyntaxProvider
@@ -71,7 +79,60 @@ namespace DeltaMapper.SourceGen
 
             if (rawAttributes.Count == 0) return null;
 
-            return new MappingInfo(classSymbol, rawAttributes);
+            // Parse companion attributes: [IgnoreMember], [NullSubstitute], [MapMember]
+            var config = new AttributeConfig();
+
+            foreach (var attr in classSymbol.GetAttributes())
+            {
+                var attrFullName = attr.AttributeClass?.ToDisplayString();
+
+                // Resolve attribute location (best-effort)
+                var attrLoc = attr.ApplicationSyntaxReference is not null
+                    ? Location.Create(
+                        attr.ApplicationSyntaxReference.SyntaxTree,
+                        attr.ApplicationSyntaxReference.Span)
+                    : context.TargetNode.GetLocation();
+
+                var args = attr.ConstructorArguments;
+
+                if (attrFullName == IgnoreMemberAttributeSource.AttributeName)
+                {
+                    // IgnoreMemberAttribute(Type sourceType, Type destinationType, string memberName)
+                    if (args.Length == 3
+                        && args[0].Value is INamedTypeSymbol ignoreSrc
+                        && args[1].Value is INamedTypeSymbol ignoreDst
+                        && args[2].Value is string ignoreMember)
+                    {
+                        config.Ignores.Add(new IgnoreMemberConfig(ignoreSrc, ignoreDst, ignoreMember, attrLoc));
+                    }
+                }
+                else if (attrFullName == NullSubstituteAttributeSource.AttributeName)
+                {
+                    // NullSubstituteAttribute(Type sourceType, Type destinationType, string memberName, object value)
+                    if (args.Length == 4
+                        && args[0].Value is INamedTypeSymbol nullSrc
+                        && args[1].Value is INamedTypeSymbol nullDst
+                        && args[2].Value is string nullMember)
+                    {
+                        var nullValue = args[3].Value; // may be null, int, string, etc.
+                        config.NullSubstitutes.Add(new NullSubstituteConfig(nullSrc, nullDst, nullMember, nullValue, attrLoc));
+                    }
+                }
+                else if (attrFullName == MapMemberAttributeSource.AttributeName)
+                {
+                    // MapMemberAttribute(Type sourceType, Type destinationType, string destinationMember, string sourceMember)
+                    if (args.Length == 4
+                        && args[0].Value is INamedTypeSymbol mapSrc
+                        && args[1].Value is INamedTypeSymbol mapDst
+                        && args[2].Value is string dstMember
+                        && args[3].Value is string srcMember)
+                    {
+                        config.MapMembers.Add(new MapMemberConfig(mapSrc, mapDst, dstMember, srcMember, attrLoc));
+                    }
+                }
+            }
+
+            return new MappingInfo(classSymbol, rawAttributes, config);
         }
 
         private static void Execute(SourceProductionContext context, MappingInfo info)
@@ -90,9 +151,12 @@ namespace DeltaMapper.SourceGen
 
             // Report DM001 for each valid (non-error) pair only.
             // Invalid pairs already have DM002 reported by ResolveAndValidateTypes.
+            // DM003 and DM004 are reported for companion attribute issues.
             foreach (var (src, dst, location) in validMappings)
             {
-                MappingAnalyzer.ReportUnmappedProperties(context, src, dst, location);
+                MappingAnalyzer.ReportUnmappedProperties(context, src, dst, location, info.Config);
+                MappingAnalyzer.ReportInvalidIgnoreMembers(context, src, dst, info.Config);
+                MappingAnalyzer.ReportIncompatibleMapMembers(context, src, dst, info.Config);
             }
 
             if (validMappings.Count == 0) return;
@@ -104,11 +168,11 @@ namespace DeltaMapper.SourceGen
 
             foreach (var (src, dst) in pairs)
             {
-                var source = EmitHelper.EmitMapMethod(info.ProfileClass, src, dst, pairs);
+                var source = EmitHelper.EmitMapMethod(info.ProfileClass, src, dst, pairs, info.Config);
                 var hintName = EmitHelper.BuildFileName(info.ProfileClass, src, dst);
                 context.AddSource(hintName, source);
 
-                var factorySource = EmitHelper.EmitFactoryMethod(info.ProfileClass, src, dst, pairs);
+                var factorySource = EmitHelper.EmitFactoryMethod(info.ProfileClass, src, dst, pairs, info.Config);
                 var factoryHintName = EmitHelper.BuildFactoryFileName(info.ProfileClass, src, dst);
                 context.AddSource(factoryHintName, factorySource);
             }
@@ -124,13 +188,16 @@ namespace DeltaMapper.SourceGen
     {
         public INamedTypeSymbol ProfileClass { get; }
         public List<(AttributeData Data, Location Location)> RawAttributes { get; }
+        public AttributeConfig Config { get; }
 
         public MappingInfo(
             INamedTypeSymbol profileClass,
-            List<(AttributeData Data, Location Location)> rawAttributes)
+            List<(AttributeData Data, Location Location)> rawAttributes,
+            AttributeConfig config)
         {
             ProfileClass = profileClass;
             RawAttributes = rawAttributes;
+            Config = config;
         }
     }
 }

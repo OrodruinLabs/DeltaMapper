@@ -269,7 +269,234 @@ public class AnalyzerDiagnosticTests
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // DM003 — NOT NEEDED (compiler already catches via CS1061)
+    // DM003 — IgnoreMember / NullSubstitute references non-existent property
+    // ─────────────────────────────────────────────────────────────────────────
+
+    [Fact]
+    public void DM003_IsReported_WhenIgnoreMemberReferencesNonExistentProperty()
+    {
+        const string source = """
+            using DeltaMapper;
+
+            namespace MyApp
+            {
+                public class Src { public int Id { get; set; } }
+                public class Dst { public int Id { get; set; } }
+
+                [GenerateMap(typeof(Src), typeof(Dst))]
+                [IgnoreMember(typeof(Src), typeof(Dst), "NonExistentProp")]
+                public partial class Profile1 { }
+            }
+            """;
+
+        var result = GeneratorTestHelper.RunGenerator(source);
+
+        result.Diagnostics.Should().Contain(d => d.Id == "DM003",
+            "DM003 must be reported when [IgnoreMember] references a property that does not exist on the destination");
+
+        var dm003 = result.Diagnostics.First(d => d.Id == "DM003");
+        dm003.Severity.Should().Be(DiagnosticSeverity.Warning);
+        dm003.GetMessage().Should().Contain("NonExistentProp");
+        dm003.GetMessage().Should().Contain("Dst");
+    }
+
+    [Fact]
+    public void DM003_IsNotReported_WhenIgnoreMemberReferencesValidProperty()
+    {
+        const string source = """
+            using DeltaMapper;
+
+            namespace MyApp
+            {
+                public class Src { public int Id { get; set; } }
+                public class Dst { public int Id { get; set; } public string Name { get; set; } = ""; }
+
+                [GenerateMap(typeof(Src), typeof(Dst))]
+                [IgnoreMember(typeof(Src), typeof(Dst), "Name")]
+                public partial class Profile2 { }
+            }
+            """;
+
+        var result = GeneratorTestHelper.RunGenerator(source);
+
+        result.Diagnostics.Should().NotContain(d => d.Id == "DM003",
+            "no DM003 when [IgnoreMember] references a property that exists on the destination");
+    }
+
+    [Fact]
+    public void DM001_IsSuppressed_WhenIgnoreMemberCoversProperty()
+    {
+        const string source = """
+            using DeltaMapper;
+
+            namespace MyApp
+            {
+                public class Src { public int Id { get; set; } }
+                public class Dst { public int Id { get; set; } public string Name { get; set; } = ""; }
+
+                [GenerateMap(typeof(Src), typeof(Dst))]
+                [IgnoreMember(typeof(Src), typeof(Dst), "Name")]
+                public partial class Profile3 { }
+            }
+            """;
+
+        var result = GeneratorTestHelper.RunGenerator(source);
+
+        result.Diagnostics.Should().NotContain(d => d.Id == "DM001",
+            "DM001 must be suppressed for 'Name' because [IgnoreMember] covers it");
+    }
+
+    [Fact]
+    public void DM001_IsSuppressed_WhenMapMemberCoversProperty()
+    {
+        const string source = """
+            using DeltaMapper;
+
+            namespace MyApp
+            {
+                public class Src { public int Id { get; set; } public string FullName { get; set; } = ""; }
+                public class Dst { public int Id { get; set; } public string Name { get; set; } = ""; }
+
+                [GenerateMap(typeof(Src), typeof(Dst))]
+                [MapMember(typeof(Src), typeof(Dst), "Name", "FullName")]
+                public partial class Profile4 { }
+            }
+            """;
+
+        var result = GeneratorTestHelper.RunGenerator(source);
+
+        result.Diagnostics.Should().NotContain(d => d.Id == "DM001",
+            "DM001 must be suppressed for 'Name' because [MapMember] covers it");
+    }
+
+    [Fact]
+    public void DM003_IsReported_WhenNullSubstituteReferencesNonExistentProperty()
+    {
+        const string source = """
+            using DeltaMapper;
+
+            namespace MyApp
+            {
+                public class Src { public int Id { get; set; } }
+                public class Dst { public int Id { get; set; } }
+
+                [GenerateMap(typeof(Src), typeof(Dst))]
+                [NullSubstitute(typeof(Src), typeof(Dst), "NonExistentProp", "default")]
+                public partial class ProfileNs { }
+            }
+            """;
+
+        var result = GeneratorTestHelper.RunGenerator(source);
+
+        result.Diagnostics.Should().Contain(d => d.Id == "DM003",
+            "DM003 must be reported when [NullSubstitute] references a property that does not exist on the destination");
+    }
+
+    [Fact]
+    public void DM003_IsReported_WhenMapMemberReferencesNonExistentDestinationProperty()
+    {
+        const string source = """
+            using DeltaMapper;
+
+            namespace MyApp
+            {
+                public class Src { public int Id { get; set; } public string Name { get; set; } = ""; }
+                public class Dst { public int Id { get; set; } }
+
+                [GenerateMap(typeof(Src), typeof(Dst))]
+                [MapMember(typeof(Src), typeof(Dst), "NonExistentDst", "Name")]
+                public partial class ProfileMm { }
+            }
+            """;
+
+        var result = GeneratorTestHelper.RunGenerator(source);
+
+        result.Diagnostics.Should().Contain(d => d.Id == "DM003",
+            "DM003 must be reported when [MapMember] destination property does not exist");
+    }
+
+    [Fact]
+    public void DM003_IsReported_WhenMapMemberReferencesNonExistentSourceProperty()
+    {
+        const string source = """
+            using DeltaMapper;
+
+            namespace MyApp
+            {
+                public class Src { public int Id { get; set; } }
+                public class Dst { public int Id { get; set; } public string Name { get; set; } = ""; }
+
+                [GenerateMap(typeof(Src), typeof(Dst))]
+                [MapMember(typeof(Src), typeof(Dst), "Name", "TypoSourceProp")]
+                public partial class ProfileMmSrc { }
+            }
+            """;
+
+        var result = GeneratorTestHelper.RunGenerator(source);
+
+        result.Diagnostics.Should().Contain(d => d.Id == "DM003",
+            "DM003 must be reported when [MapMember] source property does not exist");
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // DM004 — MapMember type incompatible
+    // ─────────────────────────────────────────────────────────────────────────
+
+    [Fact]
+    public void DM004_IsReported_WhenMapMemberHasIncompatibleTypes()
+    {
+        const string source = """
+            using DeltaMapper;
+
+            namespace MyApp
+            {
+                public class Src { public int Id { get; set; } public int Code { get; set; } }
+                public class Dst { public int Id { get; set; } public string Name { get; set; } = ""; }
+
+                [GenerateMap(typeof(Src), typeof(Dst))]
+                [MapMember(typeof(Src), typeof(Dst), "Name", "Code")]
+                public partial class Profile5 { }
+            }
+            """;
+
+        var result = GeneratorTestHelper.RunGenerator(source);
+
+        result.Diagnostics.Should().Contain(d => d.Id == "DM004",
+            "DM004 must be reported when [MapMember] maps an int source property to a string destination property");
+
+        var dm004 = result.Diagnostics.First(d => d.Id == "DM004");
+        dm004.Severity.Should().Be(DiagnosticSeverity.Warning);
+        dm004.GetMessage().Should().Contain("Code");
+        dm004.GetMessage().Should().Contain("Name");
+        dm004.GetMessage().Should().Contain("Src");
+        dm004.GetMessage().Should().Contain("Dst");
+    }
+
+    [Fact]
+    public void DM004_IsNotReported_WhenMapMemberHasCompatibleTypes()
+    {
+        const string source = """
+            using DeltaMapper;
+
+            namespace MyApp
+            {
+                public class Src { public int Id { get; set; } public string FullName { get; set; } = ""; }
+                public class Dst { public int Id { get; set; } public string Name { get; set; } = ""; }
+
+                [GenerateMap(typeof(Src), typeof(Dst))]
+                [MapMember(typeof(Src), typeof(Dst), "Name", "FullName")]
+                public partial class Profile6 { }
+            }
+            """;
+
+        var result = GeneratorTestHelper.RunGenerator(source);
+
+        result.Diagnostics.Should().NotContain(d => d.Id == "DM004",
+            "no DM004 when [MapMember] maps compatible types (both string)");
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // DM003 (legacy) — NOT NEEDED (compiler already catches via CS1061)
     // ─────────────────────────────────────────────────────────────────────────
 
     [Fact]

@@ -25,5 +25,27 @@ namespace DeltaMapper.SourceGen.Diagnostics
             isEnabledByDefault: true,
             description: "A typeof() expression in [GenerateMap] could not be resolved to an INamedTypeSymbol. " +
                          "No mapping code will be generated for this attribute.");
+
+        // DM003 — Attribute Property Not Found (Warning)
+        public static readonly DiagnosticDescriptor IgnoreMemberPropertyNotFound = new DiagnosticDescriptor(
+            id: "DM003",
+            title: "Attribute references non-existent property",
+            messageFormat: "Property '{0}' does not exist on type '{1}'. The attribute has no effect and is likely a typo.",
+            category: "DeltaMapper",
+            defaultSeverity: DiagnosticSeverity.Warning,
+            isEnabledByDefault: true,
+            description: "A property name supplied to [IgnoreMember], [NullSubstitute], or [MapMember] could not be matched " +
+                         "to any property on the referenced type. The attribute has no effect and is likely a typo.");
+
+        // DM004 — MapMember Type Incompatible (Warning)
+        public static readonly DiagnosticDescriptor MapMemberTypeIncompatible = new DiagnosticDescriptor(
+            id: "DM004",
+            title: "MapMember type incompatible",
+            messageFormat: "[MapMember] source property '{0}' on '{1}' has type '{2}' which is not compatible with destination property '{3}' on '{4}' (type '{5}')",
+            category: "DeltaMapper",
+            defaultSeverity: DiagnosticSeverity.Warning,
+            isEnabledByDefault: true,
+            description: "The source and destination properties named in [MapMember] have types that cannot be assigned " +
+                         "to each other without an explicit conversion. The property will be skipped in the generated mapping.");
     }
 }
