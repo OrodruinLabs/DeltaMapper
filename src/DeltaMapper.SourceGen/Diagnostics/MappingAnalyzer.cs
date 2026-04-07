@@ -179,9 +179,17 @@ namespace DeltaMapper.SourceGen.Diagnostics
                     continue;
                 }
 
-                // Skip type-compatibility check when the destination property doesn't exist
+                // Report DM003 when the destination property doesn't exist
                 if (dstProp is null)
+                {
+                    var diagnostic = Diagnostic.Create(
+                        DiagnosticDescriptors.IgnoreMemberPropertyNotFound,
+                        mapMember.Location,
+                        mapMember.DestinationMember,
+                        dst.Name);
+                    context.ReportDiagnostic(diagnostic);
                     continue;
+                }
 
                 if (!SymbolEqualityComparer.Default.Equals(srcProp.Type, dstProp.Type))
                 {
