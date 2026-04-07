@@ -199,7 +199,7 @@ dotnet add package DeltaMapper.SourceGen
 [IgnoreMember(typeof(User), typeof(UserDto), nameof(UserDto.InternalId))]
 [MapMember(typeof(User), typeof(UserDto), nameof(UserDto.FullName), nameof(User.Name))]
 [NullSubstitute(typeof(User), typeof(UserDto), nameof(UserDto.DisplayName), "Anonymous")]
-public partial class UserMappingProfile;
+public partial class UserMappingProfile { }
 ```
 
 | Attribute | Effect |

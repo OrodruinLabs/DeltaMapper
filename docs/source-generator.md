@@ -45,14 +45,17 @@ Exclude a destination member from the generated map entirely.
 ```csharp
 [GenerateMap(typeof(User), typeof(UserDto))]
 [IgnoreMember(typeof(User), typeof(UserDto), nameof(UserDto.InternalId))]
-public partial class UserMappingProfile;
+public partial class UserMappingProfile { }
 ```
 
 Signature:
 
 ```csharp
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-public sealed class IgnoreMemberAttribute(Type sourceType, Type destinationType, string memberName) : Attribute;
+public sealed class IgnoreMemberAttribute : Attribute
+{
+    public IgnoreMemberAttribute(Type sourceType, Type destinationType, string memberName) { }
+}
 ```
 
 ### `[MapMember]`
@@ -62,18 +65,21 @@ Map a source member to a differently named destination member.
 ```csharp
 [GenerateMap(typeof(User), typeof(UserDto))]
 [MapMember(typeof(User), typeof(UserDto), nameof(UserDto.FullName), nameof(User.Name))]
-public partial class UserMappingProfile;
+public partial class UserMappingProfile { }
 ```
 
 Signature:
 
 ```csharp
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-public sealed class MapMemberAttribute(
-    Type sourceType,
-    Type destinationType,
-    string destinationMember,
-    string sourceMember) : Attribute;
+public sealed class MapMemberAttribute : Attribute
+{
+    public MapMemberAttribute(
+        Type sourceType,
+        Type destinationType,
+        string destinationMember,
+        string sourceMember) { }
+}
 ```
 
 ### `[NullSubstitute]`
@@ -83,18 +89,21 @@ Use a substitute value when the source member is null.
 ```csharp
 [GenerateMap(typeof(User), typeof(UserDto))]
 [NullSubstitute(typeof(User), typeof(UserDto), nameof(UserDto.DisplayName), "Anonymous")]
-public partial class UserMappingProfile;
+public partial class UserMappingProfile { }
 ```
 
 Signature:
 
 ```csharp
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-public sealed class NullSubstituteAttribute(
-    Type sourceType,
-    Type destinationType,
-    string memberName,
-    object value) : Attribute;
+public sealed class NullSubstituteAttribute : Attribute
+{
+    public NullSubstituteAttribute(
+        Type sourceType,
+        Type destinationType,
+        string memberName,
+        object value) { }
+}
 ```
 
 ### Multi-pair profiles
@@ -107,7 +116,7 @@ Because each attribute takes explicit `(Type sourceType, Type destinationType, .
 [IgnoreMember(typeof(User), typeof(UserDto), nameof(UserDto.InternalId))]
 [MapMember(typeof(User), typeof(UserDto), nameof(UserDto.FullName), nameof(User.Name))]
 [NullSubstitute(typeof(Order), typeof(OrderDto), nameof(OrderDto.Notes), "N/A")]
-public partial class AppMappingProfile;
+public partial class AppMappingProfile { }
 ```
 
 ## Analyzer Diagnostics

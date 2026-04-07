@@ -161,10 +161,13 @@ Attributes applied to `[GenerateMap]` partial classes that customize compile-tim
 
 ```csharp
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-public sealed class IgnoreMemberAttribute(
-    Type sourceType,
-    Type destinationType,
-    string memberName) : Attribute;
+public sealed class IgnoreMemberAttribute : Attribute
+{
+    public IgnoreMemberAttribute(
+        Type sourceType,
+        Type destinationType,
+        string memberName) { }
+}
 ```
 
 Excludes `memberName` from the generated destination assignments. Equivalent to `.ForMember(d => d.Prop, o => o.Ignore())` in a runtime Profile.
@@ -172,18 +175,21 @@ Excludes `memberName` from the generated destination assignments. Equivalent to 
 ```csharp
 [GenerateMap(typeof(User), typeof(UserDto))]
 [IgnoreMember(typeof(User), typeof(UserDto), nameof(UserDto.InternalId))]
-public partial class UserMappingProfile;
+public partial class UserMappingProfile { }
 ```
 
 ### `[MapMember]`
 
 ```csharp
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-public sealed class MapMemberAttribute(
-    Type sourceType,
-    Type destinationType,
-    string destinationMember,
-    string sourceMember) : Attribute;
+public sealed class MapMemberAttribute : Attribute
+{
+    public MapMemberAttribute(
+        Type sourceType,
+        Type destinationType,
+        string destinationMember,
+        string sourceMember) { }
+}
 ```
 
 Renames the source member used to populate a destination member. Equivalent to `.ForMember(d => d.Dst, o => o.MapFrom(s => s.Src))` in a runtime Profile.
@@ -191,18 +197,21 @@ Renames the source member used to populate a destination member. Equivalent to `
 ```csharp
 [GenerateMap(typeof(User), typeof(UserDto))]
 [MapMember(typeof(User), typeof(UserDto), nameof(UserDto.FullName), nameof(User.Name))]
-public partial class UserMappingProfile;
+public partial class UserMappingProfile { }
 ```
 
 ### `[NullSubstitute]`
 
 ```csharp
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-public sealed class NullSubstituteAttribute(
-    Type sourceType,
-    Type destinationType,
-    string memberName,
-    object value) : Attribute;
+public sealed class NullSubstituteAttribute : Attribute
+{
+    public NullSubstituteAttribute(
+        Type sourceType,
+        Type destinationType,
+        string memberName,
+        object value) { }
+}
 ```
 
 Emits a null-coalesce in the generated assignment so that `value` is used when the source member is null. Equivalent to `.ForMember(d => d.Prop, o => o.NullSubstitute(value))` in a runtime Profile.
@@ -210,7 +219,7 @@ Emits a null-coalesce in the generated assignment so that `value` is used when t
 ```csharp
 [GenerateMap(typeof(User), typeof(UserDto))]
 [NullSubstitute(typeof(User), typeof(UserDto), nameof(UserDto.DisplayName), "Anonymous")]
-public partial class UserMappingProfile;
+public partial class UserMappingProfile { }
 ```
 
 ### Combining attributes
@@ -224,7 +233,7 @@ All three attributes are `AllowMultiple = true` and scope their effect via the e
 [MapMember(typeof(User), typeof(UserDto), nameof(UserDto.FullName), nameof(User.Name))]
 [NullSubstitute(typeof(User), typeof(UserDto), nameof(UserDto.DisplayName), "Anonymous")]
 [NullSubstitute(typeof(Order), typeof(OrderDto), nameof(OrderDto.Notes), "N/A")]
-public partial class AppMappingProfile;
+public partial class AppMappingProfile { }
 ```
 
 ### Analyzer diagnostics for attributes
