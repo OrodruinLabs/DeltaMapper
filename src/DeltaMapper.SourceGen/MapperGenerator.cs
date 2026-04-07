@@ -151,9 +151,12 @@ namespace DeltaMapper.SourceGen
 
             // Report DM001 for each valid (non-error) pair only.
             // Invalid pairs already have DM002 reported by ResolveAndValidateTypes.
+            // DM003 and DM004 are reported for companion attribute issues.
             foreach (var (src, dst, location) in validMappings)
             {
-                MappingAnalyzer.ReportUnmappedProperties(context, src, dst, location);
+                MappingAnalyzer.ReportUnmappedProperties(context, src, dst, location, info.Config);
+                MappingAnalyzer.ReportInvalidIgnoreMembers(context, src, dst, info.Config);
+                MappingAnalyzer.ReportIncompatibleMapMembers(context, src, dst, info.Config);
             }
 
             if (validMappings.Count == 0) return;
