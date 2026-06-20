@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/OrodruinLabs/DeltaMapper/main/assets/banner.png" alt="DeltaMapper — map only what changed; fast, diff-aware .NET object mapping" width="100%" />
+  <img src="assets/banner.png" alt="DeltaMapper — map only what changed; fast, diff-aware .NET object mapping" width="100%" />
 </p>
 
 <h1 align="center">DeltaMapper</h1>
