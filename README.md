@@ -1,15 +1,17 @@
 <p align="center">
-  <img src="icon.png" alt="DeltaMapper" width="200" />
-  <br />
-  <h1 align="center">DeltaMapper</h1>
-  <p align="center"><em>Fast, diff-aware .NET object mapper. MIT licensed. Minimal dependencies.</em></p>
-  <p align="center">
-    <a href="https://www.nuget.org/packages/DeltaMapper"><img src="https://img.shields.io/nuget/v/DeltaMapper.svg" alt="NuGet" /></a>
-    <a href="https://www.nuget.org/packages/DeltaMapper"><img src="https://img.shields.io/nuget/dt/DeltaMapper.svg" alt="Downloads" /></a>
-    <a href="https://github.com/OrodruinLabs/DeltaMapper/actions/workflows/ci.yml"><img src="https://github.com/OrodruinLabs/DeltaMapper/actions/workflows/ci.yml/badge.svg" alt="Build" /></a>
-    <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT" /></a>
-    <img src="https://img.shields.io/badge/.NET-8.0%20%7C%209.0%20%7C%2010.0-512BD4" alt=".NET 8 | 9 | 10" />
-  </p>
+  <img src="assets/banner.png" alt="DeltaMapper — map only what changed; fast, diff-aware .NET object mapping" width="100%" />
+</p>
+
+<h1 align="center">DeltaMapper</h1>
+
+<p align="center"><em>Fast, diff-aware .NET object mapper. MIT licensed. Minimal dependencies.</em></p>
+
+<p align="center">
+  <a href="https://www.nuget.org/packages/DeltaMapper"><img src="https://img.shields.io/nuget/v/DeltaMapper.svg" alt="NuGet" /></a>
+  <a href="https://www.nuget.org/packages/DeltaMapper"><img src="https://img.shields.io/nuget/dt/DeltaMapper.svg" alt="Downloads" /></a>
+  <a href="https://github.com/OrodruinLabs/DeltaMapper/actions/workflows/ci.yml"><img src="https://github.com/OrodruinLabs/DeltaMapper/actions/workflows/ci.yml/badge.svg" alt="Build" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT" /></a>
+  <img src="https://img.shields.io/badge/.NET-8.0%20%7C%209.0%20%7C%2010.0-512BD4" alt=".NET 8 | 9 | 10" />
 </p>
 
 ---
