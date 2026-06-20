@@ -1,7 +1,5 @@
 <p align="center">
-  <img src="icon.png" alt="DeltaMapper" width="200" />
-  <br />
-  <h1 align="center">DeltaMapper</h1>
+  <img src="https://raw.githubusercontent.com/OrodruinLabs/DeltaMapper/main/assets/banner.png" alt="DeltaMapper — map only what changed; fast, diff-aware .NET object mapping" width="100%" />
   <p align="center"><em>Fast, diff-aware .NET object mapper. MIT licensed. Minimal dependencies.</em></p>
   <p align="center">
     <a href="https://www.nuget.org/packages/DeltaMapper"><img src="https://img.shields.io/nuget/v/DeltaMapper.svg" alt="NuGet" /></a>
